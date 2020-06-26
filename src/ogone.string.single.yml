@@ -1,0 +1,6 @@
+_includeIn: main
+_priority: 0
+name: string.quoted.single.o3 punctuation.definition.string
+begin: (\')
+end: (?<=([^\\]))(\')
+contentName: string.quote.single.o3

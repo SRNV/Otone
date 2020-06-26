@@ -1,0 +1,12 @@
+patterns:
+  - include: "#main"
+scopeName: system.proto.o3
+injectionSelector: L:textnodes.proto.o3 - string - switch-statement.expr.ts - meta.block.ts
+repository:
+  main:
+    patterns:
+      - name: comment.line
+        match: (\/{2}).*
+      - name: comment.block
+        begin: \/\*
+        end: \*\/

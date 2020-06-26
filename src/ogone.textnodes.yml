@@ -1,0 +1,10 @@
+_includeIn: main
+name: textnodes.o3
+begin: (?<=(\>))([^\<]+)+
+beginCaptures:
+  2:
+    name: textnodes.o3
+    patterns:
+end: (?=(\<))
+contentName: textnodes.proto.o3
+scope: html.o3 - source.o3

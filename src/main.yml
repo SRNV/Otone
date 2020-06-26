@@ -1,0 +1,15 @@
+fileTypes:
+  - o3
+name: o3
+patterns:
+  - include: "#main"
+scopeName: source.o3
+uuid: ""
+repository:
+  main:
+    patterns:
+      - name: comment.line
+        match: (\/{2}).*
+      - name: comment.block
+        begin: \/\*
+        end: \*\/

@@ -1,0 +1,18 @@
+_includeIn: main
+name: textnodes.proto.o3
+begin: (<\s*proto\s*[\>]*\>)
+beginCaptures:
+  1:
+    name: meta.tag.structure
+    patterns:
+      - include: meta.tag.structure.proto.start.html
+end: (\<\/proto\s*[\>]*\>)
+endCaptures:
+  1:
+    name: meta.tag.structure
+    patterns:
+      - include: meta.tag.structure.proto.end.html
+contentName: textnodes.proto.o3
+patterns:
+  - include: textnodes.proto.o3
+scope: html.o3 - source.o3

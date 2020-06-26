@@ -1,0 +1,7 @@
+_includeIn: main
+begin: (?<!\\)(\$\{)
+end: (?<!\\)(\})
+name: string.interpolated
+scope: textnodes.o3 - textnodes.proto.o3
+patterns:
+  - include: source.ts

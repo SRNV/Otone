@@ -1,0 +1,71 @@
+{
+    "patterns": [
+        {
+            "include": "#main"
+        }
+    ],
+    "scopeName": "system.proto.o3",
+    "injectionSelector": "L:textnodes.proto.o3 - string - switch-statement.expr.ts - meta.block.ts",
+    "repository": {
+        "main": {
+            "patterns": [
+                {
+                    "name": "comment.line",
+                    "match": "(\\/{2}).*"
+                },
+                {
+                    "name": "comment.block",
+                    "begin": "\\/\\*",
+                    "end": "\\*\\/"
+                },
+                {
+                    "include": "#/injections/proto/def.proto.yml"
+                },
+                {
+                    "include": "#/injections/proto/ts.proto.yml"
+                }
+            ]
+        },
+        "/injections/proto/api.keywords.yml": {
+            "match": "\\b(Refs|Async|Test|Proto|Store|Router)\\b",
+            "name": "markup.bold support.class constant.class"
+        },
+        "/injections/proto/ts.proto.yml": {
+            "begin": "((default|before-each|case\\s*(['\"`])(.+)+((?<!\\\\)\\3))\\s*\\:)",
+            "beginCaptures": {
+                "2": {
+                    "patterns": [
+                        {
+                            "include": "source.ts"
+                        }
+                    ]
+                }
+            },
+            "end": "(?=((default|before-each|case\\s(.+)+)\\:|\\<\\/proto))",
+            "name": "textnodes.proto.o3 source.ts switch-block.expr.ts switch-statement.expr.ts meta.block.ts",
+            "patterns": [
+                {
+                    "include": "#/injections/proto/api.keywords.yml"
+                },
+                {
+                    "include": "source.ts"
+                }
+            ],
+            "scope": "textnodes.proto.o3"
+        },
+        "/injections/proto/def.proto.yml": {
+            "begin": "(def\\s*\\:)",
+            "beginCaptures": {
+                "1": {
+                    "name": "variable.function"
+                }
+            },
+            "end": "(?=((default\\b|def\\b|before-each\\b|case\\s+(.+)+)\\:|\\<\\/proto))",
+            "patterns": [
+                {
+                    "include": "source.yaml"
+                }
+            ]
+        }
+    }
+}

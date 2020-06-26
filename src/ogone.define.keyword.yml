@@ -1,0 +1,6 @@
+_includeIn: /src/ogone.keywords.yml
+contentName: comment.line
+begin: (?<=(define))
+end: (?=(as))
+patterns:
+  - include: "#/src/ogone.link.yml"

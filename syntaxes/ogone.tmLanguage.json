@@ -1,0 +1,203 @@
+{
+    "fileTypes": [
+        "o3"
+    ],
+    "name": "o3",
+    "patterns": [
+        {
+            "include": "#main"
+        }
+    ],
+    "scopeName": "source.o3",
+    "uuid": "",
+    "repository": {
+        "main": {
+            "patterns": [
+                {
+                    "name": "comment.line",
+                    "match": "(\\/{2}).*"
+                },
+                {
+                    "name": "comment.block",
+                    "begin": "\\/\\*",
+                    "end": "\\*\\/"
+                },
+                {
+                    "include": "#/src/ogone.html.block.yml"
+                },
+                {
+                    "include": "#/src/ogone.keywords.yml"
+                },
+                {
+                    "include": "#/src/ogone.string.double.yml"
+                },
+                {
+                    "include": "#/src/ogone.string.single.yml"
+                },
+                {
+                    "include": "#/src/ogone.textnodes.proto.yml"
+                },
+                {
+                    "include": "#/src/ogone.textnodes.yml"
+                }
+            ]
+        },
+        "/src/ogone.define.keyword.yml": {
+            "contentName": "comment.line",
+            "begin": "(?<=(define))",
+            "end": "(?=(as))",
+            "patterns": [
+                {
+                    "include": "#/src/ogone.link.yml"
+                }
+            ]
+        },
+        "/src/ogone.keywords.yml": {
+            "_priority": 0,
+            "scope": "text.html.derivative - source.o3",
+            "name": "keyword.o3",
+            "patterns": [
+                {
+                    "include": "#/src/ogone.define.keyword.yml"
+                },
+                {
+                    "include": "#/src/ogone.import.modules.yml"
+                },
+                {
+                    "name": "keyword.o3",
+                    "match": "\\b(use|require|as|from|import|define)\\b"
+                },
+                {
+                    "include": "#/src/ogone.require.vars.yml"
+                },
+                {
+                    "include": "#/src/ogone.use.path.keyword.yml"
+                }
+            ]
+        },
+        "/src/ogone.html.block.yml": {
+            "name": "html.o3",
+            "contentName": "source.html.embedded.o3",
+            "scope": "text.html.derivative - source.o3",
+            "patterns": [
+                {
+                    "include": "#/src/ogone.textnodes.proto.yml"
+                },
+                {
+                    "include": "#/src/ogone.textnodes.yml"
+                },
+                {
+                    "include": "text.html.derivative"
+                }
+            ]
+        },
+        "/src/ogone.import.modules.yml": {
+            "contentName": "meta.import.ts",
+            "scope": "source.ts meta.import.ts",
+            "begin": "(?<=(import))",
+            "end": "(?=(from))",
+            "patterns": [
+                {
+                    "include": "source.ts",
+                    "patterns": [
+                        {
+                            "include": "meta.import.ts"
+                        }
+                    ]
+                }
+            ]
+        },
+        "/src/ogone.require.vars.yml": {
+            "_priority": 0,
+            "contentName": "source.ts.embedded.o3",
+            "begin": "(?<=(require))",
+            "end": "(?=(as))",
+            "patterns": [
+                {
+                    "include": "source.ts",
+                    "patterns": [
+                        {
+                            "include": "meta.block.ts"
+                        },
+                        {
+                            "include": "meta.array.literal.ts"
+                        },
+                        {
+                            "include": "meta.brace.square.ts"
+                        }
+                    ]
+                }
+            ]
+        },
+        "/src/ogone.string.double.yml": {
+            "_priority": 0,
+            "name": "string.quoted.double.o3 punctuation.definition.string",
+            "begin": "(\\\")",
+            "end": "(?<=([^\\\\]))(\\\")",
+            "contentName": "string.quote.double.o3"
+        },
+        "/src/ogone.string.single.yml": {
+            "_priority": 0,
+            "name": "string.quoted.single.o3 punctuation.definition.string",
+            "begin": "(\\')",
+            "end": "(?<=([^\\\\]))(\\')",
+            "contentName": "string.quote.single.o3"
+        },
+        "/src/ogone.textnodes.proto.yml": {
+            "name": "textnodes.proto.o3",
+            "begin": "(<\\s*proto\\s*[\\>]*\\>)",
+            "beginCaptures": {
+                "1": {
+                    "name": "meta.tag.structure",
+                    "patterns": [
+                        {
+                            "include": "meta.tag.structure.proto.start.html"
+                        }
+                    ]
+                }
+            },
+            "end": "(\\<\\/proto\\s*[\\>]*\\>)",
+            "endCaptures": {
+                "1": {
+                    "name": "meta.tag.structure",
+                    "patterns": [
+                        {
+                            "include": "meta.tag.structure.proto.end.html"
+                        }
+                    ]
+                }
+            },
+            "contentName": "textnodes.proto.o3",
+            "patterns": [
+                {
+                    "include": "textnodes.proto.o3"
+                }
+            ],
+            "scope": "html.o3 - source.o3"
+        },
+        "/src/ogone.textnodes.yml": {
+            "name": "textnodes.o3",
+            "begin": "(?<=(\\>))([^\\<]+)+",
+            "beginCaptures": {
+                "2": {
+                    "name": "textnodes.o3",
+                    "patterns": null
+                }
+            },
+            "end": "(?=(\\<))",
+            "contentName": "textnodes.proto.o3",
+            "scope": "html.o3 - source.o3"
+        },
+        "/src/ogone.use.path.keyword.yml": {
+            "contentName": "comment.line",
+            "begin": "(?<=(use))",
+            "end": "(?=(\\s+as\\s+))",
+            "patterns": [
+                {
+                    "match": "(([^\\/]+).o3)(?=\\s)",
+                    "name": "support.class"
+                }
+            ]
+        }
+    }
+}

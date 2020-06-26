@@ -1,0 +1,2 @@
+match: (http|https|file)(\:)((\/){2})([^\s]+)+
+name: markup.underline.link

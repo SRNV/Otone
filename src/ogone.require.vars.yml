@@ -1,0 +1,11 @@
+_includeIn: /src/ogone.keywords.yml
+_priority: 0
+contentName: source.ts.embedded.o3
+begin: (?<=(require))
+end: (?=(as))
+patterns:
+  - include: source.ts
+    patterns:
+      - include: meta.block.ts
+      - include: meta.array.literal.ts
+      - include: meta.brace.square.ts

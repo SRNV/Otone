@@ -1,0 +1,30 @@
+{
+    "patterns": [
+        {
+            "include": "#main"
+        }
+    ],
+    "scopeName": "textnodes.evaluated.o3",
+    "injectionSelector": "L:textnodes.o3 - source.ts - source.yaml",
+    "scope": "textnodes.o3 - source.ts - source.yaml",
+    "repository": {
+        "main": {
+            "patterns": [
+                {
+                    "include": "#/injections/templates/1.template.yml"
+                }
+            ]
+        },
+        "/injections/templates/1.template.yml": {
+            "begin": "(?<!\\\\)(\\$\\{)",
+            "end": "(?<!\\\\)(\\})",
+            "name": "string.interpolated",
+            "scope": "textnodes.o3 - textnodes.proto.o3",
+            "patterns": [
+                {
+                    "include": "source.ts"
+                }
+            ]
+        }
+    }
+}

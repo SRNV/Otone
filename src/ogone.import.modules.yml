@@ -1,0 +1,9 @@
+_includeIn: /src/ogone.keywords.yml
+contentName: meta.import.ts
+scope: source.ts meta.import.ts
+begin: (?<=(import))
+end: (?=(from))
+patterns:
+  - include: source.ts
+    patterns:
+      - include: meta.import.ts

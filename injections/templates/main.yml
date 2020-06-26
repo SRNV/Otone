@@ -1,0 +1,7 @@
+patterns:
+  - include: "#main"
+scopeName: textnodes.evaluated.o3
+injectionSelector: L:textnodes.o3 - source.ts - source.yaml
+scope: textnodes.o3 - source.ts - source.yaml
+repository:
+  main: {}

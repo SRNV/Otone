@@ -1,0 +1,3 @@
+_includeIn: /injections/proto/ts.proto.yml
+match: \b(Refs|Async|Test|Proto|Store|Router)\b
+name: markup.bold support.class constant.class
