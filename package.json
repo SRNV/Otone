@@ -1,6 +1,7 @@
 {
   "name": "otone",
   "displayName": "otone",
+  "publisher": "SRNV",
   "description": "Support for Ogone Single File components",
   "version": "0.0.1",
   "scripts": {
