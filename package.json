@@ -4,6 +4,7 @@
   "publisher": "SRNV",
   "description": "Support for Ogone Single File components",
   "version": "0.0.1",
+  "icon": "public/ogone-svg.png",
   "scripts": {
     "start": "nodemon -e yml,js index.js"
   },
