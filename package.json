@@ -3,7 +3,7 @@
   "displayName": "otone",
   "publisher": "SRNV",
   "description": "Support for Ogone Single File components",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "icon": "public/ogone-svg.png",
   "scripts": {
     "start": "nodemon -e yml,js index.js"
@@ -14,6 +14,10 @@
   "categories": [
     "Programming Languages"
   ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/SRNV/Otone.git"
+  },
   "contributes": {
     "title": "Ogone",
     "languages": [
