@@ -1,10 +1,10 @@
 _includeIn: main
-begin: ((default|before-each|case\s*(['"`])(.+)+((?<!\\)\3))\s*\:)
+begin: ((default|before-each|declare\s*|case\s*(['"`])(.+)+((?<!\\)\3))\s*\:)
 beginCaptures:
   2:
     patterns:
       - include: source.ts
-end: (?=((default|before-each|case\s(.+)+)\:|\<\/proto))
+end: (?=((default|declare\s*|before-each|case\s(.+)+)\:|\<\/proto))
 name: textnodes.proto.o3 source.ts switch-block.expr.ts switch-statement.expr.ts meta.block.ts
 patterns:
   - include: source.ts

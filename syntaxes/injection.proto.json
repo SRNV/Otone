@@ -31,7 +31,7 @@
             "name": "markup.bold support.class constant.class"
         },
         "/injections/proto/ts.proto.yml": {
-            "begin": "((default|before-each|def|case\\s*(['\"`])(.+)+((?<!\\\\)\\3))\\s*\\:)",
+            "begin": "((default|before-each|declare\\s*|case\\s*(['\"`])(.+)+((?<!\\\\)\\3))\\s*\\:)",
             "beginCaptures": {
                 "2": {
                     "patterns": [
@@ -41,7 +41,7 @@
                     ]
                 }
             },
-            "end": "(?=((default|before-each|case\\s(.+)+)\\:|\\<\\/proto))",
+            "end": "(?=((default|declare\\s*|before-each|case\\s(.+)+)\\:|\\<\\/proto))",
             "name": "textnodes.proto.o3 source.ts switch-block.expr.ts switch-statement.expr.ts meta.block.ts",
             "patterns": [
                 {
@@ -60,7 +60,7 @@
                     "name": "variable.function"
                 }
             },
-            "end": "(?=((default\\b|def\\b|before-each\\b|case\\s+(.+)+)\\:|\\<\\/proto))",
+            "end": "(?=((default\\b|def\\b|declare\\b|before-each\\b|case\\s+(.+)+)\\:|\\<\\/proto))",
             "patterns": [
                 {
                     "include": "source.yaml"
