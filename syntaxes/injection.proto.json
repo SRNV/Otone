@@ -31,7 +31,7 @@
             "name": "markup.bold support.class constant.class"
         },
         "/injections/proto/ts.proto.yml": {
-            "begin": "((default|before-each|case\\s*(['\"`])(.+)+((?<!\\\\)\\3))\\s*\\:)",
+            "begin": "((default|before-each|def|case\\s*(['\"`])(.+)+((?<!\\\\)\\3))\\s*\\:)",
             "beginCaptures": {
                 "2": {
                     "patterns": [
