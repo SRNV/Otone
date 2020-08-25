@@ -4,5 +4,6 @@ contentName: source.html.embedded.o3
 scope: text.html.derivative - source.o3
 patterns:
   - include: "#/src/ogone.textnodes.proto.yml"
+  - include: "#/src/ogone.textnodes.style.yml"
   - include: "#/src/ogone.textnodes.yml"
   - include: text.html.derivative

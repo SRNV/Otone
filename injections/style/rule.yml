@@ -1,0 +1,4 @@
+_includeIn: main
+begin: ([^{}]*)+({)(.*)
+end: (})
+name: constant

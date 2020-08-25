@@ -1,0 +1,12 @@
+patterns:
+  -
+scopeName: injection.style.o3
+injectionSelector: L:textnodes.style.o3 - string
+repository:
+  main:
+    patterns:
+      - name: comment.line
+        match: (\/{2}).*
+      - name: comment.block
+        begin: \/\*
+        end: \*\/

@@ -66,6 +66,17 @@
         ]
       },
       {
+        "path": "./syntaxes/injection.proto.json",
+        "scopeName": "injection.style.o3",
+        "injectTo": [
+          "source.o3"
+        ],
+        "embeddedLanguages": {
+          "meta.embedded.block.typescript": "css",
+          "source.css": "css"
+        }
+      },
+      {
         "language": "ogone",
         "scopeName": "source.o3",
         "path": "./syntaxes/ogone.tmLanguage.json",

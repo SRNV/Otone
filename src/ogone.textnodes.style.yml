@@ -1,0 +1,18 @@
+_includeIn: main
+name: textnodes.style.o3
+begin: (<\s*style\s*[\>]*\>)
+beginCaptures:
+  1:
+    name: meta.tag.structure
+    patterns:
+      - include: meta.tag.structure.style.start.html
+end: (\<\/style\s*[\>]*\>)
+endCaptures:
+  1:
+    name: meta.tag.structure
+    patterns:
+      - include: meta.tag.structure.style.end.html
+contentName: textnodes.style.o3
+patterns:
+  - include: textnodes.style.o3
+scope: html.o3 - source.o3
