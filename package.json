@@ -3,11 +3,10 @@
   "displayName": "otone",
   "publisher": "SRNV",
   "description": "Support for Ogone Single File components",
-  "version": "0.1.0",
+  "version": "0.0.9",
   "icon": "public/ogone-svg.png",
   "scripts": {
-    "start": "nodemon index.js -e yml,js",
-    "debug": "code --extensionDevelopmentPath=."
+    "start": "node index.js"
   },
   "engines": {
     "vscode": "^1.45.0"
@@ -100,16 +99,9 @@
     "js-yaml": "^3.14.0"
   },
   "dependencies": {
+    "typescript-styled-plugin": "*",
     "any-json": "^3.1.0",
     "nodemon": "^2.0.4",
-    "plist": "^3.0.1",
-    "plist-ex": "^0.4.4",
-    "typescript-styled-plugin": "*",
     "y2j": "^1.0.4"
-  },
-  "__metadata": {
-    "id": "f12ce84e-a862-45d1-acda-67e75ec2e2a3",
-    "publisherId": "b27750f1-4d35-488b-8856-5088c28629a6",
-    "publisherDisplayName": "Rudy Alula"
   }
 }
