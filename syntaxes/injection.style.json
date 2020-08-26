@@ -153,7 +153,7 @@
         },
         "/injections/style/constant.yml": {
             "name": "constant",
-            "match": "(\\$([^\\=\\;\\:\\s]+)+)",
+            "match": "(\\$([\\w0-9\\_\\-]+)+)",
             "captures": {
                 "1": {
                     "name": "entity.name.type.bold"
@@ -161,7 +161,7 @@
             }
         },
         "/injections/style/declaration.constant.yml": {
-            "match": "(\\@const)(\\*){0,1}\\s+([^\\=]+)+\\s+(\\=)",
+            "match": "(\\@const)(\\*){0,1}\\s+([\\w0-9\\_\\-]+)+\\s+(\\=)",
             "name": "const.css.o3",
             "captures": {
                 "1": {
@@ -179,7 +179,7 @@
             }
         },
         "/injections/style/declaration.export.const.yml": {
-            "match": "(\\@export)\\s+(const)(\\*){0,1}\\s+([^\\=]+)+(\\=)",
+            "match": "(\\@export)\\s+(const)(\\*){0,1}\\s+([\\w0-9\\_\\-]+)+\\s+(\\=)",
             "name": "const.css.o3",
             "captures": {
                 "1": {
@@ -453,7 +453,7 @@
             "repository": {}
         },
         "/injections/style/spread.yml": {
-            "match": "(\\.{3})(\\$([^\\=\\;\\:]+)+)",
+            "match": "(\\.{3})(\\$([\\w0-9\\_\\-]+)+)",
             "captures": {
                 "1": {
                     "name": "comment spread.rule.o3"
