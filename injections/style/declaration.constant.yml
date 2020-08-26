@@ -1,5 +1,5 @@
 _includeIn: main
-match: (\@const)(\*){0,1}\s+([^\=]+)+\s+(\=)
+match: (\@const)(\*){0,1}\s+([\w0-9\_\-]+)+\s+(\=)
 name: const.css.o3
 captures:
   1:

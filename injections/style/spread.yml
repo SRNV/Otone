@@ -1,5 +1,5 @@
 _includeIn: main
-match: (\.{3})(\$([^\=\;\:]+)+)
+match: (\.{3})(\$([\w0-9\_\-]+)+)
 captures:
   1:
     name: comment spread.rule.o3
