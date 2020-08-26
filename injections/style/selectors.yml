@@ -1,0 +1,56 @@
+_includeIn: main
+match: ([^\{\}]+)+(?=\{)
+name: textnodes
+captures:
+  1:
+    patterns:
+      - include: "#/injections/style/parent.reference.yml"
+      - include: "#/injections/style/declaration.export.const.yml"
+      - include: "#/injections/style/declaration.constant.yml"
+      - include: "#/injections/style/pseudo-class.yml"
+      - include: "#/injections/style/pseudo-class.ui.yml"
+      - include: "#/injections/style/pseudo-element.yml"
+      - include: "#/injections/style/pseudo-not.yml"
+      - include: "#/injections/style/tags.yml"
+      - include: "#/injections/style/class.yml"
+      - include: "#/injections/style/id.yml"
+      - include: "#/injections/style/media.yml"
+      - include: "#/injections/style/keyframes.yml"
+      - include: "#/injections/style/supports.yml"
+      - captures:
+          1:
+            name: entity.other.attribute-name.pseudo-class.css
+          2:
+            name: punctuation.definition.entity.css
+          3:
+            name: punctuation.section.function.css
+          4:
+            name: constant.numeric.css
+          5:
+            name: punctuation.section.function.css
+        match: >-
+          ((:)nth-(?:(?:last-)?child|(?:last-)?of-type))(\()(\-?(?:\d+n?|n)(?:\+\d+)?|even|odd)(\))
+      - captures:
+          1:
+            name: punctuation.definition.entity.css
+        match: '(:)(active|hover|link|visited|focus)\b'
+        name: entity.other.attribute-name.pseudo-class.css
+      - captures:
+          1:
+            name: punctuation.definition.entity.css
+          2:
+            name: entity.other.attribute-name.attribute.css
+          3:
+            name: punctuation.separator.operator.css
+          4:
+            name: string.unquoted.attribute-value.css
+          5:
+            name: string.quoted.double.attribute-value.css
+          6:
+            name: punctuation.definition.string.begin.css
+          7:
+            name: punctuation.definition.string.end.css
+        match: >-
+          (?i)(\[)\s*(-?[_a-z\\[[:^ascii:]]][_a-z0-9\-\\[[:^ascii:]]]*)(?:\s*([~|^$*]?=)\s*(?:(-?[_a-z\\[[:^ascii:]]][_a-z0-9\-\\[[:^ascii:]]]*)|((?>(['"])(?:[^\\]|\\.)*?(\6)))))?\s*(\])
+        name: meta.attribute-selector.css
+repository: {}

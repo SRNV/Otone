@@ -1,0 +1,9 @@
+_includeIn: "#/injections/style/selectors.yml"
+begin: \s*((@)supports\b)\s*
+captures:
+  "1":
+    name: keyword.control.at-rule.supports.css
+  "2":
+    name: punctuation.definition.keyword.css
+end: \s*((?=;|$))
+name: meta.at-rule.supports.css

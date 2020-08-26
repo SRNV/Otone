@@ -1,0 +1,6 @@
+_includeIn: "#/injections/style/selectors.yml"
+match: (:)((first|last)-child|(first|last|only)-of-type|empty|root|target|first|left|right)\b
+name: entity.other.attribute-name.pseudo-class.css
+captures:
+  1:
+    name: punctuation.definition.entity.css

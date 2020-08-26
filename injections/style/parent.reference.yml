@@ -1,0 +1,3 @@
+_includeIn: main
+match: (\&)
+name: entity.name.function

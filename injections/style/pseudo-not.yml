@@ -1,0 +1,13 @@
+_includeIn: "#/injections/style/selectors.yml"
+begin: ((:)not)(\()
+end: \)
+beginCaptures:
+  1:
+    name: entity.other.attribute-name.pseudo-class.css
+  2:
+    name: punctuation.definition.entity.css
+  3:
+    name: punctuation.section.function.css
+endCaptures:
+  0:
+    name: punctuation.section.function.css

@@ -84,10 +84,10 @@
             "scope": "text.html.derivative - source.o3",
             "patterns": [
                 {
-                    "include": "#/src/ogone.textnodes.proto.yml"
+                    "include": "#/src/ogone.textnodes.style.yml"
                 },
                 {
-                    "include": "#/src/ogone.textnodes.style.yml"
+                    "include": "#/src/ogone.textnodes.proto.yml"
                 },
                 {
                     "include": "#/src/ogone.textnodes.yml"

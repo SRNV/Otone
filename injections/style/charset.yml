@@ -1,0 +1,12 @@
+_includeIn: main
+begin: \s*((@)charset\b)\s*
+captures:
+  "1":
+    name: keyword.control.at-rule.charset.css
+  "2":
+    name: punctuation.definition.keyword.css
+end: \s*((?=;|$))
+name: meta.at-rule.charset.css
+patterns:
+  - include: "#string-double"
+  - include: "#string-single"

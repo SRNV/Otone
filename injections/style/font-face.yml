@@ -1,0 +1,11 @@
+_includeIn: "#/injections/style/selectors.yml"
+begin: '^\s*((@)font-face)\s*(?=\{)'
+beginCaptures:
+  "1":
+    name: keyword.control.at-rule.font-face.css
+  "2":
+    name: punctuation.definition.keyword.css
+end: (?!\G)
+name: meta.at-rule.font-face.css
+patterns:
+  - include: "#rule-list"

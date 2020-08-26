@@ -1,0 +1,12 @@
+_includeIn: main
+match: (\@const)(\*){0,1}\s+([^\=]+)+\s+(\=)
+name: const.css.o3
+captures:
+  1:
+    name: storage.type
+  2:
+    name: entity.name.function
+  3:
+    name: entity.name.type markup.underline
+  4:
+    name: comment

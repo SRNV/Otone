@@ -1,10 +1,54 @@
 {
     "patterns": [
-        null
+        {
+            "include": "#main"
+        }
     ],
     "scopeName": "injection.style.o3",
-    "injectionSelector": "L:textnodes.style.o3 - string",
+    "injectionSelector": "L:source.css",
     "repository": {
+        "string-double": {
+            "begin": "\"",
+            "beginCaptures": {
+                "0": {
+                    "name": "punctuation.definition.string.begin.css"
+                }
+            },
+            "end": "\"",
+            "endCaptures": {
+                "0": {
+                    "name": "punctuation.definition.string.end.css"
+                }
+            },
+            "name": "string.quoted.double.css",
+            "patterns": [
+                {
+                    "match": "\\\\.",
+                    "name": "constant.character.escape.css"
+                }
+            ]
+        },
+        "string-single": {
+            "begin": "'",
+            "beginCaptures": {
+                "0": {
+                    "name": "punctuation.definition.string.begin.css"
+                }
+            },
+            "end": "'",
+            "endCaptures": {
+                "0": {
+                    "name": "punctuation.definition.string.end.css"
+                }
+            },
+            "name": "string.quoted.single.css",
+            "patterns": [
+                {
+                    "match": "\\\\.",
+                    "name": "constant.character.escape.css"
+                }
+            ]
+        },
         "main": {
             "patterns": [
                 {
@@ -15,8 +59,426 @@
                     "name": "comment.block",
                     "begin": "\\/\\*",
                     "end": "\\*\\/"
+                },
+                {
+                    "include": "punctuation.terminator.rule.css"
+                },
+                {
+                    "include": "#/injections/style/charset.yml"
+                },
+                {
+                    "include": "#/injections/style/constant.yml"
+                },
+                {
+                    "include": "#/injections/style/declaration.constant.yml"
+                },
+                {
+                    "include": "#/injections/style/declaration.export.const.yml"
+                },
+                {
+                    "include": "#/injections/style/imports.yml"
+                },
+                {
+                    "include": "#/injections/style/parent.reference.yml"
+                },
+                {
+                    "include": "#/injections/style/selectors.yml"
+                },
+                {
+                    "include": "#/injections/style/spread.yml"
                 }
             ]
+        },
+        "/injections/style/charset.yml": {
+            "begin": "\\s*((@)charset\\b)\\s*",
+            "captures": {
+                "1": {
+                    "name": "keyword.control.at-rule.charset.css"
+                },
+                "2": {
+                    "name": "punctuation.definition.keyword.css"
+                }
+            },
+            "end": "\\s*((?=;|$))",
+            "name": "meta.at-rule.charset.css",
+            "patterns": [
+                {
+                    "include": "#string-double"
+                },
+                {
+                    "include": "#string-single"
+                }
+            ]
+        },
+        "/injections/style/class.yml": {
+            "match": "(\\.)[\\w0-9_-]+",
+            "name": "entity.other.attribute-name.class.css"
+        },
+        "#/injections/style/selectors.yml": {
+            "patterns": [
+                {
+                    "include": "#/injections/style/class.yml"
+                },
+                {
+                    "include": "#/injections/style/font-face.yml"
+                },
+                {
+                    "include": "#/injections/style/id.yml"
+                },
+                {
+                    "include": "#/injections/style/keyframes.yml"
+                },
+                {
+                    "include": "#/injections/style/media.yml"
+                },
+                {
+                    "include": "#/injections/style/pseudo-class.ui.yml"
+                },
+                {
+                    "include": "#/injections/style/pseudo-class.yml"
+                },
+                {
+                    "include": "#/injections/style/pseudo-element.yml"
+                },
+                {
+                    "include": "#/injections/style/pseudo-not.yml"
+                },
+                {
+                    "include": "#/injections/style/supports.yml"
+                },
+                {
+                    "include": "#/injections/style/tags.yml"
+                }
+            ]
+        },
+        "/injections/style/constant.yml": {
+            "name": "constant",
+            "match": "(\\$([^\\=\\;\\:\\s]+)+)",
+            "captures": {
+                "1": {
+                    "name": "entity.name.type.bold"
+                }
+            }
+        },
+        "/injections/style/declaration.constant.yml": {
+            "match": "(\\@const)(\\*){0,1}\\s+([^\\=]+)+\\s+(\\=)",
+            "name": "const.css.o3",
+            "captures": {
+                "1": {
+                    "name": "storage.type"
+                },
+                "2": {
+                    "name": "entity.name.function"
+                },
+                "3": {
+                    "name": "entity.name.type markup.underline"
+                },
+                "4": {
+                    "name": "comment"
+                }
+            }
+        },
+        "/injections/style/declaration.export.const.yml": {
+            "match": "(\\@export)\\s+(const)(\\*){0,1}\\s+([^\\=]+)+(\\=)",
+            "name": "const.css.o3",
+            "captures": {
+                "1": {
+                    "name": "storage.modifier"
+                },
+                "2": {
+                    "name": "storage.type"
+                },
+                "3": {
+                    "name": "entity.name.function"
+                },
+                "4": {
+                    "name": "entity.name.type markup.underline.link"
+                },
+                "5": {
+                    "name": "comment"
+                }
+            }
+        },
+        "/injections/style/font-face.yml": {
+            "begin": "^\\s*((@)font-face)\\s*(?=\\{)",
+            "beginCaptures": {
+                "1": {
+                    "name": "keyword.control.at-rule.font-face.css"
+                },
+                "2": {
+                    "name": "punctuation.definition.keyword.css"
+                }
+            },
+            "end": "(?!\\G)",
+            "name": "meta.at-rule.font-face.css",
+            "patterns": [
+                {
+                    "include": "#rule-list"
+                }
+            ]
+        },
+        "/injections/style/id.yml": {
+            "match": "(\\#)[a-zA-Z][a-zA-Z0-9_-]*",
+            "name": "entity.other.attribute-name.id.css"
+        },
+        "/injections/style/imports.yml": {
+            "begin": "\\s*((@)import\\b)\\s*",
+            "captures": {
+                "1": {
+                    "name": "keyword.control.at-rule.import.css"
+                },
+                "2": {
+                    "name": "punctuation.definition.keyword.css"
+                }
+            },
+            "end": "\\s*((?=;|\\}))",
+            "name": "meta.at-rule.import.css",
+            "patterns": [
+                {
+                    "include": "#string-double"
+                },
+                {
+                    "include": "#string-single"
+                },
+                {
+                    "begin": "\\s*(url)\\s*(\\()\\s*",
+                    "beginCaptures": {
+                        "1": {
+                            "name": "support.function.url.css"
+                        },
+                        "2": {
+                            "name": "punctuation.section.function.css"
+                        }
+                    },
+                    "end": "\\s*(\\))\\s*",
+                    "endCaptures": {
+                        "1": {
+                            "name": "punctuation.section.function.css"
+                        }
+                    },
+                    "patterns": [
+                        {
+                            "match": "[^'\") \\t]+",
+                            "name": "variable.parameter.url.css"
+                        },
+                        {
+                            "include": "#string-single"
+                        },
+                        {
+                            "include": "#string-double"
+                        }
+                    ]
+                },
+                {
+                    "include": "#media-query-list"
+                }
+            ]
+        },
+        "/injections/style/keyframes.yml": {
+            "begin": "\\s*((@)keyframes\\b)\\s*",
+            "captures": {
+                "1": {
+                    "name": "keyword.control.at-rule.keyframes.css"
+                },
+                "2": {
+                    "name": "punctuation.definition.keyword.css"
+                }
+            },
+            "end": "\\s*((?=;|$))",
+            "name": "meta.at-rule.keyframes.css"
+        },
+        "/injections/style/media.yml": {
+            "begin": "\\s*((@)media\\b)\\s*",
+            "captures": {
+                "1": {
+                    "name": "keyword.control.at-rule.media.css"
+                },
+                "2": {
+                    "name": "punctuation.definition.keyword.css"
+                }
+            },
+            "end": "\\s*((?=;|$))",
+            "name": "meta.at-rule.media.css"
+        },
+        "/injections/style/parent.reference.yml": {
+            "match": "(\\&)",
+            "name": "entity.name.function"
+        },
+        "/injections/style/pseudo-class.ui.yml": {
+            "match": "(:)(checked|enabled|default|disabled|indeterminate|invalid|optional|required|valid)\\b",
+            "name": "entity.other.attribute-name.pseudo-class.ui-state.css",
+            "captures": {
+                "1": {
+                    "name": "punctuation.definition.entity.css"
+                }
+            }
+        },
+        "/injections/style/pseudo-class.yml": {
+            "match": "(:)((first|last)-child|(first|last|only)-of-type|empty|root|target|first|left|right)\\b",
+            "name": "entity.other.attribute-name.pseudo-class.css",
+            "captures": {
+                "1": {
+                    "name": "punctuation.definition.entity.css"
+                }
+            }
+        },
+        "/injections/style/pseudo-element.yml": {
+            "match": "(:+)(after|before|first-letter|first-line|selection)\\b",
+            "name": "entity.other.attribute-name.pseudo-element.css"
+        },
+        "/injections/style/pseudo-not.yml": {
+            "begin": "((:)not)(\\()",
+            "end": "\\)",
+            "beginCaptures": {
+                "1": {
+                    "name": "entity.other.attribute-name.pseudo-class.css"
+                },
+                "2": {
+                    "name": "punctuation.definition.entity.css"
+                },
+                "3": {
+                    "name": "punctuation.section.function.css"
+                }
+            },
+            "endCaptures": {
+                "0": {
+                    "name": "punctuation.section.function.css"
+                }
+            }
+        },
+        "/injections/style/selectors.yml": {
+            "match": "([^\\{\\}]+)+(?=\\{)",
+            "name": "textnodes",
+            "captures": {
+                "1": {
+                    "patterns": [
+                        {
+                            "include": "#/injections/style/parent.reference.yml"
+                        },
+                        {
+                            "include": "#/injections/style/declaration.export.const.yml"
+                        },
+                        {
+                            "include": "#/injections/style/declaration.constant.yml"
+                        },
+                        {
+                            "include": "#/injections/style/pseudo-class.yml"
+                        },
+                        {
+                            "include": "#/injections/style/pseudo-class.ui.yml"
+                        },
+                        {
+                            "include": "#/injections/style/pseudo-element.yml"
+                        },
+                        {
+                            "include": "#/injections/style/pseudo-not.yml"
+                        },
+                        {
+                            "include": "#/injections/style/tags.yml"
+                        },
+                        {
+                            "include": "#/injections/style/class.yml"
+                        },
+                        {
+                            "include": "#/injections/style/id.yml"
+                        },
+                        {
+                            "include": "#/injections/style/media.yml"
+                        },
+                        {
+                            "include": "#/injections/style/keyframes.yml"
+                        },
+                        {
+                            "include": "#/injections/style/supports.yml"
+                        },
+                        {
+                            "captures": {
+                                "1": {
+                                    "name": "entity.other.attribute-name.pseudo-class.css"
+                                },
+                                "2": {
+                                    "name": "punctuation.definition.entity.css"
+                                },
+                                "3": {
+                                    "name": "punctuation.section.function.css"
+                                },
+                                "4": {
+                                    "name": "constant.numeric.css"
+                                },
+                                "5": {
+                                    "name": "punctuation.section.function.css"
+                                }
+                            },
+                            "match": "((:)nth-(?:(?:last-)?child|(?:last-)?of-type))(\\()(\\-?(?:\\d+n?|n)(?:\\+\\d+)?|even|odd)(\\))"
+                        },
+                        {
+                            "captures": {
+                                "1": {
+                                    "name": "punctuation.definition.entity.css"
+                                }
+                            },
+                            "match": "(:)(active|hover|link|visited|focus)\\b",
+                            "name": "entity.other.attribute-name.pseudo-class.css"
+                        },
+                        {
+                            "captures": {
+                                "1": {
+                                    "name": "punctuation.definition.entity.css"
+                                },
+                                "2": {
+                                    "name": "entity.other.attribute-name.attribute.css"
+                                },
+                                "3": {
+                                    "name": "punctuation.separator.operator.css"
+                                },
+                                "4": {
+                                    "name": "string.unquoted.attribute-value.css"
+                                },
+                                "5": {
+                                    "name": "string.quoted.double.attribute-value.css"
+                                },
+                                "6": {
+                                    "name": "punctuation.definition.string.begin.css"
+                                },
+                                "7": {
+                                    "name": "punctuation.definition.string.end.css"
+                                }
+                            },
+                            "match": "(?i)(\\[)\\s*(-?[_a-z\\\\[[:^ascii:]]][_a-z0-9\\-\\\\[[:^ascii:]]]*)(?:\\s*([~|^$*]?=)\\s*(?:(-?[_a-z\\\\[[:^ascii:]]][_a-z0-9\\-\\\\[[:^ascii:]]]*)|((?>(['\"])(?:[^\\\\]|\\\\.)*?(\\6)))))?\\s*(\\])",
+                            "name": "meta.attribute-selector.css"
+                        }
+                    ]
+                }
+            },
+            "repository": {}
+        },
+        "/injections/style/spread.yml": {
+            "match": "(\\.{3})(\\$([^\\=\\;\\:]+)+)",
+            "captures": {
+                "1": {
+                    "name": "comment spread.rule.o3"
+                },
+                "2": {
+                    "name": "entity.name.type"
+                }
+            }
+        },
+        "/injections/style/supports.yml": {
+            "begin": "\\s*((@)supports\\b)\\s*",
+            "captures": {
+                "1": {
+                    "name": "keyword.control.at-rule.supports.css"
+                },
+                "2": {
+                    "name": "punctuation.definition.keyword.css"
+                }
+            },
+            "end": "\\s*((?=;|$))",
+            "name": "meta.at-rule.supports.css"
+        },
+        "/injections/style/tags.yml": {
+            "match": "\\b(a|abbr|acronym|address|area|article|aside|audio|b|base|big|blockquote|body|br|button|canvas|caption|cite|code|col|colgroup|datalist|dd|del|details|dfn|dialog|div|dl|dt|em|eventsource|fieldset|figure|figcaption|footer|form|frame|frameset|(h[1-6])|head|header|hgroup|hr|html|i|iframe|img|input|ins|kbd|label|legend|li|link|main|map|mark|menu|meta|meter|nav|noframes|noscript|object|ol|optgroup|option|output|p|param|pre|progress|q|samp|script|section|select|small|span|strike|strong|style|sub|summary|sup|table|tbody|td|textarea|tfoot|th|thead|time|title|tr|tt|ul|var|video)\\b",
+            "name": "entity.name.tag.css"
         }
     }
 }

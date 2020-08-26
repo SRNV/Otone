@@ -1,0 +1,3 @@
+_includeIn: "#/injections/style/selectors.yml"
+match: (:+)(after|before|first-letter|first-line|selection)\b
+name: entity.other.attribute-name.pseudo-element.css

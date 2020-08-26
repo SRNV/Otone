@@ -1,0 +1,28 @@
+_includeIn: main
+begin: \s*((@)import\b)\s*
+captures:
+  "1":
+    name: keyword.control.at-rule.import.css
+  "2":
+    name: punctuation.definition.keyword.css
+end: '\s*((?=;|\}))'
+name: meta.at-rule.import.css
+patterns:
+  - include: "#string-double"
+  - include: "#string-single"
+  - begin: \s*(url)\s*(\()\s*
+    beginCaptures:
+      "1":
+        name: support.function.url.css
+      "2":
+        name: punctuation.section.function.css
+    end: \s*(\))\s*
+    endCaptures:
+      "1":
+        name: punctuation.section.function.css
+    patterns:
+      - match: '[^''") \t]+'
+        name: variable.parameter.url.css
+      - include: "#string-single"
+      - include: "#string-double"
+  - include: "#media-query-list"

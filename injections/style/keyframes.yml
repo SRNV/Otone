@@ -1,0 +1,9 @@
+_includeIn: "#/injections/style/selectors.yml"
+begin: \s*((@)keyframes\b)\s*
+captures:
+  "1":
+    name: keyword.control.at-rule.keyframes.css
+  "2":
+    name: punctuation.definition.keyword.css
+end: \s*((?=;|$))
+name: meta.at-rule.keyframes.css

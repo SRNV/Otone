@@ -1,0 +1,7 @@
+_includeIn: main
+match: (\.{3})(\$([^\=\;\:]+)+)
+captures:
+  1:
+    name: comment spread.rule.o3
+  2:
+    name: entity.name.type
