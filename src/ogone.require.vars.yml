@@ -9,7 +9,7 @@ beginCaptures:
       - include: source.ts
   3:
     patterns:
-      - include: source.ts
+      - include: meta.type.declaration.ts
 patterns:
   - include: source.ts
     patterns:

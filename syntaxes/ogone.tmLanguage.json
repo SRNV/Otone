@@ -129,7 +129,7 @@
                 "3": {
                     "patterns": [
                         {
-                            "include": "source.ts"
+                            "include": "meta.type.declaration.ts"
                         }
                     ]
                 }
