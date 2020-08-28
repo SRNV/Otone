@@ -1,18 +1,8 @@
 _includeIn: /src/ogone.keywords.yml
 _priority: 0
 contentName: source.ts.embedded.o3
-begin: (?<=(require))(.*?)(as)(.*?)(\;|\n)
-end: (\;|\n)
-beginCaptures:
-  1:
-    patterns:
-      - include: meta.type.declaration.ts
-  2:
-    patterns:
-      - include: meta.type.declaration.ts
-  3:
-    patterns:
-      - include: meta.type.declaration.ts
+begin: (?<=(require))
+end: (?=(as))
 patterns:
   - include: source.ts
     patterns:
