@@ -122,7 +122,14 @@
                 "1": {
                     "patterns": [
                         {
-                            "include": "source.ts"
+                            "include": "meta.type.declaration.ts"
+                        }
+                    ]
+                },
+                "2": {
+                    "patterns": [
+                        {
+                            "include": "meta.type.declaration.ts"
                         }
                     ]
                 },

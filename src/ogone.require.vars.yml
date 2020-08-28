@@ -6,7 +6,10 @@ end: (\;|\n)
 beginCaptures:
   1:
     patterns:
-      - include: source.ts
+      - include: meta.type.declaration.ts
+  2:
+    patterns:
+      - include: meta.type.declaration.ts
   3:
     patterns:
       - include: meta.type.declaration.ts
