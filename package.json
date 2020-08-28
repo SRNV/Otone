@@ -6,7 +6,8 @@
   "version": "0.1.4",
   "icon": "public/ogone-svg.png",
   "scripts": {
-    "start": "node index.js"
+    "start": "node index.js",
+    "publish": "vsce publish -p a6ejs3tzz4xblqzrd2fxbn7kwnaxpkolxg2wgdnibnbg6wn2dg6a"
   },
   "engines": {
     "vscode": "^1.45.0"
