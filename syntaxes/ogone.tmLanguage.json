@@ -119,16 +119,20 @@
             "begin": "(?<=(require))(.*?)(as)(.*?)(\\;|\\n)",
             "end": "(\\;|\\n)",
             "beginCaptures": {
-                "1": [
-                    {
-                        "include": "source.ts"
-                    }
-                ],
-                "3": [
-                    {
-                        "include": "source.ts"
-                    }
-                ]
+                "1": {
+                    "patterns": [
+                        {
+                            "include": "source.ts"
+                        }
+                    ]
+                },
+                "3": {
+                    "patterns": [
+                        {
+                            "include": "source.ts"
+                        }
+                    ]
+                }
             },
             "patterns": [
                 {
