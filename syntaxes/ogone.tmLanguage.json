@@ -116,17 +116,17 @@
         "/src/ogone.require.vars.yml": {
             "_priority": 0,
             "contentName": "source.ts.embedded.o3",
-            "begin": "(?<=(require))",
-            "end": "(?<=as)\\s+(.*?)(\\n)",
-            "endCaptures": {
-                "2": [
+            "begin": "(?<=(require))(.*?)(as)(.*?)(\\;|\\n)",
+            "end": "(\\;|\\n)",
+            "beginCaptures": {
+                "1": [
                     {
                         "include": "source.ts"
                     }
                 ],
                 "3": [
                     {
-                        "include": "source.o3"
+                        "include": "source.ts"
                     }
                 ]
             },
