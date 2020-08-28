@@ -117,11 +117,16 @@
             "_priority": 0,
             "contentName": "source.ts.embedded.o3",
             "begin": "(?<=(require))",
-            "end": "(?<=as)\\s+(.*?)(\\;|\\n)",
+            "end": "(?<=as)\\s+(.*?)(\\n)",
             "endCaptures": {
                 "2": [
                     {
                         "include": "source.ts"
+                    }
+                ],
+                "3": [
+                    {
+                        "include": "source.o3"
                     }
                 ]
             },

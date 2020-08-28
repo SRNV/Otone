@@ -2,10 +2,12 @@ _includeIn: /src/ogone.keywords.yml
 _priority: 0
 contentName: source.ts.embedded.o3
 begin: (?<=(require))
-end: (?<=as)\s+(.*?)(\;|\n)
+end: (?<=as)\s+(.*?)(\n)
 endCaptures:
   2:
     - include: source.ts
+  3:
+    - include: source.o3
 patterns:
   - include: source.ts
     patterns:
