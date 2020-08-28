@@ -117,7 +117,7 @@
             "_priority": 0,
             "contentName": "source.ts.embedded.o3",
             "begin": "(?<=(require))",
-            "end": "(?=(as(.*?)(\\;|\\n)))",
+            "end": "(?<=as)\\s+(.*?)(\\;|\\n)",
             "endCaptures": {
                 "2": [
                     {

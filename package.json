@@ -7,7 +7,8 @@
   "icon": "public/ogone-svg.png",
   "scripts": {
     "start": "node index.js",
-    "publish": "vsce publish -p a6ejs3tzz4xblqzrd2fxbn7kwnaxpkolxg2wgdnibnbg6wn2dg6a"
+    "publish": "vsce publish -p a6ejs3tzz4xblqzrd2fxbn7kwnaxpkolxg2wgdnibnbg6wn2dg6a",
+    "hot-publish": "npm start; git add .; git commit -m 'hot publish'; git push; npm version patch; npm run publish"
   },
   "engines": {
     "vscode": "^1.45.0"
