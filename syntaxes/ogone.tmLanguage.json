@@ -117,7 +117,14 @@
             "_priority": 0,
             "contentName": "source.ts.embedded.o3",
             "begin": "(?<=(require))",
-            "end": "(?=(as))",
+            "end": "(as)(.*?)(\\;|\\n|\\s)",
+            "endCaptures": {
+                "2": [
+                    {
+                        "name": "source.ts"
+                    }
+                ]
+            },
             "patterns": [
                 {
                     "include": "source.ts",
