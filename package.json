@@ -95,13 +95,6 @@
           "meta.embedded.block.css": "css"
         }
       }
-    ],
-    "iconThemes": [
-      {
-        "id": "o3",
-        "label": "Ogone",
-        "path": "./file-icons/icons.json"
-      }
     ]
   },
   "devDependencies": {
