@@ -23,6 +23,9 @@
       ")"
     ]
   ],
+  "files.associations": {
+    "*.o3": "html"
+  },
   // symbols that are auto closed when typing
   "autoClosingPairs": [
     [
