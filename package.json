@@ -1,109 +1,115 @@
 {
-  "name": "otone",
-  "displayName": "otone",
-  "publisher": "SRNV",
-  "description": "Support for Ogone Single File components",
-  "version": "0.1.22",
-  "icon": "public/ogone-svg.png",
-  "scripts": {
-    "start": "node index.js",
-    "publish": "vsce publish -p a6ejs3tzz4xblqzrd2fxbn7kwnaxpkolxg2wgdnibnbg6wn2dg6a",
-    "hot-publish": "npm start; git add .; git commit -m 'hot publish'; git push; npm version patch; npm run publish"
-  },
-  "engines": {
-    "vscode": "^1.45.0"
-  },
-  "categories": [
-    "Programming Languages"
-  ],
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/SRNV/Otone.git"
-  },
-  "contributes": {
-    "title": "Ogone",
-    "languages": [
-      {
-        "id": "ogone",
-        "aliases": [
-          "ogone",
-          "o3"
-        ],
-        "extensions": [
-          ".o3",
-          ".ogone"
-        ],
-        "configuration": "./language-configuration.json"
-      }
-    ],
-    "grammars": [
-      {
-        "path": "./syntaxes/injection.template.json",
-        "scopeName": "textnodes.evaluated.o3",
-        "injectTo": [
-          "source.o3"
-        ],
-        "embeddedLanguages": {
-          "meta.embedded.block.typescript": "typescript",
-          "source.ts": "ts"
-        }
-      },
-      {
-        "path": "./syntaxes/injection.flag.json",
-        "scopeName": "injection.flag.o3",
-        "injectTo": [
-          "source.o3"
-        ],
-        "embeddedLanguages": {
-          "meta.embedded.block.typescript": "typescript",
-          "source.ts": "ts"
-        }
-      },
-      {
-        "path": "./syntaxes/injection.proto.json",
-        "scopeName": "system.proto.o3",
-        "injectTo": [
-          "source.o3"
-        ]
-      },
-      {
-        "path": "./syntaxes/injection.style.json",
-        "scopeName": "injection.style.o3",
-        "injectTo": [
-          "source.o3"
-        ],
-        "embeddedLanguages": {
-          "meta.embedded.block.typescript": "css",
-          "source.css": "css"
-        }
-      },
-      {
-        "language": "ogone",
-        "scopeName": "source.o3",
-        "path": "./syntaxes/ogone.tmLanguage.json",
-        "embeddedLanguages": {
-          "meta.embedded.block.typescript": "typescript",
-          "meta.embedded.block.javascript": "javascript",
-          "source.js": "js",
-          "source.css": "css",
-          "source.yaml": "yaml",
-          "source.html": "html",
-          "meta.embedded.block.ts": "ts",
-          "meta.embedded.block.yml": "yml",
-          "meta.embedded.block.yaml": "yaml",
-          "meta.embedded.block.html": "html",
-          "meta.embedded.block.css": "css"
-        }
-      }
-    ]
-  },
-  "devDependencies": {
-    "js-yaml": "^3.14.0"
-  },
-  "dependencies": {
-    "typescript-styled-plugin": "*",
-    "any-json": "^3.1.0",
-    "nodemon": "^2.0.4",
-    "y2j": "^1.0.4"
-  }
+	"name": "otone",
+	"displayName": "otone",
+	"publisher": "SRNV",
+	"description": "Support for Ogone Single File components",
+	"version": "0.1.22",
+	"icon": "public/ogone-svg.png",
+	"scripts": {
+		"start": "node index.js",
+		"publish": "vsce publish -p a6ejs3tzz4xblqzrd2fxbn7kwnaxpkolxg2wgdnibnbg6wn2dg6a",
+		"hot-publish": "npm start; git add .; git commit -m 'hot publish'; git push; npm version patch; npm run publish",
+		"open:vscode-host": "code --extensionDevelopmentPath=."
+	},
+	"engines": {
+		"vscode": "^1.45.0"
+	},
+	"categories": [
+		"Programming Languages"
+	],
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/SRNV/Otone.git"
+	},
+	"contributes": {
+		"title": "Ogone",
+		"languages": [
+			{
+				"id": "ogone",
+				"aliases": [
+					"ogone",
+					"o3"
+				],
+				"extensions": [
+					".o3",
+					".ogone"
+				],
+				"configuration": "./language-configuration.json"
+			}
+		],
+		"grammars": [
+			{
+				"path": "./syntaxes/injection.template.json",
+				"scopeName": "textnodes.evaluated.o3",
+				"injectTo": [
+					"source.o3"
+				],
+				"embeddedLanguages": {
+					"meta.embedded.block.typescript": "typescript",
+					"source.ts": "ts"
+				}
+			},
+			{
+				"path": "./syntaxes/injection.flag.json",
+				"scopeName": "injection.flag.o3",
+				"injectTo": [
+					"source.o3"
+				],
+				"embeddedLanguages": {
+					"meta.embedded.block.typescript": "typescript",
+					"source.ts": "ts"
+				}
+			},
+			{
+				"path": "./syntaxes/injection.proto.json",
+				"scopeName": "system.proto.o3",
+				"injectTo": [
+					"source.o3"
+				]
+			},
+			{
+				"path": "./syntaxes/injection.style.json",
+				"scopeName": "injection.style.o3",
+				"injectTo": [
+					"source.o3"
+				],
+				"embeddedLanguages": {
+					"meta.embedded.block.typescript": "css",
+					"source.css": "css"
+				}
+			},
+			{
+				"language": "ogone",
+				"scopeName": "source.o3",
+				"path": "./syntaxes/ogone.tmLanguage.json",
+				"embeddedLanguages": {
+					"meta.embedded.block.typescript": "typescript",
+					"meta.embedded.block.javascript": "javascript",
+					"source.js": "js",
+					"source.css": "css",
+					"source.yaml": "yaml",
+					"source.html": "html",
+					"meta.embedded.block.ts": "ts",
+					"meta.embedded.block.yml": "yml",
+					"meta.embedded.block.yaml": "yaml",
+					"meta.embedded.block.html": "html",
+					"meta.embedded.block.css": "css"
+				}
+			}
+		]
+	},
+	"devDependencies": {
+		"js-yaml": "^3.14.0"
+	},
+	"dependencies": {
+		"typescript-styled-plugin": "*",
+		"any-json": "^3.1.0",
+		"nodemon": "^2.0.4",
+		"y2j": "^1.0.4"
+	},
+	"__metadata": {
+		"id": "f12ce84e-a862-45d1-acda-67e75ec2e2a3",
+		"publisherDisplayName": "Rudy Alula",
+		"publisherId": "b27750f1-4d35-488b-8856-5088c28629a6"
+	}
 }
