@@ -76,7 +76,7 @@
 				"keyword.other.substitution"
 			],
 			"settings": {
-				"foreground": "#616161"
+				"foreground": "#8a678a"
 			}
 		},
 		{
@@ -87,7 +87,7 @@
 				"markup.deleted.git_gutter"
 			],
 			"settings": {
-				"foreground": "#f07178",
+				"foreground": "#db71f0",
 				"fontStyle": "bold"
 			}
 		},
