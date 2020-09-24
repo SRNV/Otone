@@ -3,7 +3,7 @@
 	"displayName": "otone",
 	"publisher": "SRNV",
 	"description": "Support for Ogone Single File components",
-	"version": "0.1.41",
+	"version": "0.1.42",
 	"icon": "public/ogone-svg.png",
 	"activationEvents": [
 		"onLanguage:ogone"
@@ -41,12 +41,12 @@
 				"configuration": "./language-configuration.json"
 			}
 		],
-        "snippets": [
-            {
-                "language": "ogone",
-                "path": "./snippets/snippets.code-snippets"
-            }
-        ],
+		"snippets": [
+			{
+				"language": "ogone",
+				"path": "./snippets/snippets.code-snippets"
+			}
+		],
 		"grammars": [
 			{
 				"path": "./syntaxes/injection.template.json",
