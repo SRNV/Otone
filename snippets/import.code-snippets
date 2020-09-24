@@ -1,0 +1,10 @@
+{
+	"import statement": {
+		"prefix": "$$import",
+		"scope": "ogone",
+		"description": "start importing modules",
+		"body": [
+			"import $1 from '$2';",
+		]
+	}
+}

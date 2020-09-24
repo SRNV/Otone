@@ -57,6 +57,10 @@
 			},
 			{
 				"language": "ogone",
+				"path": "./snippets/import.code-snippets"
+			},
+			{
+				"language": "ogone",
 				"path": "./snippets/component.code-snippets"
 			},
 			{
