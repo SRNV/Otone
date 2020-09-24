@@ -2,7 +2,7 @@
 	"name": "Ogone",
 	"type": "dark",
 	"colors": {
-		"editor.background": "#263238",
+		"editor.background": "#1d141f",
 		"editor.foreground": "#eeffff",
 		"activityBarBadge.background": "#333333",
 		"sideBarTitle.foreground": "#bbbbbb"
