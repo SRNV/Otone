@@ -43,6 +43,13 @@
 				"configuration": "./language-configuration.json"
 			}
 		],
+		"themes": [
+            {
+                "label": "Ogone",
+                "uiTheme": "vs-dark",
+                "path": "./themes/Ogone-color-theme.json"
+            }
+        ],
 		"snippets": [
 			{
 				"language": "ogone",
