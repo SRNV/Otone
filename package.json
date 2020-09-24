@@ -12,12 +12,7 @@
 		"start": "node index.js",
 		"publish": "vsce publish -p a6ejs3tzz4xblqzrd2fxbn7kwnaxpkolxg2wgdnibnbg6wn2dg6a",
 		"hot-publish": "npm start; git add .; git commit -m 'hot publish'; git push; npm version patch; npm run publish",
-		"open:vscode-host": "code --extensionDevelopmentPath=.",
-		"vscode:prepublish": "npm run compile",
-		"compile": "tsc",
-		"watch": "tsc -w",
-		"postinstall": "cd ./lsp/client && npm install && cd ../server && npm install && cd ../..",
-		"test": "sh ./scripts/e2e.sh"
+		"open:vscode-host": "code --extensionDevelopmentPath=."
 	},
 	"engines": {
 		"vscode": "^1.45.0"
