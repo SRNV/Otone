@@ -18,7 +18,7 @@
 			"<style>",
 			"  div {",
 			"    width: 100px;",
-			"    height: @width",
+			"    height: @width;",
 			"  }",
 			"</style>",
 			"$2"
@@ -44,9 +44,18 @@
 			"<style>",
 			"  div {",
 			"    width: 100px;",
-			"    height: @width",
+			"    height: @width;",
 			"  }",
 			"</style>",
+			"$2"
+		]
+	},
+	"Use statement": {
+		"prefix": "$$use",
+		"scope": "source.o3 - text.html.derivative",
+		"description": "compose with another component",
+		"body": [
+			"use ./$1.o3 as '$1';",
 			"$2"
 		]
 	},
