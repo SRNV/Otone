@@ -3,7 +3,7 @@
 	"displayName": "otone",
 	"publisher": "SRNV",
 	"description": "Support for Ogone Single File components",
-	"version": "0.1.39",
+	"version": "0.1.38",
 	"icon": "public/ogone-svg.png",
 	"activationEvents": [
 		"onLanguage:ogone"
@@ -14,8 +14,8 @@
 		"hot-publish": "npm start; git add .; git commit -m 'hot publish'; git push; npm version patch; npm run publish",
 		"open:vscode-host": "code --extensionDevelopmentPath=.",
 		"vscode:prepublish": "npm run compile",
-		"compile": "npm run start; tsc -b",
-		"watch": "tsc -b -w",
+		"compile": "tsc",
+		"watch": "tsc -w",
 		"postinstall": "cd ./lsp/client && npm install && cd ../server && npm install && cd ../..",
 		"test": "sh ./scripts/e2e.sh"
 	},
@@ -108,19 +108,15 @@
 	},
 	"devDependencies": {
 		"@types/mocha": "^7.0.2",
-		"@types/node": "^12.12.0",
-		"@typescript-eslint/parser": "^2.3.0",
-		"eslint": "^6.4.0",
-		"js-yaml": "^3.14.0",
 		"mocha": "^8.0.1",
-		"typescript": "^2.9.2"
+		"@types/node": "^12.12.0",
+		"eslint": "^6.4.0",
+		"@typescript-eslint/parser": "^2.3.0",
+		"typescript": "^3.9.4"
 	},
 	"dependencies": {
 		"any-json": "^3.1.0",
-		"nodemon": "^2.0.4",
-		"tsc": "^1.20150623.0",
-		"typescript-styled-plugin": "*",
-		"y2j": "^1.0.4"
+		"nodemon": "^2.0.4"
 	},
 	"__metadata": {
 		"id": "f12ce84e-a862-45d1-acda-67e75ec2e2a3",
