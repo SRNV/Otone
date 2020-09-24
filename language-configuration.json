@@ -57,7 +57,7 @@
       "'"
     ]
   ],
-  "editor.tabCompletion": true,
+  "editor.tabCompletion": "on",
   "editor.snippetSuggestions": "top",
   "bracketPairColorizer.consecutivePairColors": [
     "()",
