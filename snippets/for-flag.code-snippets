@@ -1,0 +1,10 @@
+{
+	"for flag": {
+		"prefix": "--for",
+		"scope": "text.html.derivative",
+		"description": "use the for flag",
+		"body": [
+			"--for=\"$1 as ($2)\" $4",
+		]
+	}
+}
