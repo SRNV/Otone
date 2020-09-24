@@ -1,0 +1,22 @@
+{
+	"Start writing your Component": {
+		"prefix": "$$comp",
+		"scope": "ogone",
+		"description": "start writing a new component",
+		"body": [
+			"<proto type=\"$1\">",
+			"  declare:",
+			"    public type: 'component' = '$1';",
+			"  default:",
+			"    console.warn('init $1 component');",
+			"</proto>",
+			"<template>",
+			"  $3",
+			"</template>",
+			"<style>",
+			"  // scoped by default, add global attribute to make it global",
+			"  $4",
+			"</style>"
+		]
+	},
+}

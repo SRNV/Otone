@@ -1,0 +1,11 @@
+{
+	"use statement": {
+		"prefix": "$$use",
+		"scope": "source.o3 - text.html.derivative",
+		"description": "compose with another component",
+		"body": [
+			"use ./$1.o3 as '$2';",
+			"$3"
+		]
+	}
+}

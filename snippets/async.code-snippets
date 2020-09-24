@@ -1,0 +1,23 @@
+{
+	"Start writing your AsyncComponent": {
+		"prefix": "$$async",
+		"scope": "ogone",
+		"description": "start writing a new component",
+		"body": [
+			"<proto type=\"async\">",
+			"  declare:",
+			"    public message: string = '';",
+			"  default:",
+			"    this.message = '$1';",
+			"    Async.resolve($2);",
+			"</proto>",
+			"<template>",
+			"  $3",
+			"</template>",
+			"<style>",
+			"  // scoped by default, add global attribute to make it global",
+			"  $4",
+			"</style>"
+		]
+	},
+}

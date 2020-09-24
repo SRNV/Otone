@@ -45,7 +45,23 @@
 		"snippets": [
 			{
 				"language": "ogone",
-				"path": "./snippets/snippets.code-snippets"
+				"path": "./snippets/use.code-snippets"
+			},
+			{
+				"language": "ogone",
+				"path": "./snippets/require.code-snippets"
+			},
+			{
+				"language": "ogone",
+				"path": "./snippets/component.code-snippets"
+			},
+			{
+				"language": "ogone",
+				"path": "./snippets/async.code-snippets"
+			},
+			{
+				"language": "ogone",
+				"path": "./snippets/proto.code-snippets"
 			}
 		],
 		"grammars": [

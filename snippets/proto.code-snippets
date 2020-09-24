@@ -1,0 +1,17 @@
+{
+	"write the component's protocol": {
+		"prefix": "$$proto",
+		"scope": "source.o3 - text.html.derivative",
+		"description": "require a typed property from the parent component",
+		"body": [
+			"<proto>",
+			"  declare:",
+			"    // here declare component's data",
+			"    public message: string = '$1';",
+			"  default:",
+			"    // ",
+			"    this.message = '$1';",
+			"</proto>",
+		]
+	},
+}
