@@ -6,9 +6,9 @@
 		"body": [
 			"<proto type=\"$1\">",
 			"  declare:",
-			"    public type: 'component' = '$1';",
+			"    public message: 'component' = '$2';",
 			"  default:",
-			"    console.warn('init $1 component');",
+			"    console.warn(this.message);",
 			"</proto>",
 			"<template>",
 			"  $3",
@@ -16,7 +16,8 @@
 			"<style>",
 			"  // scoped by default, add global attribute to make it global",
 			"  $4",
-			"</style>"
+			"</style>",
+			"$5"
 		]
 	},
 }
