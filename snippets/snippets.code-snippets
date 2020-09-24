@@ -62,9 +62,37 @@
 	"require statement": {
 		"prefix": "$$req-type",
 		"scope": "source.o3 - text.html.derivative",
-		"description": "require a property from the parent component",
+		"description": "require a typed property from the parent component",
 		"body": [
 			"require prop as $1;",
+			"$2"
+		]
+
+	},
+	"require statement minified": {
+		"prefix": "$$rqtp",
+		"scope": "source.o3 - text.html.derivative",
+		"description": "require a typed property from the parent component",
+		"body": [
+			"require prop as $1;",
+			"$2"
+		]
+	},
+	"require statement with undefined": {
+		"prefix": "$$req-type-undefined",
+		"scope": "source.o3 - text.html.derivative",
+		"description": "require a typed property from the parent component",
+		"body": [
+			"require prop as $1 | undefined;",
+			"$2"
+		]
+	},
+	"require statement minified with undefined": {
+		"prefix": "$$rqtp-udf",
+		"scope": "source.o3 - text.html.derivative",
+		"description": "require a typed property from the parent component",
+		"body": [
+			"require prop as $1 | undefined;",
 			"$2"
 		]
 	},
