@@ -1,11 +1,25 @@
 {
-	"Print to console": {
-		"prefix": "log",
-		"scope": "source.o3",
+	"Start writing your component": {
+		"prefix": "$$comp",
+		"scope": "ogone",
 		"body": [
-			"console.log('$1');",
+			"<proto type=\"$1\">",
+			"  default:",
+			"    console.warn('init component $1');",
+			"</proto>",
+			"<template>",
+			"  <div>",
+			"    $1",
+			"  </div>",
+			"</template>",
+			"<style>",
+			"  div {",
+			"    width: 100px;",
+			"    height: @width",
+			"  }",
+			"</style>",
 			"$2"
 		],
-		"description": "Log output to console"
+		"description": "start writing a new component"
 	}
 }
