@@ -110,9 +110,10 @@
 		"js-yaml": "^3.14.0"
 	},
 	"dependencies": {
-		"typescript-styled-plugin": "*",
 		"any-json": "^3.1.0",
 		"nodemon": "^2.0.4",
+		"tsc": "^1.20150623.0",
+		"typescript-styled-plugin": "*",
 		"y2j": "^1.0.4"
 	},
 	"__metadata": {
