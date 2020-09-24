@@ -41,12 +41,12 @@
 				"configuration": "./language-configuration.json"
 			}
 		],
-		"snippets": [
-			{
-				"language": "ogone",
-				"path": "./snippets.json"
-			}
-		],
+        "snippets": [
+            {
+                "language": "ogone",
+                "path": "./snippets/snippets.code-snippets"
+            }
+        ],
 		"grammars": [
 			{
 				"path": "./syntaxes/injection.template.json",
