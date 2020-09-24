@@ -5,11 +5,19 @@
 	"description": "Support for Ogone Single File components",
 	"version": "0.1.27",
 	"icon": "public/ogone-svg.png",
+	"activationEvents": [
+		"onLanguage:ogone"
+	],
 	"scripts": {
 		"start": "node index.js",
 		"publish": "vsce publish -p a6ejs3tzz4xblqzrd2fxbn7kwnaxpkolxg2wgdnibnbg6wn2dg6a",
 		"hot-publish": "npm start; git add .; git commit -m 'hot publish'; git push; npm version patch; npm run publish",
-		"open:vscode-host": "code --extensionDevelopmentPath=."
+		"open:vscode-host": "code --extensionDevelopmentPath=.",
+		"vscode:prepublish": "npm run compile",
+		"compile": "npm run start && tsc -b",
+		"watch": "tsc -b -w",
+		"postinstall": "cd client && npm install && cd ../server && npm install && cd ..",
+		"test": "sh ./scripts/e2e.sh"
 	},
 	"engines": {
 		"vscode": "^1.45.0"
