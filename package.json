@@ -16,7 +16,7 @@
 		"vscode:prepublish": "npm run compile",
 		"compile": "npm run start && tsc -b",
 		"watch": "tsc -b -w",
-		"postinstall": "cd client && npm install && cd ../server && npm install && cd ..",
+		"postinstall": "cd ./lsp/client && npm install && cd ../server && npm install && cd ../..",
 		"test": "sh ./scripts/e2e.sh"
 	},
 	"engines": {
