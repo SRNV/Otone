@@ -14,8 +14,8 @@
 		"hot-publish": "npm start; git add .; git commit -m 'hot publish'; git push; npm version patch; npm run publish",
 		"open:vscode-host": "code --extensionDevelopmentPath=.",
 		"vscode:prepublish": "npm run compile",
-		"compile": "npm run start; tsc --build",
-		"watch": "tsc -b -w",
+		"compile": "npm run start; tsc",
+		"watch": "tsc -w",
 		"postinstall": "cd ./lsp/client && npm install && cd ../server && npm install && cd ../..",
 		"test": "sh ./scripts/e2e.sh"
 	},
