@@ -59,4 +59,13 @@
 			"$2"
 		]
 	},
+	"require statement": {
+		"prefix": "$$req-type",
+		"scope": "source.o3 - text.html.derivative",
+		"description": "require a property from the parent component",
+		"body": [
+			"require prop as $1;",
+			"$2"
+		]
+	},
 }
