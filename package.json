@@ -23,7 +23,8 @@
 		"vscode": "^1.45.0"
 	},
 	"categories": [
-		"Programming Languages"
+		"Programming Languages",
+		"Snippets"
 	],
 	"repository": {
 		"type": "git",
