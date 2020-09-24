@@ -55,8 +55,7 @@
 		"scope": "source.o3 - text.html.derivative",
 		"description": "compose with another component",
 		"body": [
-			"use ./$1.o3 as '$1';",
-			"$2"
+			"use ./$1.o3 as '$2';",
 		]
 	},
 	"require statement": {
@@ -64,8 +63,7 @@
 		"scope": "source.o3 - text.html.derivative",
 		"description": "require a typed property from the parent component",
 		"body": [
-			"require prop as $1;",
-			"$2"
+			"require $1 as $2;",
 		]
 
 	},
@@ -74,8 +72,7 @@
 		"scope": "source.o3 - text.html.derivative",
 		"description": "require a typed property from the parent component",
 		"body": [
-			"require prop as $1;",
-			"$2"
+			"require $1 as $2;",
 		]
 	},
 	"require statement with undefined": {
