@@ -45,6 +45,12 @@
 				"configuration": "./language-configuration.json"
 			}
 		],
+		"snippets": [
+			{
+				"language": "ogone",
+				"path": "./snippets.json"
+			}
+		],
 		"grammars": [
 			{
 				"path": "./syntaxes/injection.template.json",
