@@ -1,15 +1,17 @@
 {
-	"Start writing your component": {
+	"Start writing your Component": {
 		"prefix": "$$comp",
 		"scope": "ogone",
 		"body": [
 			"<proto type=\"$1\">",
+			"  declare:",
+			"    public type: 'component' = '$1';",
 			"  default:",
-			"    console.warn('init component $1');",
+			"    console.warn('init $1 component');",
 			"</proto>",
 			"<template>",
 			"  <div>",
-			"    $1",
+			"    ${type} Component",
 			"  </div>",
 			"</template>",
 			"<style>",
@@ -21,5 +23,31 @@
 			"$2"
 		],
 		"description": "start writing a new component"
-	}
+	},
+	"Start writing your AsyncComponent": {
+		"prefix": "$$async",
+		"scope": "ogone",
+		"body": [
+			"<proto type=\"async\">",
+			"  declare:",
+			"    public message: string = '';",
+			"  default:",
+			"    this.message = '$2';",
+			"    Async.resolve($1)",
+			"</proto>",
+			"<template>",
+			"  <div>",
+			"    Async Component",
+			"  </div>",
+			"</template>",
+			"<style>",
+			"  div {",
+			"    width: 100px;",
+			"    height: @width",
+			"  }",
+			"</style>",
+			"$2"
+		],
+		"description": "start writing a new component"
+	},
 }
