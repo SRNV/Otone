@@ -17,4 +17,31 @@
 			"<${1:element} $2 />",
 		]
 	},
+	"store-component": {
+		"prefix": ["$$<store"],
+		"scope": "ogone",
+		"description": "add a store-component",
+		"body": [
+			"",
+			"<store-${1:component} namespace=\"$2\"></store-$1>",
+		]
+	},
+	"async-component": {
+		"prefix": ["$$<async"],
+		"scope": "ogone",
+		"description": "add a async-component",
+		"body": [
+			"",
+			"<async-${1:component} $2></async-$1>",
+		]
+	},
+	"router-component": {
+		"prefix": ["$$<router"],
+		"scope": "ogone",
+		"description": "add a router-component",
+		"body": [
+			"",
+			"<router-${1:component} namespace=\"$2\"></router-$1>",
+		]
+	},
 }
