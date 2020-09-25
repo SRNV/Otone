@@ -7,5 +7,14 @@
 			"use ./$1.o3 as '$2';",
 			"$3"
 		]
+  },
+  "use statement absolute": {
+		"prefix": "$$use-absolute",
+		"scope": "source.o3 - text.html.derivative",
+		"description": "use absolute path to compose with another component",
+		"body": [
+			"use @/$TM_DIRECTORY/$2.o3 as '$3';",
+			"$3"
+		]
 	}
 }
