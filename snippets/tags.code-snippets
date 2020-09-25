@@ -1,6 +1,6 @@
 {
 	"html tags": {
-		"prefix": "<<<h",
+		"prefix": "<<h",
 		"scope": "ogone",
 		"description": "add html tag",
 		"body": [
@@ -9,7 +9,7 @@
 		]
 	},
 	"html autoclosing tags": {
-		"prefix": "<<</h",
+		"prefix": "<</h",
 		"scope": "ogone",
 		"description": "add html an autoclosing tag",
 		"body": [
@@ -18,7 +18,7 @@
 		]
 	},
 	"store-component": {
-		"prefix": "<<<store",
+		"prefix": "<<store",
 		"scope": "ogone",
 		"description": "add a store-component",
 		"body": [
@@ -27,7 +27,7 @@
 		]
 	},
 	"async-component": {
-		"prefix": "<<<async",
+		"prefix": "<<async",
 		"scope": "ogone",
 		"description": "add a async-component",
 		"body": [
@@ -36,7 +36,7 @@
 		]
 	},
 	"router-component": {
-		"prefix": "<<<router",
+		"prefix": "<<router",
 		"scope": "ogone",
 		"description": "add a router-component",
 		"body": [
