@@ -8,7 +8,7 @@
 			"  ${2:// style is by default scoped, use global attribute}",
 			"  @export const margin = 10px;",
 			"  @export const padding = 10px;",
-			"  @export const globalTheme = div { margin: $margin; padding: $padding; };",
+			"  @export const globalTheme = div { margin: $$margin; padding: $$padding; };",
 			"</style>",
 		]
 	},
