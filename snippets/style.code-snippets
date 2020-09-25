@@ -1,13 +1,32 @@
 {
-	"template": {
-		"prefix": ["$$style", "<style "],
+	"global style": {
+		"prefix": ["$$style-global", "<<style-global "],
 		"scope": "ogone",
 		"description": "add style tag to component",
 		"body": [
 			"<style ${1:global}>",
 			"  @export const margin = 10px;",
 			"  @export const padding = 10px;",
+			"  @export const globalTheme = ${2:.container} { margin: $$margin; padding: $$padding; };",
+			"    margin: $$margin;",
+			"    padding: $$padding;",
+			"  };",
+			"  ${3:// style is by default scoped, use global attribute}",
+			"</style>",
+		]
+	},
+	"scoped style": {
+		"prefix": ["$$style", "<<style "],
+		"scope": "ogone",
+		"description": "add style tag to component",
+		"body": [
+			"<style>",
+			"  @export const margin = 10px;",
+			"  @export const padding = 10px;",
 			"  @export const globalTheme = ${1:.container} { margin: $$margin; padding: $$padding; };",
+			"    margin: $$margin;",
+			"    padding: $$padding;",
+			"  };",
 			"  ${2:// style is by default scoped, use global attribute}",
 			"</style>",
 		]
