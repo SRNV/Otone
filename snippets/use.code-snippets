@@ -1,6 +1,6 @@
 {
 	"use statement": {
-		"prefix": "$$use",
+		"prefix": "$$use-relative",
 		"scope": "source.o3 - text.html.derivative",
 		"description": "compose with another component",
 		"body": [
@@ -15,6 +15,24 @@
 		"body": [
 			"",
 			"use @/$1.o3 as '$2';",
+		]
+  },
+  "use statement remote http": {
+		"prefix": "$$use-remote-http",
+		"scope": "source.o3 - text.html.derivative",
+		"description": "use remote component from the net",
+		"body": [
+			"",
+			"use http://$1/$2 as '$3';",
+		]
+	},
+  "use statement remote https": {
+		"prefix": "$$use-remote-https",
+		"scope": "source.o3 - text.html.derivative",
+		"description": "use remote component from the net",
+		"body": [
+			"",
+			"use https://$1/$2 as '$3';",
 		]
 	}
 }
