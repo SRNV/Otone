@@ -30,7 +30,7 @@
 		]
 	},
 	"write the component's protocol initialization": {
-		"prefix": ["$$proto-default", "<proto "],
+		"prefix": "$$proto-default",
 		"scope": "source.o3 - text.html.derivative",
 		"description": "component's protocol using only default section",
 		"body": [

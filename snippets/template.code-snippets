@@ -1,6 +1,6 @@
 {
 	"template": {
-		"prefix": ["$$template", "$$tmpl", "<template "],
+		"prefix": ["$$template", "$$tmpl"],
 		"scope": "ogone",
 		"description": "start writing the component's template",
 		"body": [
