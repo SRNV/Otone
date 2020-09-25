@@ -5,7 +5,7 @@
 		"description": "add html tag",
 		"body": [
 			"",
-			"<${1:element} $2></$1>",
+			"<${1:element}${2: }>$3</$1>",
 		]
 	},
 	"html autoclosing tags": {
