@@ -6,9 +6,9 @@
 		"body": [
 			"<proto type=\"async\">",
 			"  declare:",
-			"    public message: string = '';",
+			"    ${0:// data with Typescript}",
 			"  default:",
-			"    this.message = '$1';",
+			"    ${1:// initialization}",
 			"    Async.resolve($2);",
 			"</proto>",
 			"<template>",

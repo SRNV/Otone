@@ -1,0 +1,20 @@
+{
+	"html tags": {
+		"prefix": ["$$<"],
+		"scope": "ogone",
+		"description": "add html tag",
+		"body": [
+			"",
+			"<${1:element} $2></$1>",
+		]
+	},
+	"html autoclosing tags": {
+		"prefix": ["$$</"],
+		"scope": "ogone",
+		"description": "add html an autoclosing tag",
+		"body": [
+			"",
+			"<${1:element} $2 />",
+		]
+	},
+}
