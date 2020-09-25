@@ -1,4 +1,32 @@
 {
+	"write the component's protocol define": {
+		"prefix": "$$proto-default",
+		"scope": "source.o3 - text.html.derivative",
+		"description": "require a typed property from the parent component",
+		"body": [
+			"",
+			"<proto type=\"${1|component,async,store,router,controller,gl|}\">",
+			"  default:",
+			"    // initialization",
+			"    $2",
+			"    break;",
+			"</proto>",
+		]
+	},
+  "write the component's protocol initialization": {
+		"prefix": "$$proto-default",
+		"scope": "source.o3 - text.html.derivative",
+		"description": "require a typed property from the parent component",
+		"body": [
+			"",
+			"<proto type=\"${1|component,async,store,router,controller,gl|}\">",
+			"  default:",
+			"    // initialization",
+			"    $2",
+			"    break;",
+			"</proto>",
+		]
+	},
 	"write the component's protocol": {
 		"prefix": "$$proto-global",
 		"scope": "source.o3 - text.html.derivative",
@@ -7,14 +35,16 @@
 			"",
 			"<proto type=\"${1|component,async,store,router,controller,gl|}\">",
 			"  declare:",
-			"    // here declare component's data",
+      "    // here declare component's data with Typescript",
+      "  def:",
+      "    // here declare component's data with YAML",
 			"  before-each:",
 			"    // before each protocol's case",
 			"  case '':",
 			"    // protocol's case",
 			"    break;",
 			"  default:",
-			"    // initialization part",
+			"    // initialization",
 			"    $2",
 			"    break;",
 			"</proto>",
