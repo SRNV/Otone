@@ -4,7 +4,8 @@
 		"scope": "ogone",
 		"description": "start importing modules",
 		"body": [
-			"import $1 from '$2';",
+			"",
+			"import ${1:exportName} from '${2:esm-path}';",
 		]
 	}
 }

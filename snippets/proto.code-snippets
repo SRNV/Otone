@@ -1,16 +1,20 @@
 {
 	"write the component's protocol": {
-		"prefix": "$$proto",
+		"prefix": "$$proto-global",
 		"scope": "source.o3 - text.html.derivative",
 		"description": "require a typed property from the parent component",
 		"body": [
-			"<proto>",
+			"<proto type=\"${1|component,async,store,router,controller,gl|}\">",
 			"  declare:",
 			"    // here declare component's data",
-			"    public message: string = '$1';",
+			"  before-each '':",
+			"    // before each protocol's case",
+			"  case '':",
+			"    // protocol's case",
+			"    break;",
 			"  default:",
-			"    // ",
-			"    this.message = '$1';",
+			"    // initialization part",
+			"    break;",
 			"</proto>",
 		]
 	},
