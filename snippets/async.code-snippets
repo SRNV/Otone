@@ -12,11 +12,10 @@
 			"    Async.resolve($2);",
 			"</proto>",
 			"<template>",
-			"  $3",
+			"  ${3:// initialization}",
 			"</template>",
 			"<style>",
-			"  // scoped by default, add global attribute to make it global",
-			"  $4",
+			"  ${4:// scoped by default, add global attribute to make it global}",
 			"</style>"
 		]
 	},
