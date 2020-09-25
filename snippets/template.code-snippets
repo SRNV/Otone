@@ -1,0 +1,24 @@
+{
+	"template": {
+		"prefix": ["$$template", "$$tmpl"],
+		"scope": "ogone",
+		"description": "start writing the component's template",
+		"body": [
+			"<template>",
+			"  <!-- nodetypes 1, 3, 8 supported -->",
+			"  $1",
+			"</template>",
+		]
+	},
+	"recycle template": {
+		"prefix": ["$$template-recycle", "$$tmplr"],
+		"scope": "ogone",
+		"description": "start recycling a component",
+		"body": [
+			"<template is=\"$1\">",
+			"  <!-- nodetypes 1, 3, 8 supported -->",
+			"  $2",
+			"</template>",
+		]
+	},
+}
