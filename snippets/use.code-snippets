@@ -4,8 +4,8 @@
 		"scope": "source.o3 - text.html.derivative",
 		"description": "compose with another component",
 		"body": [
+			"",
 			"use ./$1.o3 as '$2';",
-			"$3"
 		]
   },
   "use statement absolute": {
@@ -13,8 +13,8 @@
 		"scope": "source.o3 - text.html.derivative",
 		"description": "use absolute path to compose with another component",
 		"body": [
+			"",
 			"use @/$1.o3 as '$2';",
-			"$3"
 		]
 	}
 }
