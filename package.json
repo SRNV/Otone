@@ -53,6 +53,10 @@
 		"snippets": [
 			{
 				"language": "ogone",
+				"path": "./snippets/style.code-snippets"
+			},
+			{
+				"language": "ogone",
 				"path": "./snippets/use.code-snippets"
 			},
 			{
