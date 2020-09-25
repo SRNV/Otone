@@ -5,7 +5,7 @@
 		"description": "use the for flag",
 		"body": [
 			"",
-			"--for=\"${1:array} as (${2:item)\" ",
+			"--for=\"${1:array} as (${2:item ${3:,id}})\" ",
 		]
 	}
 }
