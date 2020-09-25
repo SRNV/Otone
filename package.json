@@ -5,7 +5,7 @@
 	"description": "Support for Ogone Single File components",
 	"version": "0.1.122",
 	"icon": "public/ogone-svg.png",
-	"main": "./extension/extension.js",
+	"main": "./extension.js",
 	"activationEvents": [
 		"onLanguage:plaintext",
 		"onLanguage:ogone",
@@ -160,11 +160,11 @@
 		"@typescript-eslint/parser": "^2.3.0",
 		"eslint": "^6.4.0",
 		"mocha": "^8.0.1",
-		"typescript": "^3.9.4",
-		"vscode": "^1.1.37"
+		"typescript": "^3.9.4"
 	},
 	"dependencies": {
 		"any-json": "^3.1.0",
+		"vscode": "^1.1.37",
 		"nodemon": "^2.0.4"
 	},
 	"__metadata": {
