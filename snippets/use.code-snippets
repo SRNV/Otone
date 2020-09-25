@@ -23,7 +23,7 @@
 		"description": "use remote component from the net",
 		"body": [
 			"",
-			"use http://$1/$2 as '$3';",
+			"use http://${1:ogone.dev}/$2 as '$3';",
 		]
 	},
   "use statement remote https": {
@@ -32,7 +32,7 @@
 		"description": "use remote component from the net",
 		"body": [
 			"",
-			"use https://$1/$2 as '$3';",
+			"use https://${1:ogone.dev}/$2 as '$3';",
 		]
   },
   "use statement remote custom protocol": {
@@ -41,7 +41,7 @@
 		"description": "use remote component from the net",
 		"body": [
 			"",
-			"use $1://$2/$3 as '$4';",
+			"use ${1:http}://${2:ogone.dev}/$3 as '$4';",
 		]
 	}
 }
