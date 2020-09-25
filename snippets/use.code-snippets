@@ -13,7 +13,7 @@
 		"scope": "source.o3 - text.html.derivative",
 		"description": "use absolute path to compose with another component",
 		"body": [
-			"use @/$TM_DIRECTORY/$2.o3 as '$3';",
+			"use @/$1.o3 as '${2:/(.*)/${2:/downcase}/}';",
 			"$3"
 		]
 	}
