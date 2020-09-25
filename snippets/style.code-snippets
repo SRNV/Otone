@@ -4,7 +4,7 @@
 		"scope": "ogone",
 		"description": "add style tag to component",
 		"body": [
-			"<style${0| global,| }>",
+			"<style${1| global,| }>",
 			"  ${1:// style is by default scoped, use global attribute}",
 			"  @export const margin = 10px;",
 			"  @export const padding = 10px;",
