@@ -38,19 +38,19 @@
 			"type": "object",
 			"title": "Multi LSP configuration",
 			"properties": {
-				"lspMultiServerSample.enable": {
+				"OgoneLSP.enable": {
 					"scope": "resource",
 					"type": "boolean",
 					"default": true,
 					"description": "Controls the enablement."
 				},
-				"lspMultiServerSample.options": {
+				"OgoneLSP.options": {
 					"scope": "resource",
 					"type": "object",
 					"default": {},
 					"description": "Additional options."
 				},
-				"lspMultiServerSample.trace.server": {
+				"OgoneLSP.trace.server": {
 					"scope": "window",
 					"type": "string",
 					"enum": [
