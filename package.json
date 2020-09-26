@@ -13,6 +13,10 @@
 	],
 	"scripts": {
 		"start": "node index.js",
+		"vscode:prepublish": "npm run compile",
+		"compile": "tsc -b",
+		"watch": "tsc -b -w",
+		"postinstall": "cd client && npm install && cd ../server && npm install && cd ..",
 		"publish": "vsce publish -p a6ejs3tzz4xblqzrd2fxbn7kwnaxpkolxg2wgdnibnbg6wn2dg6a",
 		"hot-publish": "npm start; git add .; git commit -m 'hot publish'; git push; npm version patch; npm run publish",
 		"open:vscode-host": "code --extensionDevelopmentPath=."
@@ -155,12 +159,11 @@
 		]
 	},
 	"devDependencies": {
-		"@types/mocha": "^7.0.2",
+		"@types/mocha": "^5.2.0",
 		"@types/node": "^12.12.0",
-		"@typescript-eslint/parser": "^2.3.0",
-		"eslint": "^6.4.0",
-		"vscode": "^1.1.37",
-		"mocha": "^8.0.1",
+		"@typescript-eslint/eslint-plugin": "^3.0.2",
+		"@typescript-eslint/parser": "^3.0.2",
+		"eslint": "^7.1.0",
 		"typescript": "^3.9.4"
 	},
 	"dependencies": {
