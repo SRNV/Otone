@@ -58,12 +58,12 @@ connection.onInitialize((params: InitializeParams) => {
 			}
 		}
 	};
-	result.capabilities.workspace = {
-		workspaceFolders: {
-			supported: true
-		}
-	};
 	if (hasWorkspaceFolderCapability) {
+		result.capabilities.workspace = {
+			workspaceFolders: {
+				supported: true
+			}
+		};
 	}
 	return result;
 });
@@ -135,9 +135,6 @@ documents.onDidChangeContent(change => {
 });
 
 async function validateTextDocument(textDocument: TextDocument): Promise<void> {
-	// In this simple example we get the settings for every validate run.
-	let settings = await getDocumentSettings(textDocument.uri);
-
 	// The validator creates diagnostics for all uppercase words length 2 and more
 	let text = textDocument.getText();
 	let pattern = /([A-Z])+/g;
@@ -156,23 +153,23 @@ async function validateTextDocument(textDocument: TextDocument): Promise<void> {
 			message: `${m[0]} is all uppercase.`,
 			source: 'ex'
 		};
-		diagnostic.relatedInformation = [
-			{
-				location: {
-					uri: textDocument.uri,
-					range: Object.assign({}, diagnostic.range)
-				},
-				message: 'Spelling matters'
-			},
-			{
-				location: {
-					uri: textDocument.uri,
-					range: Object.assign({}, diagnostic.range)
-				},
-				message: 'Particularly for names'
-			}
-		];
 		if (hasDiagnosticRelatedInformationCapability) {
+			diagnostic.relatedInformation = [
+				{
+					location: {
+						uri: textDocument.uri,
+						range: Object.assign({}, diagnostic.range)
+					},
+					message: 'Spelling matters'
+				},
+				{
+					location: {
+						uri: textDocument.uri,
+						range: Object.assign({}, diagnostic.range)
+					},
+					message: 'Particularly for names'
+				}
+			];
 		}
 		diagnostics.push(diagnostic);
 	}
