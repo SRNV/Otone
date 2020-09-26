@@ -55,7 +55,7 @@ export function activate(context: ExtensionContext) {
 	function didOpenTextDocument(document: TextDocument): void {
 		// We are only interested in language mode text
 		if (document.languageId !== 'plaintext' || (document.uri.scheme !== 'file' && document.uri.scheme !== 'untitled')) {
-			console.warn(document.languageId, 'opened from Otone')
+			console.log(document.languageId, 'opened from Otone')
 			return;
 		}
 
