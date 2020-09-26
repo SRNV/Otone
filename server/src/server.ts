@@ -58,12 +58,12 @@ connection.onInitialize((params: InitializeParams) => {
 			}
 		}
 	};
+	result.capabilities.workspace = {
+		workspaceFolders: {
+			supported: true
+		}
+	};
 	if (hasWorkspaceFolderCapability) {
-		result.capabilities.workspace = {
-			workspaceFolders: {
-				supported: true
-			}
-		};
 	}
 	return result;
 });
@@ -145,7 +145,7 @@ async function validateTextDocument(textDocument: TextDocument): Promise<void> {
 
 	let problems = 0;
 	let diagnostics: Diagnostic[] = [];
-	while ((m = pattern.exec(text)) && problems < settings.maxNumberOfProblems) {
+	while ((m = pattern.exec(text))) {
 		problems++;
 		let diagnostic: Diagnostic = {
 			severity: DiagnosticSeverity.Error,
