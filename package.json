@@ -36,6 +36,12 @@
 			"type": "object",
 			"title": "Ogone LSP configuration",
 			"properties": {
+				"OgoneLSP.maxNumberOfProblems": {
+					"scope": "resource",
+					"type": "number",
+					"default": 100,
+					"description": "Controls the maximum number of problems produced by the server."
+				},
 				"OgoneLSP.enable": {
 					"scope": "resource",
 					"type": "boolean",
