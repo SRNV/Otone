@@ -142,7 +142,8 @@ async function validateTextDocument(textDocument: TextDocument): Promise<void> {
 
 	let problems = 0;
 	let diagnostics: Diagnostic[] = [];
-	while ((m = pattern.exec(text))) {
+	while (pattern.exec(text)) {
+		let m = /([A-Z])+/gi.exec(text);
 		problems++;
 		let diagnostic: Diagnostic = {
 			severity: DiagnosticSeverity.Error,
