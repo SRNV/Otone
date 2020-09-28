@@ -142,8 +142,7 @@ async function validateTextDocument(textDocument: TextDocument): Promise<void> {
 
 	let problems = 0;
 	let diagnostics: Diagnostic[] = [];
-	while (text.match(pattern)) {
-		let m = /([A-Z])+/gi.exec(text);
+	m = /([A-Z])+/g.exec(text);
 		problems++;
 		let diagnostic: Diagnostic = {
 			severity: DiagnosticSeverity.Error,
@@ -173,8 +172,6 @@ async function validateTextDocument(textDocument: TextDocument): Promise<void> {
 			];
 		}
 		diagnostics.push(diagnostic);
-	}
-
 	// Send the computed diagnostics to VSCode.
 	connection.sendDiagnostics({ uri: textDocument.uri, diagnostics });
 }
