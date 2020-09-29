@@ -36,7 +36,7 @@ export default class OgoneUpdate extends Collections {
         this.sendDiagnostics(o3.document, [
           {
             severity: DiagnosticSeverity.Error,
-            message: `forbidden textnode: ${(node as any).nodeValue}`,
+            message: `forbidden textnode: ${(node as any).data}`,
             range: {
               start: o3.document.positionAt(node.startIndex + 1),
               end: o3.document.positionAt(node.endIndex + 1)
