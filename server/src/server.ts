@@ -17,6 +17,7 @@ import {
 	InitializeResult
 } from 'vscode-languageserver';
 
+import Ogone from './classes/Ogone';
 import {
 	TextDocument
 } from 'vscode-languageserver-textdocument';
@@ -24,6 +25,7 @@ import {
 // Create a connection for the server, using Node's IPC as a transport.
 // Also include all preview / proposed LSP features.
 let connection = createConnection(ProposedFeatures.all);
+const ogoneExtension = new Ogone(connection);
 
 // Create a simple text document manager.
 let documents: TextDocuments = new TextDocuments();
@@ -136,6 +138,7 @@ documents.onDidChangeContent(change => {
 });
 
 async function validateTextDocument(textDocument: TextDocument): Promise<void> {
+	ogoneExtension.read(textDocument);
 	// The validator creates diagnostics for all uppercase words length 2 and more
 	let text = textDocument.getText();
 	let pattern = /([A-Z])+/g;

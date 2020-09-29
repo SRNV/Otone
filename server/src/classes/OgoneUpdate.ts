@@ -1,5 +1,5 @@
 import { TextDocument } from 'vscode-languageserver-textdocument';
-import HTMLParser from 'htmlparser2';
+import * as HTMLParser from 'htmlparser2';
 import { O3Document } from '../types/definition';
 import Collections from './Collections';
 import {
