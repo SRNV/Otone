@@ -21,6 +21,11 @@ export default class OgoneUpdate extends Collections {
   protected update(document: TextDocument) {
     const o3 = this.getItem(document.uri);
     if (o3) {
+      o3.text = document.getText();
+      o3.nodes = this.render(o3.text);
+      o3.assets = this.getAssets(o3.nodes);
+    }
+    if (o3) {
       const { nodes } = o3;
       const forbiddenTextNodes = nodes.filter((node, id) =>
         node.nodeType === 3
@@ -44,5 +49,16 @@ export default class OgoneUpdate extends Collections {
   }
   protected sendDiagnostics(document: TextDocument, diagnostics: Diagnostic[]) {
     this.connection.sendDiagnostics({ uri: document.uri, diagnostics });
+  }
+  render(text:string) {
+    return HTMLParser.parseDOM(text, {
+      withStartIndices: true,
+      withEndIndices: true,
+      xmlMode: true,
+    });
+  }
+  getAssets(nodes): string | null {
+    const firstNode = nodes[0];
+    return firstNode.nodeType === 3 ? (nodes[0] as any).nodeValue : null
   }
 }

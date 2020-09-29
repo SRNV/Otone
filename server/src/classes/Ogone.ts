@@ -37,17 +37,12 @@ export default class Ogone extends OgoneUpdate {
   }
   subscribe(document: TextDocument): boolean {
     const text = document.getText();
-    const nodes = HTMLParser.parseDOM(text, {
-      withStartIndices: true,
-      withEndIndices: true,
-      xmlMode: true,
-    });
-    const firstNode = nodes[0];
+    const nodes = this.render(text);
     const item: O3Document = {
       document,
       text,
       nodes,
-      assets: firstNode.nodeType === 3 ? (nodes[0] as any).nodeValue : null,
+      assets: this.getAssets(nodes),
     };
     this.collection.set(document.uri, item);
     return true;
