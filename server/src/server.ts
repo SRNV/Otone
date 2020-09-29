@@ -139,46 +139,6 @@ documents.onDidChangeContent(change => {
 
 async function validateTextDocument(textDocument: TextDocument): Promise<void> {
 	ogoneExtension.read(textDocument);
-	// The validator creates diagnostics for all uppercase words length 2 and more
-	let text = textDocument.getText();
-	let pattern = /([A-Z])+/g;
-	let m: RegExpMatchArray | null;
-	let diagnostics: Diagnostic[] = [];
-	m = text.match(/([A-Z])+/g);
-	if (m) {
-		m.forEach((input) => {
-			let diagnostic: Diagnostic = {
-				severity: DiagnosticSeverity.Error,
-				range: {
-					start: textDocument.positionAt(text.indexOf(input)),
-					end: textDocument.positionAt(text.indexOf(input) + input.length)
-				},
-				message: `${input} is all uppercase.`,
-				source: 'ex'
-			};
-			if (hasDiagnosticRelatedInformationCapability) {
-				diagnostic.relatedInformation = [
-					{
-						location: {
-							uri: textDocument.uri,
-							range: Object.assign({}, diagnostic.range)
-						},
-						message: 'Spelling matters'
-					},
-					{
-						location: {
-							uri: textDocument.uri,
-							range: Object.assign({}, diagnostic.range)
-						},
-						message: 'Particularly for names'
-					}
-				];
-			}
-			diagnostics.push(diagnostic);
-		// Send the computed diagnostics to VSCode.
-		})
-	}
-	connection.sendDiagnostics({ uri: textDocument.uri, diagnostics });
 }
 
 connection.onDidChangeWatchedFiles(_change => {

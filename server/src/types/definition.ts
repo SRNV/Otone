@@ -1,7 +1,9 @@
+import { parseDOM } from "htmlparser2";
 import { TextDocument } from "vscode-languageserver-textdocument";
 
 export interface O3Document {
-  node: any;
+  nodes: ReturnType<typeof parseDOM>;
   text: string;
-  document: TextDocument
+  document: TextDocument;
+  assets: string | null;
 }
