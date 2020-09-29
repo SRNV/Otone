@@ -22,7 +22,11 @@ export default class OgoneUpdate extends Collections {
     const o3 = this.getItem(document.uri);
     if (o3) {
       const { nodes } = o3;
-      const forbiddenTextNodes = nodes.filter((node, id) => node.nodeType === 3 && id !== 0);
+      const forbiddenTextNodes = nodes.filter((node, id) =>
+        node.nodeType === 3
+        && id !== 0
+        && (node as any).nodeValue.trim().length
+      );
       forbiddenTextNodes.forEach((node) => {
         this.sendDiagnostics(o3.document, [
           {
