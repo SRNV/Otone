@@ -38,8 +38,8 @@ export default class OgoneUpdate extends Collections {
             severity: DiagnosticSeverity.Error,
             message: `forbidden textnode: ${(node as any).nodeValue}`,
             range: {
-              start: o3.document.positionAt(node.startIndex),
-              end: o3.document.positionAt(node.endIndex)
+              start: o3.document.positionAt(node.startIndex + 1),
+              end: o3.document.positionAt(node.endIndex + 1)
             },
             source: 'otone',
           }
