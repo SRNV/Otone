@@ -30,8 +30,33 @@ export default class OgoneUpdate extends Collections {
     // protcol's specific diagnostics
     this.inspectForbiddenElementInsideProto(document);
     this.inspectProtocolTypes(document);
+    this.inspectUselessProtocolAttrs(document);
     // at the end send diagnostics
     this.sendDiagnostics(document);
+  }
+  protected inspectUselessProtocolAttrs(document: TextDocument) {
+    const o3 = this.getItem(document.uri);
+    if (o3) {
+      const { nodes } = o3;
+      const validAttributes = ['def', 'type'];
+      const proto: any = nodes.find((n: any) => n.nodeType === 1 && n.tagName.toLowerCase() === "proto");
+      if (proto) {
+        const keys = Object.keys(proto.attribs);
+        keys
+          .filter(key => !validAttributes.includes(key))
+          .map((key) => {
+            this.saveDiagnostics([{
+              message: `protocol attribute ${key} is not supported`,
+              severity: DiagnosticSeverity.Error,
+              range: {
+                start: o3.document.positionAt(proto.startIndex + 1),
+                end: o3.document.positionAt(proto.startIndex + 6)
+              },
+              source: "otone",
+            }]);
+          });
+      }
+    }
   }
   protected inspectProtocolTypes(document: TextDocument) {
     const o3 = this.getItem(document.uri);
