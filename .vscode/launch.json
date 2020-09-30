@@ -13,7 +13,7 @@
             "outFiles": [
                 "${workspaceFolder}/out/**/*.js"
             ],
-            "preLaunchTask": "npm",
+            "preLaunchTask": "npm: simulate",
             "request": "launch",
             "type": "pwa-extensionHost"
         },
@@ -21,10 +21,7 @@
             "type": "node",
             "request": "launch",
             "name": "Launch Program",
-            "skipFiles": [
-                "<node_internals>/**"
-            ],
-            "program": "${workspaceFolder}/index.js"
+            "program": "${workspaceFolder}/client/out/extension.js",
         }
     ]
 }

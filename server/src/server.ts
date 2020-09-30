@@ -67,6 +67,8 @@ connection.onInitialize((params: InitializeParams) => {
 			}
 		};
 	}
+	// Revalidate all open text documents
+	documents.all().forEach(validateTextDocument);
 	return result;
 });
 

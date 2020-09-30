@@ -1,0 +1,13 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"type": "npm",
+			"script": "postinstall",
+			"group": "clean",
+			"problemMatcher": [],
+			"label": "npm: postinstall",
+			"detail": "cd client && npm install && cd ../server && npm install && cd .."
+		}
+	]
+}

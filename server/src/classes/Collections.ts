@@ -17,6 +17,15 @@ import {
 export default class Collections {
   protected collection: Map<string, O3Document> = new Map();
   protected connection: ReturnType<typeof createConnection>;
+  protected diagnostics: Diagnostic[] = [];
+  public readonly supportedTypes: string[] = [
+    "component",
+    "async",
+    "controller",
+    "store",
+    "router",
+    "gl",
+  ];
 
   setConnection(connection: ReturnType<typeof createConnection>) {
     this.connection = connection;
