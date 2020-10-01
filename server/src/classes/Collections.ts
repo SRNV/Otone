@@ -26,6 +26,9 @@ export default class Collections {
     "router",
     "gl",
   ];
+  public readonly validProtocolAttributes: string[] = ['def', 'type'];
+  public readonly validTemplateAttributes: string[] = ['is'];
+  public readonly validStyleAttributes: string[] = ['global'];
 
   setConnection(connection: ReturnType<typeof createConnection>) {
     this.connection = connection;

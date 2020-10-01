@@ -26,31 +26,130 @@ export default class OgoneUpdate extends Collections {
     this.inspectForbiddenTextnodes(document);
     this.inspectNoUnknownElementOnTopLevel(document);
     this.inspectForbiddenDuplication(document);
-    this.expectStyleElementToBeLast(document);
+    // asset's specific diagnostics
     // protcol's specific diagnostics
     this.inspectForbiddenElementInsideProto(document);
     this.inspectProtocolTypes(document);
     this.inspectUselessProtocolAttrs(document);
-    // at the end send diagnostics
+    this.inspectRequiredProtocolNamespace(document);
+    // template's specific diagnostics
+    this.inspectUselessTemplateAttrs(document);
+    this.getForbiddenTemplate(document);
+    // style's specific diagnostics
+    this.expectStyleElementToBeLast(document);
+    this.inspectUselessStyleAttrs(document);
+    // at the end send all diagnostics
     this.sendDiagnostics(document);
+  }
+  protected getForbiddenTemplate(document: TextDocument) {
+    const o3 = this.getItem(document.uri);
+    if (o3) {
+      const { nodes } = o3;
+      const proto: any = nodes.find((n: any) => n.nodeType === 1 && n.tagName.toLowerCase() === "proto");
+      const template: any = nodes.find((n: any) => n.nodeType === 1 && n.tagName.toLowerCase() === "template");
+      if (proto && template && ['controller'].includes(proto.attribs.type)) {
+        this.saveDiagnostics([{
+          message: `template element is not allowed in ${proto.attribs.type} components`,
+          severity: DiagnosticSeverity.Error,
+          range: {
+            start: o3.document.positionAt(template.startIndex),
+            end: o3.document.positionAt(template.endIndex + 1)
+          },
+          source: "otone",
+        }]);
+      }
+    }
+  }
+  protected inspectRequiredProtocolNamespace(document: TextDocument) {
+    const o3 = this.getItem(document.uri);
+    if (o3) {
+      const { nodes } = o3;
+      const proto: any = nodes.find((n: any) => n.nodeType === 1 && n.tagName.toLowerCase() === "proto");
+      if (proto
+        && ['controller', 'store'].includes(proto.attribs.type)
+        && (proto.attribs.namespace === undefined || !proto.attribs.namespace.length)) {
+        this.saveDiagnostics([{
+          message: `namespace is required for ${proto.attribs.type} components`,
+          severity: DiagnosticSeverity.Error,
+          range: {
+            start: o3.document.positionAt(proto.startIndex),
+            end: o3.document.positionAt(proto.endIndex + 1)
+          },
+          source: "otone",
+        }]);
+      }
+    }
+  }
+  protected inspectUselessStyleAttrs(document: TextDocument) {
+    const o3 = this.getItem(document.uri);
+    if (o3) {
+      const { nodes } = o3;
+      const validAttributes = this.validStyleAttributes;
+      const styles: any = nodes.filter((n: any) => n.nodeType === 1 && n.tagName.toLowerCase() === "style");
+      styles.forEach((style: any) => {
+        const keys = Object.keys(style.attribs);
+        keys
+          .filter(key => !validAttributes.includes(key))
+          .map((key) => {
+            const findAttributePosition = o3.text.indexOf(key, style.startIndex);
+            this.saveDiagnostics([{
+              message: `style attribute '${key}' is not supported, 'global' attribute is supported`,
+              severity: DiagnosticSeverity.Error,
+              range: {
+                start: o3.document.positionAt(findAttributePosition),
+                end: o3.document.positionAt(findAttributePosition + key.length)
+              },
+              source: "otone",
+            }]);
+          });
+      })
+    }
+  }
+  protected inspectUselessTemplateAttrs(document: TextDocument) {
+    const o3 = this.getItem(document.uri);
+    if (o3) {
+      const { nodes } = o3;
+      const validAttributes = this.validTemplateAttributes;
+      const template: any = nodes.find((n: any) => n.nodeType === 1 && n.tagName.toLowerCase() === "template");
+      if (template) {
+        const keys = Object.keys(template.attribs);
+        keys
+          .filter(key => !validAttributes.includes(key))
+          .map((key) => {
+            const findAttributePosition = o3.text.indexOf(key, template.startIndex);
+            this.saveDiagnostics([{
+              message: `template attribute '${key}' is not supported, 'is' attribute is supported`,
+              severity: DiagnosticSeverity.Error,
+              range: {
+                start: o3.document.positionAt(findAttributePosition),
+                end: o3.document.positionAt(findAttributePosition + key.length)
+              },
+              source: "otone",
+            }]);
+          });
+      }
+    }
   }
   protected inspectUselessProtocolAttrs(document: TextDocument) {
     const o3 = this.getItem(document.uri);
     if (o3) {
       const { nodes } = o3;
-      const validAttributes = ['def', 'type'];
+      const validAttributes = this.validProtocolAttributes;
       const proto: any = nodes.find((n: any) => n.nodeType === 1 && n.tagName.toLowerCase() === "proto");
       if (proto) {
         const keys = Object.keys(proto.attribs);
         keys
-          .filter(key => !validAttributes.includes(key))
+          .filter(key => !validAttributes.includes(key)
+            && (!['conroller', 'store'].includes(proto.attribs.type) && key !== 'namespace')
+            || (!['conroller', 'store'].includes(proto.attribs.type) && !validAttributes.includes(key)))
           .map((key) => {
+            const findAttributePosition = o3.text.indexOf(key, proto.startIndex);
             this.saveDiagnostics([{
-              message: `protocol attribute ${key} is not supported`,
+              message: `protocol attribute '${key}' is not supported, 'def' and 'type' attributes are supported`,
               severity: DiagnosticSeverity.Error,
               range: {
-                start: o3.document.positionAt(proto.startIndex + 1),
-                end: o3.document.positionAt(proto.startIndex + 6)
+                start: o3.document.positionAt(findAttributePosition),
+                end: o3.document.positionAt(findAttributePosition + key.length)
               },
               source: "otone",
             }]);
@@ -68,7 +167,7 @@ export default class OgoneUpdate extends Collections {
           message: `protocol type ${proto.attribs.type} is not supported`,
           severity: DiagnosticSeverity.Error,
           range: {
-            start: o3.document.positionAt(proto.startIndex + 1),
+            start: o3.document.positionAt(proto.startIndex),
             end: o3.document.positionAt(proto.startIndex + 6)
           },
           source: "otone",
@@ -89,7 +188,7 @@ export default class OgoneUpdate extends Collections {
                 message: `unsupported <${n.tagName}> found inside <proto>`,
                 severity: DiagnosticSeverity.Error,
                 range: {
-                  start: o3.document.positionAt(n.startIndex + 1),
+                  start: o3.document.positionAt(n.startIndex),
                   end: o3.document.positionAt(n.endIndex + 1)
                 },
                 source: "otone",
@@ -112,7 +211,7 @@ export default class OgoneUpdate extends Collections {
             message: `${element.tagName} has to be inserted into the template, as it is not supported on top level. template (XML), proto (typescript), style (obvious) are supported`,
             severity: DiagnosticSeverity.Error,
             range: {
-              start: o3.document.positionAt(element.startIndex + 1),
+              start: o3.document.positionAt(element.startIndex),
               end: o3.document.positionAt(element.endIndex + 1)
             },
             source: "otone",
@@ -136,7 +235,7 @@ export default class OgoneUpdate extends Collections {
           message: "no other elements are allowed after a style element",
           severity: DiagnosticSeverity.Error,
           range: {
-            start: o3.document.positionAt(notWellPlacedTag.startIndex + 1),
+            start: o3.document.positionAt(notWellPlacedTag.startIndex),
             end: o3.document.positionAt(notWellPlacedTag.endIndex + 1)
           },
           source: "otone",
@@ -156,7 +255,7 @@ export default class OgoneUpdate extends Collections {
             severity: DiagnosticSeverity.Error,
             message: `Cannot set multiple protocol`,
             range: {
-              start: o3.document.positionAt(proto.startIndex + 1),
+              start: o3.document.positionAt(proto.startIndex),
               end: o3.document.positionAt(proto.endIndex + 1)
             },
             source: 'otone',
@@ -169,7 +268,7 @@ export default class OgoneUpdate extends Collections {
             severity: DiagnosticSeverity.Error,
             message: `Cannot set multiple template`,
             range: {
-              start: o3.document.positionAt(template.startIndex + 1),
+              start: o3.document.positionAt(template.startIndex),
               end: o3.document.positionAt(template.endIndex + 1)
             },
             source: 'otone',
@@ -194,7 +293,7 @@ export default class OgoneUpdate extends Collections {
               severity: DiagnosticSeverity.Error,
               message: `forbidden textnode: ${(node as any).nodeValue}`,
               range: {
-                start: o3.document.positionAt(node.startIndex + 1),
+                start: o3.document.positionAt(node.startIndex),
                 end: o3.document.positionAt(node.endIndex + 1)
               },
               source: 'otone',

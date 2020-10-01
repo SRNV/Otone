@@ -4,7 +4,7 @@
  * ------------------------------------------------------------------------------------------ */
 
 import * as path from 'path';
-import { workspace, ExtensionContext } from 'vscode';
+import { workspace, ExtensionContext, languages } from 'vscode';
 
 import {
 	LanguageClient,
@@ -14,7 +14,34 @@ import {
 } from 'vscode-languageclient';
 
 let client: LanguageClient;
-
+languages.registerDocumentLinkProvider('ogone', {
+	provideDocumentLinks(document) {
+		const relativeLink = /(use\s+)(\..+?)(\s+as\s+)(['"])(.*?)(?<!\\)(\4)(\;){0,1}/;
+		let text = document.getText();
+		let previousIndex = 0;
+		let documentLinkProviders = [];
+		let m = relativeLink.exec(text);
+		while(m) {
+			let { index } = m;
+			index = index + previousIndex;
+			let [input, use, link, as, str, tagName ] = m;
+			console.warn(input, previousIndex)
+			documentLinkProviders.push({
+				range: {
+					start: document.positionAt(index + use.length),
+					end: document.positionAt(index + use.length + link.length),
+				},
+				target: path.normalize(path.resolve(document.uri.path, `./../${link}`)),
+			});
+			text = text.replace(input, '');
+			previousIndex = index + input.trim().length;
+			m = /(use\s+)(\..+?)(\s+as\s+)(['"])(.*?)(?<!\\)(\4)(\;){0,1}/.exec(text);
+			console.warn(text)
+		}
+		console.warn('document link provider');
+		return documentLinkProviders;
+	}
+})
 export function activate(context: ExtensionContext) {
 	// The server is implemented in node
 	let serverModule = context.asAbsolutePath(
