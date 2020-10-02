@@ -4,7 +4,8 @@
  * ------------------------------------------------------------------------------------------ */
 
 import * as path from 'path';
-import { workspace, ExtensionContext, languages } from 'vscode';
+import { workspace, ExtensionContext } from 'vscode';
+import OgoneClient from './classes/OgoneClient';
 
 import {
 	LanguageClient,
@@ -14,42 +15,14 @@ import {
 } from 'vscode-languageclient';
 
 let client: LanguageClient;
-languages.registerDocumentLinkProvider('ogone', {
-	provideDocumentLinks(document) {
-		const relativeLink = /(use\s+)(\..+?)(\s+as\s+)(['"])(.*?)(?<!\\)(\4)(\;){0,1}/;
-		let text = document.getText();
-		let previousIndex = 0;
-		let documentLinkProviders = [];
-		let m = relativeLink.exec(text);
-		while(m) {
-			let { index } = m;
-			index = index + previousIndex;
-			let [input, use, link, as, str, tagName ] = m;
-			console.warn(input, previousIndex)
-			documentLinkProviders.push({
-				range: {
-					start: document.positionAt(index + use.length),
-					end: document.positionAt(index + use.length + link.length),
-				},
-				target: path.normalize(path.resolve(document.uri.path, `./../${link}`)),
-			});
-			text = text.replace(input, '');
-			previousIndex = index + input.trim().length;
-			m = /(use\s+)(\..+?)(\s+as\s+)(['"])(.*?)(?<!\\)(\4)(\;){0,1}/.exec(text);
-			console.warn(text)
-		}
-		console.warn('document link provider');
-		return documentLinkProviders;
-	}
-})
 export function activate(context: ExtensionContext) {
-	// The server is implemented in node
+  // The server is implemented in node
 	let serverModule = context.asAbsolutePath(
-		path.join('server', 'out', 'server.js')
-	);
-	// The debug options for the server
-	// --inspect=6009: runs the server in Node's Inspector mode so VS Code can attach to the server for debugging
-	let debugOptions = { execArgv: ['--nolazy', '--inspect=6009'] };
+    path.join('server', 'out', 'server.js')
+    );
+    // The debug options for the server
+    // --inspect=6009: runs the server in Node's Inspector mode so VS Code can attach to the server for debugging
+    let debugOptions = { execArgv: ['--nolazy', '--inspect=6009'] };
 
 	// If the extension is launched in debug mode then the debug server options are used
 	// Otherwise the run options are used
@@ -64,7 +37,7 @@ export function activate(context: ExtensionContext) {
 
 	// Options to control the language client
 	let clientOptions: LanguageClientOptions = {
-		// select ogone files
+    // select ogone files
 		// trigger changes to server only if those files are changed
 		documentSelector: [{ scheme: 'file', language: 'ogone' }],
 		synchronize: {
@@ -79,15 +52,17 @@ export function activate(context: ExtensionContext) {
 		'Ogone',
 		serverOptions,
 		clientOptions
-	);
+    );
 
-	// Start the client. This will also launch the server
-	client.start();
+    // Start the client. This will also launch the server
+    client.start();
 }
 
 export function deactivate(): Thenable<void> | undefined {
-	if (!client) {
-		return undefined;
+  if (!client) {
+    return undefined;
 	}
 	return client.stop();
 }
+
+export default new OgoneClient({});
