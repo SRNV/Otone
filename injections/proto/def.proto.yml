@@ -3,6 +3,6 @@ begin: (def\s*\:)
 beginCaptures:
   1:
     name: variable.function
-end: (?=((default\b|def\b|declare\b|before-each\b|case\s+(.+)+)\:|\<\/proto))
+end: (?=((default\b|def\b|declare\b|before-each\b|case\s+(.+?)+)\:|\<\/proto))
 patterns:
   - include: source.yaml

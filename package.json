@@ -12,7 +12,7 @@
 	"scripts": {
 		"start": "node index.js",
 		"vscode:prepublish": "npm run compile",
-		"simulate": "npm run postinstall; npm run compile",
+		"simulate": "npm start; npm run postinstall; npm run compile",
 		"compile": "tsc -b",
 		"watch": "tsc -b -w",
 		"postinstall": "cd client && npm install && cd ../server && npm install && cd ..",

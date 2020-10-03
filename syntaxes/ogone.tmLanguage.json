@@ -58,7 +58,7 @@
         "/src/ogone.keywords.yml": {
             "_priority": 0,
             "scope": "text.html.derivative - source.o3",
-            "name": "keyword.o3",
+            "name": "comment.block",
             "patterns": [
                 {
                     "include": "#/src/ogone.define.keyword.yml"
@@ -67,7 +67,7 @@
                     "include": "#/src/ogone.import.modules.yml"
                 },
                 {
-                    "name": "keyword.o3",
+                    "name": "comment.block",
                     "match": "\\b(use|require|as|from|import|define)\\b"
                 },
                 {
@@ -232,7 +232,7 @@
             "end": "(?=(\\s+as\\s+))",
             "patterns": [
                 {
-                    "match": "(([^\\/]+).o3)(?=\\s)",
+                    "match": "(.+?)(?=\\s)",
                     "name": "support.class"
                 }
             ]

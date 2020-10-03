@@ -1,7 +1,7 @@
 _includeIn: main
 _priority: 0
 scope: text.html.derivative - source.o3
-name: keyword.o3
+name: comment.block
 patterns:
-  - name: keyword.o3
+  - name: comment.block
     match: \b(use|require|as|from|import|define)\b

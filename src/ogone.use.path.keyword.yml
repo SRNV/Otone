@@ -3,5 +3,5 @@ contentName: comment.line
 begin: (?<=(use))
 end: (?=(\s+as\s+))
 patterns:
-  - match: (([^\/]+).o3)(?=\s)
+  - match: (.+?)(?=\s)
     name: support.class
