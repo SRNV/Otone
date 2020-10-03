@@ -120,7 +120,7 @@ export default class OgoneDocumentLinks extends OgoneDocument {
           pushLink(
             path.join(workspace.workspaceFolders[0].uri.path, link),
             index + use.length,
-            index + use.length + link.length
+            index + use.length + link.length + 1
           );
           index += input.length;
         }
