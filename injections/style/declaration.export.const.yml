@@ -9,6 +9,6 @@ captures:
   3:
     name: entity.name.function
   4:
-    name: entity.name.type markup.underline.link
+    name: entity.name.type
   5:
     name: comment
