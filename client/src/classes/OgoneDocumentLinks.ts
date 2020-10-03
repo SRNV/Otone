@@ -25,20 +25,22 @@ export default class OgoneDocumentLinks extends OgoneDocument {
     return this.getDocumentLinks();
   }
   getDocumentLinks(): ProviderResult<DocumentLink[]> {
-    let documentLinkProviders = [
-      ...this.getRelativeLinks(),
-      ...this.getAbsoluteLinks(),
-    ];
-    return documentLinkProviders;
+    try {
+      let documentLinkProviders = [
+        ...this.getRelativeLinks(),
+        ...this.getAbsoluteLinks(),
+      ];
+      return documentLinkProviders;
+    } catch(e) {
+      console.error(e);
+    }
   }
   getRelativeLinks(): DocumentLink[] {
     const { document } = this;
     let documentLinkProviders = [];
-    const relativeLink = /(use\s+)(\..+?\.o3)(\s+as\s+)(['"])(.*?)(?<!\\)(\4)(\;){0,1}(\n){0,1}/;
-    let text = document.getText();
-    let previousIndex = 0;
-    let m = relativeLink.exec(text);
-    let textTagname = text;
+    const relativeLink = /(use\s+)(\..+?\.o3)(\s+as\s+)(['"])(.*?)(?<!\\)(\4)(\;){0,1}([\n\s])*/gi;
+    let text: string = (this.assetNode as any).nodeValue;
+    let m = text.match(relativeLink);
     function pushLink(target: string, start: number, end: number) {
       documentLinkProviders.push({
         range: {
@@ -48,42 +50,43 @@ export default class OgoneDocumentLinks extends OgoneDocument {
         target,
       });
     }
-    while (m) {
-      let { index } = m;
-      index = index + previousIndex;
-      let [input, use, link, as, str, tagName] = m;
-      let tagNameRegExp = new RegExp(`\<${tagName.replace(/(\-)/gi, '\\$1')}`);
-      let mt = tagNameRegExp.exec(textTagname);
-      while (mt) {
-        const [inputTagName] = mt;
-        const { index: indexTagName } = mt;
-        pushLink(
-          path.normalize(path.resolve(document.uri.path, `./../${link}`)),
-          indexTagName + 1,
-          indexTagName + inputTagName.length
-        );
-        textTagname = textTagname.replace(inputTagName, inputTagName.split('').map(p => ' ').join(''))
-        mt = tagNameRegExp.exec(textTagname);
+    if (!m) return [];
+    let index = 0;
+    m.forEach((useStatement) => {
+      if (text.indexOf(useStatement, index) > -1) {
+        if (index === 0) index += text.indexOf(useStatement);
+        const match = useStatement.match(/(use\s+)(\..+?\.o3)(\s+as\s+)(['"])(.*?)(?<!\\)(\4)(\;){0,1}([\n\s])*/);
+        if (match) {
+          // @ts-ignore
+          let [input, use, link, as, str, tagName] = match;
+          this.AllNodes
+            .filter((n: any) => {
+              return n.nodeType === 1 && n.tagName === tagName
+            })
+            .map((n: any) => {
+              pushLink(
+                path.normalize(path.resolve(document.uri.path, `./../${link}`)),
+                n.startIndex + 1,
+                n.startIndex + tagName.length + 1
+              );
+            });
+          pushLink(
+            path.normalize(path.resolve(document.uri.path, `./../${link}`)),
+            index + use.length,
+            index + use.length + link.length
+          );
+          index += input.length;
+        }
       }
-      pushLink(
-        path.normalize(path.resolve(document.uri.path, `./../${link}`)),
-        index + use.length,
-        index + use.length + link.length
-      );
-      text = text.replace(input, '');
-      previousIndex = index + input.length;
-      m = relativeLink.exec(text);
-    }
+    });
     return documentLinkProviders;
   }
   getAbsoluteLinks(): DocumentLink[] {
     const { document } = this;
     let documentLinkProviders = []
-    const absoluteLink = /(use\s+)(\@)(\/[^\s\n]+\.o3)(\s+as\s+)(['"])(.*?)(?<!\\)(\5)(\;){0,1}(\n){0,1}/;
-    let text = document.getText();
-    let previousIndex = 0;
-    let m = absoluteLink.exec(text);
-    let textTagname = text;
+    const absoluteLink = /(use\s+)(\@)(\/[^\s\n]+\.o3)(\s+as\s+)(['"])(.*?)(?<!\\)(\5)(\;){0,1}([\n\s])*/gi;
+    let text = (this.assetNode as any).nodeValue;
+    let m = text.match(absoluteLink);
     function pushLink(target: string, start: number, end: number) {
       documentLinkProviders.push({
         range: {
@@ -93,32 +96,36 @@ export default class OgoneDocumentLinks extends OgoneDocument {
         target,
       });
     }
-    while (m) {
-      let { index } = m;
-      index = index + previousIndex;
-      let [input, use, at, link, as, str, tagName] = m;
-      let tagNameRegExp = new RegExp(`\<${tagName.replace(/(\-)/gi, '\\$1')}\\b`);
-      let mt = tagNameRegExp.exec(textTagname);
-      while (mt) {
-        const [inputTagName] = mt;
-        const { index: indexTagName } = mt;
-        pushLink(
-          path.join(workspace.workspaceFolders[0].uri.path, link),
-          indexTagName + 1,
-          indexTagName + inputTagName.length
-        );
-        textTagname = textTagname.replace(inputTagName, inputTagName.split('').map(p => ' ').join(''))
-        mt = tagNameRegExp.exec(textTagname);
+    if (!m) return [];
+    let index = 0;
+    m.forEach((useStatement) => {
+      if (text.indexOf(useStatement, index) > -1) {
+        if (index === 0) index += text.indexOf(useStatement);
+        const match = useStatement.match(/(use\s+)(\@)(\/[^\s\n]+\.o3)(\s+as\s+)(['"])(.*?)(?<!\\)(\5)(\;){0,1}([\n\s])*/);
+        if (match) {
+          console.warn(match);
+          // @ts-ignore
+          let [input, use, at, link, as, str, tagName] = match;
+          this.AllNodes
+            .filter((n: any) => {
+              return n.nodeType === 1 && n.tagName === tagName
+            })
+            .map((n: any) => {
+              pushLink(
+                path.join(workspace.workspaceFolders[0].uri.path, link),
+                n.startIndex + 1,
+                n.startIndex + tagName.length + 1
+              );
+            });
+          pushLink(
+            path.join(workspace.workspaceFolders[0].uri.path, link),
+            index + use.length,
+            index + use.length + link.length
+          );
+          index += input.length;
+        }
       }
-      pushLink(
-        path.join(workspace.workspaceFolders[0].uri.path, link),
-        index + use.length,
-        index + use.length + link.length + 1
-      );
-      text = text.replace(input, '');
-      previousIndex = index + input.length;
-      m = absoluteLink.exec(text);
-    }
+    });
     return documentLinkProviders;
   }
 }
