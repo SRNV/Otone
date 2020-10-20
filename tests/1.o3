@@ -1,0 +1,16 @@
+use ./lll.o3 as 'll-comp';
+
+<template>
+  link below
+  <ll-comp />
+  <div>
+    should display name is undefined here
+    ${name}
+  </div>
+</template>
+<proto type="component">
+  compute:
+    this.reflection => {
+        return null;
+    };
+</proto>
