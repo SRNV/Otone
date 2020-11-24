@@ -34,6 +34,7 @@
             "begin": "((default|compute|before-each|declare\\s*|case\\s*(['\"`])(.+)+((?<!\\\\)\\3))\\s*\\:)",
             "beginCaptures": {
                 "2": {
+                    "name": "keyword.control.o3",
                     "patterns": [
                         {
                             "include": "source.ts"
