@@ -22,7 +22,7 @@ export default class OgoneUpdate extends Collections {
   protected update(document: TextDocument) {
     // reset diagnostics
     this.diagnostics.splice(0);
-    // ts.createSourceFile('test.d.ts', 'import al from "al":', 99)
+    ts.createSourceFile('test.d.ts', 'import al from "al":', 99);
     this.updateDocument(document);
     this.inspectForbiddenTextnodes(document);
     this.inspectNoUnknownElementOnTopLevel(document);
