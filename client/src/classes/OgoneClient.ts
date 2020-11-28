@@ -17,6 +17,7 @@ import OgoneDocument from './OgoneDocument';
 import OgoneDocumentLinks from './OgoneDocumentLinks';
 import OgoneDocumentHighLight from './OgoneDocumentHIghLight';
 import OgoneDocumentColor from './OgoneDocumentColor';
+import OgoneDocumentHover from './OgoneDocumentHover';
 
 export interface OgoneClientConstructorOptions {
 }
@@ -30,5 +31,7 @@ export default class OgoneClient extends OgoneDocument {
     // get colors inside component
     // this.provide a way to use a color picker
     languages.registerColorProvider('ogone', new OgoneDocumentColor({}));
+    // get hovers
+    languages.registerHoverProvider('ogone', new OgoneDocumentHover({}));
   }
 }
