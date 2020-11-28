@@ -16,12 +16,13 @@ import {
 	TextDocumentSyncKind,
 	InitializeResult
 } from 'vscode-languageserver';
+import * as ts from 'typescript';
 
 export default class OgoneUpdate extends Collections {
   protected update(document: TextDocument) {
     // reset diagnostics
     this.diagnostics.splice(0);
-
+    // ts.createSourceFile('test.d.ts', 'import al from "al":', 99)
     this.updateDocument(document);
     this.inspectForbiddenTextnodes(document);
     this.inspectNoUnknownElementOnTopLevel(document);

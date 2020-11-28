@@ -62,6 +62,10 @@ export default class OgoneDocumentLinks extends OgoneDocument implements Documen
     const { document } = this;
     let documentLinkProviders: DocumentLink[] = [];
     let documentNodeLinks: OgoneDocumentNodeLink[] = [];
+    if (!this.assetNode) return {
+      links: documentLinkProviders,
+      nodeLinks: documentNodeLinks,
+    };
     const relativeLink = /(use\s+)(\..+?\.o3)(\s+as\s+)(['"])(.*?)(?<!\\)(\4)(\;){0,1}([\n\s])*/gi;
     let text: string = (this.assetNode as any).nodeValue;
     let m = text.match(relativeLink);
@@ -120,6 +124,10 @@ export default class OgoneDocumentLinks extends OgoneDocument implements Documen
     const { document } = this;
     let documentLinkProviders: DocumentLink[] = [];
     let documentNodeLinks: OgoneDocumentNodeLink[] = [];
+    if (!this.assetNode) return {
+      links: documentLinkProviders,
+      nodeLinks: documentNodeLinks,
+    };
     const absoluteLink = /(use\s+)(\@)(\/[^\s\n]+\.o3)(\s+as\s+)(['"])(.*?)(?<!\\)(\5)(\;){0,1}([\n\s])*/gi;
     let text = (this.assetNode as any).nodeValue;
     let m = text.match(absoluteLink);
