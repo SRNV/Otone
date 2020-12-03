@@ -18,6 +18,7 @@ import OgoneDocumentLinks from './OgoneDocumentLinks';
 import OgoneDocumentHighLight from './OgoneDocumentHIghLight';
 import OgoneDocumentColor from './OgoneDocumentColor';
 import OgoneDocumentHover from './OgoneDocumentHover';
+import OgoneDocumentSignatureHelpProvider from './OgoneDocumentSignatureHelpProvider';
 
 export interface OgoneClientConstructorOptions {
 }
@@ -33,5 +34,9 @@ export default class OgoneClient extends OgoneDocument {
     languages.registerColorProvider('ogone', new OgoneDocumentColor({}));
     // get hovers
     languages.registerHoverProvider('ogone', new OgoneDocumentHover({}));
+    // get signatures
+    languages.registerSignatureHelpProvider('ogone', new OgoneDocumentSignatureHelpProvider({}));
+    // get definitions
+    // languages.registerDefinitionProvider('ogone', new OgoneDocumentDefinitionProvider({}));
   }
 }

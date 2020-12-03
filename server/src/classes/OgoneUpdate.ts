@@ -13,16 +13,14 @@ import {
 	CompletionItem,
 	CompletionItemKind,
 	TextDocumentPositionParams,
-	TextDocumentSyncKind,
+  TextDocumentSyncKind,
 	InitializeResult
 } from 'vscode-languageserver';
 import * as ts from 'typescript';
-
 export default class OgoneUpdate extends Collections {
   protected update(document: TextDocument) {
     // reset diagnostics
     this.diagnostics.splice(0);
-    ts.createSourceFile('test.d.ts', 'import al from "al":', 99);
     this.updateDocument(document);
     this.inspectForbiddenTextnodes(document);
     this.inspectNoUnknownElementOnTopLevel(document);
@@ -209,7 +207,7 @@ export default class OgoneUpdate extends Collections {
       if (notAllowedElementsOnTopLevel.length) {
         notAllowedElementsOnTopLevel.forEach((element: any) => {
           this.saveDiagnostics([{
-            message: `${element.tagName} has to be inserted into the template, as it is not supported on top level. template (XML), proto (typescript), style (obvious) are supported`,
+            message: `${element.tagName} has to be inserted into the template, as it is not supported on top level. template (XML), proto (typescript), style are supported`,
             severity: DiagnosticSeverity.Error,
             range: {
               start: o3.document.positionAt(element.startIndex),

@@ -28,7 +28,7 @@ export default class Collections {
   ];
   public readonly validProtocolAttributes: string[] = ['def', 'type', 'engine'];
   public readonly validTemplateAttributes: string[] = ['is'];
-  public readonly validStyleAttributes: string[] = ['global'];
+  public readonly validStyleAttributes: string[] = ['--keyframes', 'name', 'global'];
 
   setConnection(connection: ReturnType<typeof createConnection>) {
     this.connection = connection;

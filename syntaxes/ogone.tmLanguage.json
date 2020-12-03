@@ -68,13 +68,10 @@
                 },
                 {
                     "name": "comment.block",
-                    "match": "\\b(use|require|as|from|import|define)\\b"
+                    "match": "\\b(require|as|from|import|define)\\b"
                 },
                 {
                     "include": "#/src/ogone.require.vars.yml"
-                },
-                {
-                    "include": "#/src/ogone.use.path.keyword.yml"
                 }
             ]
         },
@@ -100,8 +97,21 @@
         "/src/ogone.import.modules.yml": {
             "contentName": "meta.import.ts",
             "scope": "source.ts meta.import.ts",
-            "begin": "(?<=(import))",
-            "end": "(?=(from))",
+            "begin": "(import)(\\s+component){0,1}",
+            "beginCaptures": {
+                "0": {
+                    "name": "keyword.control"
+                },
+                "1": {
+                    "name": "keyword.control"
+                }
+            },
+            "end": "(from)",
+            "endCaptures": {
+                "0": {
+                    "name": "keyword.control"
+                }
+            },
             "patterns": [
                 {
                     "include": "source.ts",
@@ -225,17 +235,6 @@
             "end": "(?=(\\<))",
             "contentName": "textnodes.proto.o3",
             "scope": "html.o3 - source.o3"
-        },
-        "/src/ogone.use.path.keyword.yml": {
-            "contentName": "comment.line",
-            "begin": "(?<=(use))",
-            "end": "(?=(\\s+as\\s+))",
-            "patterns": [
-                {
-                    "match": "(.+?)(?=\\s)",
-                    "name": "support.class"
-                }
-            ]
         }
     }
 }

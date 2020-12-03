@@ -4,4 +4,4 @@ scope: text.html.derivative - source.o3
 name: comment.block
 patterns:
   - name: comment.block
-    match: \b(use|require|as|from|import|define)\b
+    match: \b(require|as|from|import|define)\b

@@ -1,7 +1,0 @@
-_includeIn: /src/ogone.keywords.yml
-contentName: comment.line
-begin: (?<=(use))
-end: (?=(\s+as\s+))
-patterns:
-  - match: (.+?)(?=\s)
-    name: support.class

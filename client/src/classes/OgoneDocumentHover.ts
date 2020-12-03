@@ -39,20 +39,27 @@ export default class OgoneDocumentHover extends OgoneDocument implements HoverPr
     if (links) {
       const visitedNode = links.find((nodeLink) => {
         const nodePositionStart = this.document.positionAt(nodeLink.node.startIndex);
-        const nodePositionEnd = this.document.positionAt(nodeLink.node.endIndex);
+        const nodePositionEnd = this.document.positionAt(nodeLink.node.startIndex + nodeLink.node.tagName.length + 1);
         return position.isAfterOrEqual(nodePositionStart) && position.isBeforeOrEqual(nodePositionEnd);
       })
       if (!!visitedNode) {
         const pathToComponent = visitedNode.link.target.path;
+        const isRecursive = this.document.uri.path === pathToComponent;
         const fileContent = fs.readFileSync(pathToComponent, { encoding: 'utf8' });
         const fileCode = new MarkdownString();
         fileCode.appendMarkdown(`## ${visitedNode.node.tagName}
-_${path.relative(this.document.uri.path, pathToComponent)}_`);
-        fileCode.appendCodeblock(fileContent, 'ogone');
+_${path.relative(this.document.uri.path, pathToComponent)}_
+
+`);
+        if (!isRecursive) {
+          fileCode.appendCodeblock(fileContent, 'ogone');
+        } else {
+          fileCode.appendMarkdown('_recursive component_');
+        }
         hover.contents.push(fileCode);
         hover.range = new Range(
           this.document.positionAt(visitedNode.node.startIndex),
-          this.document.positionAt(visitedNode.node.endIndex),
+          this.document.positionAt(visitedNode.node.startIndex + visitedNode.node.tagName.length + 1),
         )
       }
     }

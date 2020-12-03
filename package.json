@@ -202,7 +202,8 @@
 	},
 	"dependencies": {
 		"any-json": "^3.1.0",
-		"nodemon": "^2.0.4"
+		"nodemon": "^2.0.4",
+		"supports-color": "^8.0.0"
 	},
 	"__metadata": {
 		"id": "f12ce84e-a862-45d1-acda-67e75ec2e2a3",

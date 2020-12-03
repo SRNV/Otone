@@ -250,8 +250,9 @@
 		"editorSuggestWidget.foreground": "#a0a0a0",
 		"editorSuggestWidget.highlightForeground": "#000000",
 		"editorSuggestWidget.selectedBackground": "#000000",
+
 		"editorHoverWidget.foreground": "#dbdada",
-		"editorHoverWidget.background": "#09080c",
+		"editorHoverWidget.background": "#19171f",
 		"editorHoverWidget.border": "#80729c",
 		"editorHoverWidget.statusBarBackground": "#212024",
 
