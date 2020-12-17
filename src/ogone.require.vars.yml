@@ -1,11 +1,15 @@
 _includeIn: /src/ogone.keywords.yml
-_priority: 0
-contentName: source.ts.embedded.o3
-begin: (?<=(require))
-end: (?=(as))
+begin: (require)
+end: (\bas\s+)
+beginCaptures:
+  1:
+    name: keyword.control
+endCaptures:
+  1:
+    name: keyword.control.as.ts
 patterns:
   - include: source.ts
     patterns:
       - include: meta.block.ts
-      - include: meta.array.literal.ts
-      - include: meta.brace.square.ts
+      - include: support.type.ts
+      - include: support.type.primitive.ts

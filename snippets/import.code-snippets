@@ -7,5 +7,14 @@
 			"",
 			"import ${1:exportName} from '${2:/path/module.ts}';",
 		]
+	},
+	"import component": {
+		"prefix": "$$import-comp",
+		"scope": "ogone",
+		"description": "start importing a component",
+		"body": [
+			"",
+			"import component ${1:Component} from '${2:/path/to/Component.o3}';",
+		]
 	}
 }

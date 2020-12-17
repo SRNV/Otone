@@ -55,6 +55,8 @@
 			"    // here declare component's data with YAML",
 			"  before-each:",
 			"    // before each protocol's case",
+			"  compute:",
+			"    // computed data",
 			"  case '':",
 			"    // protocol's case",
 			"    break;",

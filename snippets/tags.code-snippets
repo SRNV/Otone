@@ -17,31 +17,31 @@
 			"<${1:element} $2 />",
 		]
 	},
-	"store-component": {
+	"Storecomponent": {
 		"prefix": "<<store",
 		"scope": "ogone",
-		"description": "add a store-component",
+		"description": "add a Storecomponent",
 		"body": [
 			"",
-			"<store-${1:component} namespace=\"$2\"></store-$1>",
+			"<Store${1:component} namespace=\"$2\"></Store$1>",
 		]
 	},
-	"async-component": {
+	"Asynccomponent": {
 		"prefix": "<<async",
 		"scope": "ogone",
-		"description": "add a async-component",
+		"description": "add a Asynccomponent",
 		"body": [
 			"",
-			"<async-${1:component} $2></async-$1>",
+			"<Async${1:component} $2></Async$1>",
 		]
 	},
-	"router-component": {
+	"Routercomponent": {
 		"prefix": "<<router",
 		"scope": "ogone",
-		"description": "add a router-component",
+		"description": "add a Routercomponent",
 		"body": [
 			"",
-			"<router-${1:component} namespace=\"$2\"></router-$1>",
+			"<Router${1:component} namespace=\"$2\"></Router$1>",
 		]
 	},
 }

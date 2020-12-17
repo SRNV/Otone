@@ -5,26 +5,17 @@ injectionSelector: L:meta.tag
 repository:
   main:
     patterns:
-      - begin: (\-{2})(for)(\=\")
-        end: (\")
+      - begin: (\-{2})(for)(\=\{)
+        end: (\})
         beginCaptures:
           2:
             name: markup.italic support.function
         name: source.ts
         patterns:
-          - match: (as)\s+(\()(.+)(\))
-            name: variables
-            captures:
-              1:
-                name: constant.type
-              3:
-                name: source.ts
-                patterns:
-                  - include: source.ts
           - include: punctuation
-          - include: source.ts
-      - begin: (\-{2}|\:)([^\s\t]+)(\=\")
-        end: (\")
+          - include: source.ts meta.block.ts
+      - begin: (\-{2}|\b)([^\s\t]+)(\=\{)
+        end: (\})
         beginCaptures:
           2:
             name: markup.italic support.function
@@ -34,3 +25,9 @@ repository:
           - include: source.ts
       - match: ((\-{2})([^\s\t\=\>\<]+)+(?!\=))
         name: markup.italic support.function
+      - begin: (\{)
+        end: (\})
+        name: source.ts
+        patterns:
+          - include: punctuation
+          - include: source.ts
