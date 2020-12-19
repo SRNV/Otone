@@ -26,7 +26,7 @@ export default class Collections {
     "router",
     "gl",
   ];
-  public readonly validProtocolAttributes: string[] = ['def', 'type', 'engine'];
+  public readonly validProtocolAttributes: string[] = ['def', 'type', 'engine', 'namespace'];
   public readonly validTemplateAttributes: string[] = ['is'];
   public readonly validStyleAttributes: string[] = ['--keyframes', 'name', 'global'];
 
