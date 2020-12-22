@@ -20,7 +20,45 @@
                 {
                     "name": "comment.block",
                     "begin": "\\/\\*",
-                    "end": "\\*\\/"
+                    "end": "\\*\\/",
+                    "patterns": [
+                        {
+                            "name": "storage.type.class.jsdoc",
+                            "patterns": [
+                                {
+                                    "include": "source.ts"
+                                }
+                            ],
+                            "begin": "(\\@)(example)",
+                            "beginCaptures": {
+                                "1": "storage.type.class.jsdoc",
+                                "2": "storage.type.class.jsdoc"
+                            },
+                            "end": "(?=(@.+\\s|\\*\\/))"
+                        },
+                        {
+                            "name": "storage.type.class.jsdoc",
+                            "contentName": "entity.name.type.instance.jsdoc",
+                            "begin": "(\\@)(deps|dependencies)",
+                            "beginCaptures": {
+                                "1": "storage.type.class.jsdoc",
+                                "2": "storage.type.class.jsdoc"
+                            },
+                            "end": "(?=(@.+\\s|\\*\\/))"
+                        },
+                        {
+                            "name": "storage.type.class.jsdoc",
+                            "match": "\\@(.+?)\\s"
+                        },
+                        {
+                            "name": "entity.name.type.instance.jsdoc",
+                            "match": "(?<=\\@name\\s)(.+?)\\s"
+                        },
+                        {
+                            "name": "entity.name.type.instance.jsdoc",
+                            "match": "(?<=\\@TODO\\s)(.+?)\\n"
+                        }
+                    ]
                 },
                 {
                     "include": "#/src/ogone.html.block.yml"

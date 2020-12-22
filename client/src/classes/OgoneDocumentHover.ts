@@ -56,7 +56,7 @@ _${path.relative(this.document.uri.path, pathToComponent)}_
         } else {
           fileCode.appendMarkdown('_recursive component_');
         }
-        hover.contents.push(fileCode);
+        hover.contents.push('\n\n', fileCode, '\n\n');
         hover.range = new Range(
           this.document.positionAt(visitedNode.node.startIndex),
           this.document.positionAt(visitedNode.node.startIndex + visitedNode.node.tagName.length + 1),

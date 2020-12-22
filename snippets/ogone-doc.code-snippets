@@ -1,0 +1,17 @@
+{
+	"Start writing your AsyncComponent": {
+		"prefix": "$$doc",
+		"scope": "ogone",
+		"description": "open a block comment",
+		"body": [
+			"",
+			"/**",
+			" *  @name ${1:ComponentName}",
+			" *  @description",
+			" *    ${2:describe the component}",
+			" *  @example",
+			"       ${3:// give an example}",
+			" */",
+		]
+	},
+}

@@ -27,38 +27,24 @@
     "*.o3": "html"
   },
   // symbols that are auto closed when typing
-  "autoClosingPairs": [
-    [
-      "{",
-      "}"
-    ],
-    [
-      "[",
-      "]"
-    ],
-    [
-      "(",
-      ")"
-    ],
-    [
-      "\"",
-      "\""
-    ],
-    [
-      "=\"",
-      "\""
-    ],
-    [
-      "/**",
-      " */"
-    ],
-    [
-      "'",
-      "'"
-    ]
-  ],
+	"autoClosingPairs": [
+		{ "open": "[", "close": "]" },
+		{ "open": "\n", "close": "  *\n", "notIn": ["string"] },
+		{ "open": "{", "close": "}" },
+		{ "open": "(", "close": ")" },
+		{ "open": "'", "close": "'", "notIn": ["string", "comment"] },
+		{ "open": "\"", "close": "\"", "notIn": ["string"] },
+		{ "open": "/**", "close": " */", "notIn": ["string"] },
+		{ "open": "/*!", "close": " */", "notIn": ["string"] }
+	],
   "editor.tabCompletion": "on",
   "editor.snippetSuggestions": "top",
+  "auto-comment-blocks.singleLineBlockOnEnter": true,
+  "auto-comment-blocks.slashStyleBlocks": [
+    "o3",
+    "Ogone",
+    "ogone"
+  ],
   "bracketPairColorizer.consecutivePairColors": [
     "()",
     "[]",
@@ -105,5 +91,11 @@
       "'",
       "'"
     ]
-  ]
+  ],
+  "folding": {
+    "markers": {
+      "start": "^<(style|proto|template)",
+      "end": "^\\<\/(style|proto|template)"
+    }
+  }
 }
