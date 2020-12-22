@@ -3,7 +3,7 @@
 	"displayName": "otone",
 	"publisher": "SRNV",
 	"description": "Support for Ogone Single File components",
-	"version": "0.1.182",
+	"version": "0.1.183",
 	"icon": "public/ogone-svg.png",
 	"main": "./client/out/extension",
 	"activationEvents": [
@@ -35,11 +35,11 @@
 		"title": "Ogone",
 		"iconThemes": [
 			{
-			  "id": "ogone",
-			  "label": "Ogone",
-			  "path": "./icons/icons.json"
+				"id": "ogone",
+				"label": "Ogone",
+				"path": "./icons/icons.json"
 			}
-		  ],
+		],
 		"configuration": {
 			"type": "object",
 			"title": "Ogone LSP configuration",
