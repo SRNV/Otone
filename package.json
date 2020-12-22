@@ -33,6 +33,13 @@
 	},
 	"contributes": {
 		"title": "Ogone",
+		"iconThemes": [
+			{
+			  "id": "ogone",
+			  "label": "Ogone",
+			  "path": "./icons/icons.json"
+			}
+		  ],
 		"configuration": {
 			"type": "object",
 			"title": "Ogone LSP configuration",
