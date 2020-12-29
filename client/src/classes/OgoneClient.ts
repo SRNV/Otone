@@ -10,7 +10,8 @@ import {
   Color,
   ColorPresentation,
   Range,
-  window
+  window,
+  ViewColumn
 } from 'vscode';
 import * as path from 'path';
 import OgoneDocument from './OgoneDocument';

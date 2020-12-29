@@ -12,10 +12,14 @@
 	"scripts": {
 		"start": "node index.js",
 		"vscode:prepublish": "npm run compile",
-		"simulate": "npm start; npm run postinstall; npm run compile",
+		"simulate": "npm run prestart; npm start; npm run postinstall; npm run compile",
 		"compile": "tsc -b",
+		"sdb-xmlparser-client": "sudo deno bundle --unstable --no-check -c deno-config/tsconfig.json ./Ogone/classes/XMLParser.ts ./client/src/ogone/XMLParser.js",
+		"sdb-workers-client": "sudo deno bundle --unstable --no-check -c deno-config/tsconfig.json ./Ogone/enums/workers.ts ./client/src/ogone/workers.js",
+		"sdb-style-client": "sudo deno bundle --unstable --no-check -c deno-config/tsconfig.json ./Ogone/classes/StylesheetBuilder.ts ./client/src/ogone/StylesheetBuilder.js",
 		"watch": "tsc -b -w",
 		"postinstall": "cd client && npm install && cd ../server && npm install && cd ..",
+		"prestart": "cd ./Ogone && git pull && npm run sdb-workers-client",
 		"publish": "vsce publish -p pvskp6h3lbgg5uq6a3rh264qtliyjaldxmu7tp5n6x5sm4pthtxa",
 		"hot-publish": "npm start; git add .; git commit -m 'hot publish'; git push; npm version patch; npm run publish",
 		"open:vscode-host": "code --extensionDevelopmentPath=."
@@ -33,6 +37,13 @@
 	},
 	"contributes": {
 		"title": "Ogone",
+		"commands": [
+			{
+			  	"command": "ogone.webview.start",
+			  	"title": "Ogone Designer",
+			  	"category": "ogone designer"
+			}
+		],
 		"iconThemes": [
 			{
 				"id": "ogone",

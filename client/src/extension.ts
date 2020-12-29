@@ -1,6 +1,7 @@
 import * as path from 'path';
 import { workspace, ExtensionContext } from 'vscode';
 import OgoneClient from './classes/OgoneClient';
+import OgoneWebview from './classes/OgoneWebview';
 
 import {
 	LanguageClient,
@@ -10,14 +11,15 @@ import {
 } from 'vscode-languageclient';
 
 let client: LanguageClient;
+
 export function activate(context: ExtensionContext) {
-  // The server is implemented in node
+	// The server is implemented in node
 	let serverModule = context.asAbsolutePath(
-      path.join('server', 'out', 'server.js')
-    );
-    // The debug options for the server
-    // --inspect=6009: runs the server in Node's Inspector mode so VS Code can attach to the server for debugging
-    let debugOptions = { execArgv: ['--nolazy', '--inspect=6009'] };
+		path.join('server', 'out', 'server.js')
+	);
+	// The debug options for the server
+	// --inspect=6009: runs the server in Node's Inspector mode so VS Code can attach to the server for debugging
+	let debugOptions = { execArgv: ['--nolazy', '--inspect=6009'] };
 
 	// If the extension is launched in debug mode then the debug server options are used
 	// Otherwise the run options are used
@@ -29,10 +31,9 @@ export function activate(context: ExtensionContext) {
 			options: debugOptions
 		}
 	};
-
 	// Options to control the language client
 	let clientOptions: LanguageClientOptions = {
-    // select ogone files
+		// select ogone files
 		// trigger changes to server only if those files are changed
 		documentSelector: [{ scheme: 'file', language: 'ogone' }],
 		synchronize: {
@@ -47,14 +48,34 @@ export function activate(context: ExtensionContext) {
 		'Ogone',
 		serverOptions,
 		clientOptions
-    );
-    // Start the client. This will also launch the server
-    client.start();
+	);
+	// Start the client. This will also launch the server
+	client.start();
+	const config = workspace.getConfiguration();
+	workspace.findFiles('**/*.o3').then((files) => {
+		const webview = new OgoneWebview({ context, files });
+		// hooks on the workspace
+		const updateWebview = (document) => {
+			if (document.languageId === 'ogone') {
+				webview.setDocument(document);
+				webview.updateWebview(false);
+			}
+		}
+		workspace.onDidOpenTextDocument(updateWebview);
+		workspace.onDidSaveTextDocument(updateWebview);
+		workspace.onDidChangeTextDocument((ev) => {
+			const { document } = ev;
+			if (document.languageId === 'ogone') {
+				webview.setDocument(document);
+				webview.updateWebview(false);
+			}
+		});
+	});
 }
 
 export function deactivate(): Thenable<void> | undefined {
-  if (!client) {
-    return undefined;
+	if (!client) {
+		return undefined;
 	}
 	return client.stop();
 }
