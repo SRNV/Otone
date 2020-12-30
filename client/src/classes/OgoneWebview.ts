@@ -43,11 +43,12 @@ export default class OgoneWebview extends OgoneDocument {
   transparentBackgroundPath: Uri;
   iconPath: Uri;
   transparentBackgroundSpecialUri: string;
+  updateComponentTimeout: any = 0;
   constructor(opts: OgoneWebviewConstructorOptions) {
     super();
     const { context, files } = opts;
     const updateWebview = () => {
-      this.updateWebview(true);
+      this.updateWebview();
     };
     this.context = context;
     this.files = files;
@@ -114,6 +115,8 @@ export default class OgoneWebview extends OgoneDocument {
         type: type || 'message',
         data: message
       }));
+    } else {
+      console.warn(4, 'no messages')
     }
   }
   openWebview() {
@@ -151,17 +154,22 @@ export default class OgoneWebview extends OgoneDocument {
       }
     }
   }
-  updateWebview(changesFromWindow?: boolean) {
+  updateWebview() {
     this.translateWebview();
     this.openWebview()
     if (!this.panel.visible) {
       this.panel.reveal(ViewColumn.Two);
     }
     if (this.document.uri.path.endsWith('.o3')) {
-      this.notify(Workers.LSP_UPDATE_CURRENT_COMPONENT, {
-        ...this.document.uri,
-        text: this.document.getText(),
-      });
+      clearTimeout(this.updateComponentTimeout as any);
+      this.updateComponentTimeout = setTimeout(() => {
+        this.notify(Workers.LSP_UPDATE_CURRENT_COMPONENT, {
+          ...this.document.uri,
+          text: this.document.getText(),
+        });
+      }, 200);
+    } else {
+      console.warn(3, 'nothing here')
     }
   }
   closeWebview() {
@@ -171,18 +179,23 @@ export default class OgoneWebview extends OgoneDocument {
     const active = this.getActiveEditor();
     if (active) {
       this.document = active.document;
-      if (this.document.uri.path.endsWith('.o3')) {
-        this.notify(Workers.LSP_UPDATE_CURRENT_COMPONENT, {
-          ...this.document.uri,
-          text: this.document.getText(),
-        });
-      }
+      this.notify(Workers.LSP_UPDATE_CURRENT_COMPONENT, {
+        ...this.document.uri,
+        text: this.document.getText(),
+      });
+    } else {
+      window.showInformationMessage('nothing appear');
+      console.warn(1, 'nothing here')
     }
   }
   getActiveEditor(): TextEditor | undefined {
     const { visibleTextEditors } = window;
     const active = visibleTextEditors.find((editor) => editor.document
       && editor.document.uri.fsPath.endsWith('.o3'));
+    if (!active) {
+      window.showWarningMessage('nothing appear')
+      console.warn(2, 'nothing here')
+    }
     return active;
   }
   getHTML(inside: string) {

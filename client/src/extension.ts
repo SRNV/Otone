@@ -2,6 +2,7 @@ import * as path from 'path';
 import { workspace, ExtensionContext } from 'vscode';
 import OgoneClient from './classes/OgoneClient';
 import OgoneWebview from './classes/OgoneWebview';
+import OgoneWebsocket from './classes/OgoneWebsocket';
 
 import {
 	LanguageClient,
@@ -13,6 +14,8 @@ import {
 let client: LanguageClient;
 
 export function activate(context: ExtensionContext) {
+	// open
+	OgoneWebsocket.startConnection();
 	// The server is implemented in node
 	let serverModule = context.asAbsolutePath(
 		path.join('server', 'out', 'server.js')
@@ -58,7 +61,7 @@ export function activate(context: ExtensionContext) {
 		const updateWebview = (document) => {
 			if (document.languageId === 'ogone') {
 				webview.setDocument(document);
-				webview.updateWebview(false);
+				webview.updateWebview();
 			}
 		}
 		workspace.onDidOpenTextDocument(updateWebview);
@@ -67,7 +70,7 @@ export function activate(context: ExtensionContext) {
 			const { document } = ev;
 			if (document.languageId === 'ogone') {
 				webview.setDocument(document);
-				webview.updateWebview(false);
+				webview.updateWebview();
 			}
 		});
 	});
