@@ -36,6 +36,7 @@ export interface OgoneWebviewConstructorOptions {
  */
 export default class OgoneWebview extends OgoneDocument {
   public panel?: WebviewPanel;
+  private isActivated: boolean = false;
   informations: any = {};
   files: Uri[];
   port: number = Math.floor(Math.random() * 9000 + 2000);
@@ -47,7 +48,7 @@ export default class OgoneWebview extends OgoneDocument {
   constructor(opts: OgoneWebviewConstructorOptions) {
     super();
     const { context, files } = opts;
-    const updateWebview = () => {
+    const updateWebview = (document) => {
       this.updateWebview();
     };
     this.context = context;
@@ -74,6 +75,10 @@ export default class OgoneWebview extends OgoneDocument {
     window.onDidChangeVisibleTextEditors(updateWebview);
     window.onDidChangeTextEditorSelection((ev) => {
       const { document } = ev.textEditor;
+      if (!document.uri.path.endsWith('.o3')) {
+        this.showWelcomeMessage();
+        return;
+      }
       if (document.uri.path !== this.document.uri.path) {
         this.setDocument(document);
         this.updateWebview();
@@ -86,24 +91,25 @@ export default class OgoneWebview extends OgoneDocument {
       switch (data.type) {
         case Workers.LSP_CLOSE:
           this.panel.webview.html = Webview.WELCOME_MESSAGE;
+          this.panel.dispose();
+          this.isActivated = false;
           break;
         case Workers.LSP_SEND_COMPONENT_INFORMATIONS:
-          window.showInformationMessage('Ogone Designer - component informations received...');
           this.informations[data.data.file] = data.data;
           break;
         case Workers.LSP_OPEN_WEBVIEW:
-          window.showInformationMessage('Ogone Designer - opening...');
+          this.isActivated = true;
           this.openWebview();
           break;
         case Workers.LSP_SEND_PORT:
-          window.showInformationMessage('Ogone Designer - get the active document');
           this.port = data.data;
           this.setViewForActiveOgoneDocument();
           this.openWebview()
           break;
         case Workers.LSP_CURRENT_COMPONENT_RENDERED:
-          window.showInformationMessage('Ogone Designer - rendering...');
-          this.panel.webview.html = this.getHTML(data.data);
+          if (this.isActivated) {
+            this.panel.webview.html = this.getHTML(data.data);
+          }
           this.openWebview()
           break;
       }
@@ -115,11 +121,10 @@ export default class OgoneWebview extends OgoneDocument {
         type: type || 'message',
         data: message
       }));
-    } else {
-      console.warn(4, 'no messages')
     }
   }
   openWebview() {
+    if (!this.isActivated) return;
     if (!this.panel) {
       const activeEditor = this.getActiveEditor();
       this.panel = window.createWebviewPanel(
@@ -134,7 +139,7 @@ export default class OgoneWebview extends OgoneDocument {
           localResourceRoots: [Uri.file(path.join(this.context.extensionPath, 'public'))]
         } // Webview options. More on these later.
       );
-      this.panel.webview.html = Webview.WELCOME_MESSAGE;
+      this.showWelcomeMessage();
       this.panel.iconPath = this.iconPath;
       this.setViewForActiveOgoneDocument();
       this.panel.onDidDispose(() => {
@@ -147,6 +152,7 @@ export default class OgoneWebview extends OgoneDocument {
     }
   }
   translateWebview() {
+    if (!this.isActivated) return;
     const activeEditor = this.getActiveEditor();
     if (activeEditor) {
       if (this.panel.viewColumn <= activeEditor.viewColumn) {
@@ -155,6 +161,7 @@ export default class OgoneWebview extends OgoneDocument {
     }
   }
   updateWebview() {
+    if (!this.isActivated) return;
     this.translateWebview();
     this.openWebview()
     if (!this.panel.visible) {
@@ -167,15 +174,14 @@ export default class OgoneWebview extends OgoneDocument {
           ...this.document.uri,
           text: this.document.getText(),
         });
-      }, 200);
-    } else {
-      console.warn(3, 'nothing here')
+      }, 500);
     }
   }
   closeWebview() {
     this.panel.dispose();
   }
   setViewForActiveOgoneDocument() {
+    if (!this.isActivated) return;
     const active = this.getActiveEditor();
     if (active) {
       this.document = active.document;
@@ -183,20 +189,16 @@ export default class OgoneWebview extends OgoneDocument {
         ...this.document.uri,
         text: this.document.getText(),
       });
-    } else {
-      window.showInformationMessage('nothing appear');
-      console.warn(1, 'nothing here')
     }
   }
   getActiveEditor(): TextEditor | undefined {
     const { visibleTextEditors } = window;
     const active = visibleTextEditors.find((editor) => editor.document
       && editor.document.uri.fsPath.endsWith('.o3'));
-    if (!active) {
-      window.showWarningMessage('nothing appear')
-      console.warn(2, 'nothing here')
-    }
     return active;
+  }
+  showWelcomeMessage() {
+    this.panel.webview.html = Webview.WELCOME_MESSAGE;
   }
   getHTML(inside: string) {
     // And get the special URI to use with the webview

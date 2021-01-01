@@ -1,5 +1,5 @@
 import * as path from 'path';
-import { workspace, ExtensionContext } from 'vscode';
+import { workspace, ExtensionContext, window } from 'vscode';
 import OgoneClient from './classes/OgoneClient';
 import OgoneWebview from './classes/OgoneWebview';
 import OgoneWebsocket from './classes/OgoneWebsocket';
@@ -16,6 +16,7 @@ let client: LanguageClient;
 export function activate(context: ExtensionContext) {
 	// open
 	OgoneWebsocket.startConnection();
+	window.showInformationMessage('Otone is ready.')
 	// The server is implemented in node
 	let serverModule = context.asAbsolutePath(
 		path.join('server', 'out', 'server.js')
@@ -77,6 +78,7 @@ export function activate(context: ExtensionContext) {
 }
 
 export function deactivate(): Thenable<void> | undefined {
+	OgoneWebsocket.server.close();
 	if (!client) {
 		return undefined;
 	}

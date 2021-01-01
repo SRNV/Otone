@@ -7,7 +7,8 @@
 	"icon": "public/ogone-svg.png",
 	"main": "./client/out/extension",
 	"activationEvents": [
-		"onLanguage:ogone"
+		"onLanguage:ogone",
+		"workspaceContains:**/*.o3"
 	],
 	"scripts": {
 		"start": "node index.js",

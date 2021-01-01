@@ -15,6 +15,7 @@ import {
   CancellationToken,
   MarkdownString,
 } from 'vscode';
+import jsdoc from 'jsdoc-api';
 import * as path from 'path';
 import * as fs from 'fs';
 import OgoneDocument from './OgoneDocument';

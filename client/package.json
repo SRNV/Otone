@@ -15,6 +15,7 @@
 	"scripts": {},
 	"dependencies": {
 		"htmlparser2": "^4.1.0",
+		"jsdoc-api": "^6.0.0",
 		"vscode-languageclient": "^5.2.1",
 		"vscode-languageserver-textdocument": "^1.0.1",
 		"ws": "^7.4.1"

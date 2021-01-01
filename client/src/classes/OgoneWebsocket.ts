@@ -6,9 +6,7 @@ export default abstract class OgoneWebsocket {
   });
   public static ws?: Websocket;
   static startConnection() {
-    console.warn('trying to start a connection')
     OgoneWebsocket.server.on('connection', (ws) => {
-      console.warn('connected !!!!')
       OgoneWebsocket.ws = ws;
     })
   }

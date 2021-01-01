@@ -2,14 +2,14 @@
 	<defs>
 		<radialGradient id="grd1" gradientUnits="userSpaceOnUse"  cx="560.791" cy="341.979" r="515.509">
 			<stop offset="0" stop-color="#171623"  />
-			<stop offset="0.94" stop-color="#9492f7"  />
+			<stop offset="0.94" stop-color="#6867a1"  />
 		</radialGradient>
 		<linearGradient id="grd2" gradientUnits="userSpaceOnUse"  x1="53.857" y1="-48.28" x2="573.803" y2="694.28">
 			<stop offset="0" stop-color="#171623"  />
-			<stop offset="1" stop-color="#9492f7"  />
+			<stop offset="1" stop-color="#6867a1"  />
 		</linearGradient>
 		<radialGradient id="grd3" gradientUnits="userSpaceOnUse"  cx="255.061" cy="382.459" r="150.253">
-			<stop offset="0" stop-color="#9492f7"  />
+			<stop offset="0" stop-color="#6867a1"  />
 			<stop offset="1" stop-color="#171623"  />
 		</radialGradient>
 	</defs>
