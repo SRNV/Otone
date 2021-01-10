@@ -36,7 +36,6 @@ export interface OgoneWebviewConstructorOptions {
  */
 export default class OgoneWebview extends OgoneDocument {
   public panel?: WebviewPanel;
-  private isActivated: boolean = false;
   informations: any = {};
   files: Uri[];
   port: number = Math.floor(Math.random() * 9000 + 2000);
@@ -44,7 +43,10 @@ export default class OgoneWebview extends OgoneDocument {
   transparentBackgroundPath: Uri;
   iconPath: Uri;
   transparentBackgroundSpecialUri: string;
+  ogoneLogoSpecialUri: string;
   updateComponentTimeout: any = 0;
+  ws?: Websocket;
+  FIFOMessages: string[] = [];
   constructor(opts: OgoneWebviewConstructorOptions) {
     super();
     const { context, files } = opts;
@@ -63,14 +65,26 @@ export default class OgoneWebview extends OgoneDocument {
     this.transparentBackgroundSpecialUri = context.asAbsolutePath(
       path.join('public', 'transparent_back.png')
     );
+    this.ogoneLogoSpecialUri = context.asAbsolutePath(
+      path.join('public', 'ogone-svg.png')
+    );
     // start websocket connection
     const _self = this;
     OgoneWebsocket.server.on('connection', (ws) => {
-      OgoneWebsocket.ws = ws;
-      OgoneWebsocket.ws.on('message', (message) => {
+      _self.ws = ws;
+      _self.FIFOMessages.forEach((m) => {
+        ws.send(m);
+      })
+      _self.FIFOMessages.splice(0);
+      ws.on('message', (message) => {
         _self.read(message);
       });
     });
+    OgoneWebsocket.errorServer.on('connection', (ws) => {
+      ws.on('message', (message) => {
+        _self.readError(message);
+      })
+    })
     window.onDidChangeWindowState(updateWebview);
     window.onDidChangeVisibleTextEditors(updateWebview);
     window.onDidChangeTextEditorSelection((ev) => {
@@ -83,22 +97,36 @@ export default class OgoneWebview extends OgoneDocument {
         this.setDocument(document);
         this.updateWebview();
       }
-    })
+    });
+  }
+  get welcomeMessage() {
+    return `
+    <p align="center">
+      <img src="vscode-resource:${this.ogoneLogoSpecialUri}" />
+    </p>
+    ${Webview.WELCOME_MESSAGE}
+    `;
+  }
+  readError(message: Websocket.Data): void {
+    if (message) {
+      const data = JSON.parse(message as string);
+      window.showErrorMessage(message as string);
+      console.warn(data);
+    }
   }
   read(message: Websocket.Data): void {
     if (message) {
       const data = JSON.parse(message as string);
+      console.warn(data);
       switch (data.type) {
         case Workers.LSP_CLOSE:
-          this.panel.webview.html = Webview.WELCOME_MESSAGE;
+          this.panel.webview.html = this.welcomeMessage;
           this.panel.dispose();
-          this.isActivated = false;
           break;
         case Workers.LSP_SEND_COMPONENT_INFORMATIONS:
           this.informations[data.data.file] = data.data;
           break;
         case Workers.LSP_OPEN_WEBVIEW:
-          this.isActivated = true;
           this.openWebview();
           break;
         case Workers.LSP_SEND_PORT:
@@ -107,29 +135,29 @@ export default class OgoneWebview extends OgoneDocument {
           this.openWebview()
           break;
         case Workers.LSP_CURRENT_COMPONENT_RENDERED:
-          if (this.isActivated) {
-            this.panel.webview.html = this.getHTML(data.data);
-          }
+          this.panel.webview.html = this.getHTML(data.data);
           this.openWebview()
           break;
       }
     }
   }
   notify(type: any, message: Object | string | number) {
-    if (OgoneWebsocket.ws) {
-      OgoneWebsocket.ws.send(JSON.stringify({
-        type: type || 'message',
-        data: message
-      }));
+    const data = {
+      type: type || 'message',
+      data: message
+    };
+    if (this.ws) {
+      this.ws.send(JSON.stringify(data));
+    } else {
+      this.FIFOMessages.push(JSON.stringify(data))
     }
   }
   openWebview() {
-    if (!this.isActivated) return;
     if (!this.panel) {
       const activeEditor = this.getActiveEditor();
       this.panel = window.createWebviewPanel(
-        'ogone', // Identifies the type of the webview. Used internally
-        'Ogone Designer', // Title of the panel displayed to the user
+        workspace.name , // Identifies the type of the webview. Used internally
+        `Ogone Designer - ${workspace.name}`, // Title of the panel displayed to the user
         {
           viewColumn: activeEditor && activeEditor.viewColumn ? activeEditor.viewColumn + 1 : ViewColumn.Two,
           preserveFocus: true,
@@ -152,7 +180,6 @@ export default class OgoneWebview extends OgoneDocument {
     }
   }
   translateWebview() {
-    if (!this.isActivated) return;
     const activeEditor = this.getActiveEditor();
     if (activeEditor) {
       if (this.panel.viewColumn <= activeEditor.viewColumn) {
@@ -161,7 +188,6 @@ export default class OgoneWebview extends OgoneDocument {
     }
   }
   updateWebview() {
-    if (!this.isActivated) return;
     this.translateWebview();
     this.openWebview()
     if (!this.panel.visible) {
@@ -181,7 +207,6 @@ export default class OgoneWebview extends OgoneDocument {
     this.panel.dispose();
   }
   setViewForActiveOgoneDocument() {
-    if (!this.isActivated) return;
     const active = this.getActiveEditor();
     if (active) {
       this.document = active.document;
@@ -198,7 +223,7 @@ export default class OgoneWebview extends OgoneDocument {
     return active;
   }
   showWelcomeMessage() {
-    this.panel.webview.html = Webview.WELCOME_MESSAGE;
+    this.panel.webview.html = this.welcomeMessage;
   }
   getHTML(inside: string) {
     // And get the special URI to use with the webview

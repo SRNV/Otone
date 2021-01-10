@@ -5,4 +5,6 @@ beginCaptures:
     name: variable.function
 end: (?=((default\b|def\b|declare\b|before-each\b|compute|case\s+(.+?)+)\:|\<\/proto))
 patterns:
+  - name: inherit.keyword.o3 keyword.control.o3
+    match: (inherit)(?=(\s+)([^\s]+)+(\s*)\:)
   - include: source.yaml

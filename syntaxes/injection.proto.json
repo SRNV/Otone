@@ -49,6 +49,10 @@
                     "include": "#/injections/proto/api.keywords.yml"
                 },
                 {
+                    "name": "inherit.keyword.o3 keyword.control.o3",
+                    "match": "(?<!static\\s+)(inherit)(?=(\\s+)([^\\s]+)+(\\s*)(\\:|\\;|\\n|\\=))"
+                },
+                {
                     "include": "source.ts"
                 }
             ],
@@ -63,6 +67,10 @@
             },
             "end": "(?=((default\\b|def\\b|declare\\b|before-each\\b|compute|case\\s+(.+?)+)\\:|\\<\\/proto))",
             "patterns": [
+                {
+                    "name": "inherit.keyword.o3 keyword.control.o3",
+                    "match": "(inherit)(?=(\\s+)([^\\s]+)+(\\s*)\\:)"
+                },
                 {
                     "include": "source.yaml"
                 }

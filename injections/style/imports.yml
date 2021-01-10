@@ -21,7 +21,7 @@ patterns:
       "1":
         name: punctuation.section.function.css
     patterns:
-      - match: '[^''") \t]+'
+      - match: '[^''"\) \t]+'
         name: variable.parameter.url.css
       - include: "#string-single"
       - include: "#string-double"

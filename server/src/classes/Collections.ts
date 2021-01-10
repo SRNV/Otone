@@ -23,6 +23,7 @@ export default class Collections {
     "async",
     "controller",
     "store",
+    "app",
     "router",
     "gl",
   ];
