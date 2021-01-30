@@ -68,6 +68,8 @@ export default class OgoneWebview extends OgoneDocument {
     this.ogoneLogoSpecialUri = context.asAbsolutePath(
       path.join('public', 'ogone-svg.png')
     );
+    // start heart beat
+    this.startHeartBeatForActiveComponent();
     // start websocket connection
     const _self = this;
     OgoneWebsocket.server.on('connection', (ws) => {
@@ -110,8 +112,7 @@ export default class OgoneWebview extends OgoneDocument {
   readError(message: Websocket.Data): void {
     if (message) {
       const data = JSON.parse(message as string);
-      window.showErrorMessage(message as string);
-      console.warn(data);
+      window.showErrorMessage(data.message as string);
     }
   }
   read(message: Websocket.Data): void {
@@ -224,6 +225,13 @@ export default class OgoneWebview extends OgoneDocument {
   }
   showWelcomeMessage() {
     this.panel.webview.html = this.welcomeMessage;
+  }
+  startHeartBeatForActiveComponent() {
+    setInterval(() => {
+      if (!this.getActiveEditor()) {
+        this.showWelcomeMessage();
+      }
+    }, 500);
   }
   getHTML(inside: string) {
     // And get the special URI to use with the webview
