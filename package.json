@@ -178,6 +178,19 @@
 				}
 			},
 			{
+				"path": "./syntaxes/injection.deno-source.json",
+				"scopeName": "deno.source.o3",
+				"injectTo": [
+					"source.o3",
+					"textnodes.o3",
+					"string.template.ts"
+				],
+				"embeddedLanguages": {
+					"meta.embedded.block.typescript": "typescript",
+					"source.ts": "ts"
+				}
+			},
+			{
 				"path": "./syntaxes/injection.proto.json",
 				"scopeName": "system.proto.o3",
 				"injectTo": [

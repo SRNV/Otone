@@ -1,0 +1,26 @@
+{
+    "patterns": [
+        {
+            "include": "#main"
+        }
+    ],
+    "scopeName": "deno.source.o3",
+    "injectionSelector": "L:string.template.ts, textnodes.o3",
+    "scope": "string.template.ts, textnodes.o3",
+    "repository": {
+        "main": {
+            "patterns": [
+                {
+                    "begin": "\\@(json|yml|md){0,1}(\\{)",
+                    "end": "(\\})",
+                    "name": "source.ts",
+                    "patterns": [
+                        {
+                            "include": "source.ts"
+                        }
+                    ]
+                }
+            ]
+        }
+    }
+}

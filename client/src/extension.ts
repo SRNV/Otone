@@ -53,6 +53,10 @@ export function activate(context: ExtensionContext) {
   );
   // Start the client. This will also launch the server
   client.start();
+  return;
+  // webview is postponed
+  // too many bugs
+  // need to fix it
   const config = workspace.getConfiguration();
   workspace.findFiles('**/*.o3').then((files) => {
     webview = new OgoneWebview({ context, files });
@@ -77,7 +81,7 @@ export function activate(context: ExtensionContext) {
 
 export function deactivate(): Thenable<void> | undefined {
   OgoneWebsocket.server.close();
-  webview.closeWebview();
+  if (webview) webview.closeWebview();
   if (!client) {
     return undefined;
   }

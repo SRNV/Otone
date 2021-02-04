@@ -28,7 +28,7 @@ export default class Collections {
     "gl",
   ];
   public readonly validProtocolAttributes: string[] = ['def', 'type', 'engine', 'namespace'];
-  public readonly validTemplateAttributes: string[] = ['is'];
+  public readonly validTemplateAttributes: string[] = ['is', 'private', 'protected'];
   public readonly validStyleAttributes: string[] = ['--keyframes', 'name', 'global'];
 
   setConnection(connection: ReturnType<typeof createConnection>) {

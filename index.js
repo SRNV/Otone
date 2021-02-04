@@ -18,3 +18,7 @@ buildTmL(
   "./injections/templates/",
   process.cwd() + "/syntaxes/injection.template.json",
 );
+buildTmL(
+  "./injections/deno/",
+  process.cwd() + "/syntaxes/injection.deno-source.json",
+);
