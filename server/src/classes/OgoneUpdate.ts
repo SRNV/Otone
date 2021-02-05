@@ -27,7 +27,7 @@ export default class OgoneUpdate extends Collections {
     this.inspectForbiddenDuplication(document);
     // asset's specific diagnostics
     // protcol's specific diagnostics
-    this.inspectForbiddenElementInsideProto(document);
+    // this.inspectForbiddenElementInsideProto(document);
     this.inspectProtocolTypes(document);
     this.inspectUselessProtocolAttrs(document);
     this.inspectRequiredProtocolNamespace(document);
