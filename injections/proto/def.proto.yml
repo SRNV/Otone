@@ -1,5 +1,6 @@
 _includeIn: main
 begin: (def\s*\:)
+contentName: source.yaml
 beginCaptures:
   1:
     name: variable.function

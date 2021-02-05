@@ -60,6 +60,7 @@
         },
         "/injections/proto/def.proto.yml": {
             "begin": "(def\\s*\\:)",
+            "contentName": "source.yaml",
             "beginCaptures": {
                 "1": {
                     "name": "variable.function"

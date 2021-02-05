@@ -159,7 +159,8 @@
 				"path": "./syntaxes/injection.template.json",
 				"scopeName": "textnodes.evaluated.o3",
 				"injectTo": [
-					"source.o3"
+					"source.o3",
+					"source.css"
 				],
 				"embeddedLanguages": {
 					"meta.embedded.block.typescript": "typescript",
