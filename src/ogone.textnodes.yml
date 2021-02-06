@@ -6,5 +6,5 @@ beginCaptures:
     name: textnodes.o3
     patterns:
 end: (?=(\<))
-contentName: textnodes.proto.o3
+contentName: textnodes.o3
 scope: html.o3 - source.o3

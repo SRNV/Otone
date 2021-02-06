@@ -6,7 +6,7 @@ beginCaptures:
     patterns:
       - include: source.ts
 end: (?=((default|compute|declare\s*|def\s*|before-each|case\s(.+)+)\:|\<\/proto))
-name: textnodes.proto.o3 source.ts switch-block.expr.ts switch-statement.expr.ts meta.block.ts
+name: source.ts switch-block.expr.ts switch-statement.expr.ts meta.block.ts
 patterns:
   - name: inherit.keyword.o3 keyword.control.o3
     match: (?<!static\s+)(inherit)(?=(\s+)([^\s]+)+(\s*)(\:|\;|\n|\=))

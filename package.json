@@ -205,8 +205,9 @@
 					"source.o3"
 				],
 				"embeddedLanguages": {
-					"meta.embedded.block.typescript": "css",
-					"source.css": "css"
+					"meta.embedded.block.typescript": "typescript",
+					"source.css": "css",
+					"source.ts": "ts"
 				}
 			},
 			{

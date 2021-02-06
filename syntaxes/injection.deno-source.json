@@ -5,14 +5,15 @@
         }
     ],
     "scopeName": "deno.source.o3",
-    "injectionSelector": "L:string.template.ts, textnodes.o3",
-    "scope": "string.template.ts, textnodes.o3",
+    "injectionSelector": "L:string.template.ts, string.quoted, string.unquoted, source.css, (textnodes.o3 - textnodes.proto.o3)",
+    "scope": "string.template.ts, string.quoted, string.unquoted",
     "repository": {
         "main": {
             "patterns": [
                 {
                     "begin": "\\@(json|yml|md){0,1}(\\{)",
                     "end": "(\\})",
+                    "contentName": "deno-source.o3",
                     "name": "source.ts",
                     "patterns": [
                         {

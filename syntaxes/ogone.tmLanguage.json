@@ -207,22 +207,28 @@
         },
         "/src/ogone.textnodes.proto.yml": {
             "name": "textnodes.proto.o3",
-            "begin": "(<\\s*proto\\s*[\\>]*\\>)",
+            "begin": "(\\<proto\\b([^\\>]*?)\\>)",
             "beginCaptures": {
                 "1": {
                     "name": "meta.tag.structure",
                     "patterns": [
+                        {
+                            "include": "text.html.derivative"
+                        },
                         {
                             "include": "meta.tag.structure.proto.start.html"
                         }
                     ]
                 }
             },
-            "end": "(\\<\\/proto\\s*[\\>]*\\>)",
+            "end": "(\\<\\/proto\\b([^\\>]*?)\\>)",
             "endCaptures": {
                 "1": {
                     "name": "meta.tag.structure",
                     "patterns": [
+                        {
+                            "include": "text.html.derivative"
+                        },
                         {
                             "include": "meta.tag.structure.proto.end.html"
                         }
@@ -230,16 +236,11 @@
                 }
             },
             "contentName": "textnodes.proto.o3",
-            "patterns": [
-                {
-                    "include": "textnodes.proto.o3"
-                }
-            ],
             "scope": "html.o3 - source.o3"
         },
         "/src/ogone.textnodes.style.yml": {
             "name": "textnodes.style.o3",
-            "begin": "(<\\s*style\\s*[\\>]*\\>)",
+            "begin": "(\\<style\\b([^\\>]*?)\\>)",
             "beginCaptures": {
                 "1": {
                     "name": "meta.tag.structure",
@@ -250,7 +251,7 @@
                     ]
                 }
             },
-            "end": "(\\<\\/style\\s*[\\>]*\\>)",
+            "end": "(\\<\\/style\\b([^\\>]*?)\\>)",
             "endCaptures": {
                 "1": {
                     "name": "meta.tag.structure",
@@ -279,7 +280,7 @@
                 }
             },
             "end": "(?=(\\<))",
-            "contentName": "textnodes.proto.o3",
+            "contentName": "textnodes.o3",
             "scope": "html.o3 - source.o3"
         }
     }
