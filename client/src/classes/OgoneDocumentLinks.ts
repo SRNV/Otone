@@ -83,8 +83,8 @@ export default class OgoneDocumentLinks extends OgoneDocument implements Documen
       links: documentLinkProviders,
       nodeLinks: documentNodeLinks,
     };
-    m.forEach((useStatement) => {
-      const match = useStatement.match(/(import\s+component\s+)(.+?)(\s+from\s+)(['"])(.*?)(?<!\\)(\4)(\;){0,1}([\n\s])*/);
+    m.forEach((importStatement) => {
+      const match = importStatement.match(/(import\s+component\s+)(.+?)(\s+from\s+)(['"])(.*?)(?<!\\)(\4)(\;){0,1}([\n\s])*/);
         if (match) {
           // @ts-ignore
           let [input, importStatement, tagName, fr, str, oldPath] = match;

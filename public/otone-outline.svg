@@ -1,0 +1,64 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 789 809" width="789" height="809">
+	<defs>
+		<linearGradient id="grd1" gradientUnits="userSpaceOnUse"  x1="0" y1="0" x2="0" y2="0">
+			<stop offset="0" stop-color="#3b2e64"  />
+			<stop offset="1" stop-color="#9492f7"  />
+		</linearGradient>
+		<radialGradient id="grd2" gradientUnits="userSpaceOnUse"  cx="0" cy="0" r="0">
+			<stop offset="0" stop-color="#171623"  />
+			<stop offset="0.94" stop-color="#9492f7"  />
+		</radialGradient>
+		<linearGradient id="grd3" gradientUnits="userSpaceOnUse"  x1="-64.331" y1="501.833" x2="512.713" y2="1325.937">
+			<stop offset="0" stop-color="#352e5c"  />
+			<stop offset="0.997" stop-color="#9492f7"  />
+		</linearGradient>
+		<linearGradient id="grd4" gradientUnits="userSpaceOnUse"  x1="0" y1="0" x2="0" y2="0">
+			<stop offset="0" stop-color="#352e5c"  />
+			<stop offset="0.997" stop-color="#9492f7"  />
+		</linearGradient>
+		<linearGradient id="grd5" gradientUnits="userSpaceOnUse"  x1="300.284" y1="-68.052" x2="673.241" y2="464.586">
+			<stop offset="0" stop-color="#171623"  />
+			<stop offset="0.94" stop-color="#9492f7"  />
+		</linearGradient>
+		<linearGradient id="grd6" gradientUnits="userSpaceOnUse"  x1="0" y1="0" x2="0" y2="0">
+			<stop offset="0" stop-color="#171623"  />
+			<stop offset="0.94" stop-color="#9492f7"  />
+		</linearGradient>
+		<linearGradient id="grd7" gradientUnits="userSpaceOnUse"  x1="0" y1="0" x2="0" y2="0">
+			<stop offset="0" stop-color="#171623"  />
+			<stop offset="1" stop-color="#9492f7"  />
+		</linearGradient>
+		<linearGradient id="grd8" gradientUnits="userSpaceOnUse"  x1="0" y1="0" x2="0" y2="0">
+			<stop offset="0" stop-color="#171623"  />
+			<stop offset="1" stop-color="#9492f7"  />
+		</linearGradient>
+		<radialGradient id="grd9" gradientUnits="userSpaceOnUse"  cx="401.515" cy="459.202" r="150.277">
+			<stop offset="0" stop-color="#9492f7"  />
+			<stop offset="1" stop-color="#171623"  />
+		</radialGradient>
+	</defs>
+	<style>
+		tspan { white-space:pre }
+		.shp0 { fill: url(#grd1) } 
+		.shp1 { fill: none;stroke: #000000;stroke-width: 62 } 
+		.shp2 { fill: url(#grd2) } 
+		.shp3 { fill: url(#grd3) } 
+		.shp4 { fill: url(#grd4) } 
+		.shp5 { fill: url(#grd5) } 
+		.shp6 { fill: url(#grd6) } 
+		.shp7 { fill: url(#grd7) } 
+		.shp8 { fill: url(#grd8) } 
+		.shp9 { fill: url(#grd9) } 
+	</style>
+	<path id="Shape 3" class="shp0" d="" />
+	<path id="Layer 2" class="shp1" d="M399.5 765C201.8 765 42 605.2 42 407.5C42 209.8 201.8 50 399.5 50C597.2 50 757 209.8 757 407.5C757 605.2 597.2 765 399.5 765Z" />
+	<path id="Shape 3" class="shp1" d="M167 47" />
+	<path id="Shape 1" class="shp2" d="" />
+	<path id="Shape 2 copy" class="shp3" d="M324.29 501.4C320.16 367.1 435.4 351.34 484.8 372.05C517.02 385.56 571.04 423.07 560.87 497.44C551.51 565.84 477.93 631.27 422.59 644.36C341.96 663.43 250.07 625.83 192.94 549.32C83.21 402.41 172.4 194.05 287.7 128.44C317.67 111.38 306.13 114.19 306.13 114.19C306.13 114.19 133.36 163.28 97.83 354.48C62.47 544.78 190.58 705.36 368.86 719.04C547.13 732.71 632.97 595.75 641.92 508.15C650.93 420.05 593.97 331.82 486.88 318.24C366.12 302.93 329.92 385.94 320.98 458.5C319.87 467.43 324.56 510.46 324.29 501.4Z" />
+	<path id="Shape 3" class="shp4" d="" />
+	<path id="Shape 2 copy 2" class="shp5" d="M524.31 395.97C601.56 505.91 517.71 577.45 465.06 587.29C430.73 593.71 368.1 597.52 335.74 529.79C305.97 467.51 342.89 361.73 382.42 320.85C452.43 248.44 510.55 232.73 599.67 267C741.59 321.56 709.01 468.76 709.01 468.76C709.01 468.76 732.2 403.78 693.67 301.37C652.63 192.32 490.83 80.44 358.23 206.52C256.38 303.38 244.18 431.85 267.89 511.53C324.03 700.15 604.13 639.17 560.47 453.63C553.74 425.04 519.1 388.55 524.31 395.97Z" />
+	<path id="Shape 3" class="shp6" d="" />
+	<path id="Shape 3" class="shp7" d="" />
+	<path id="Shape 2" class="shp8" d="" />
+	<path id="Layer 1" fill-rule="evenodd" class="shp9" d="M528.61 502.33C519.78 551.59 472.82 584.27 423.56 575.44C374.29 566.6 341.62 519.65 350.45 470.38C359.28 421.12 406.24 388.44 455.5 397.28C504.77 406.11 537.44 453.06 528.61 502.33Z" />
+</svg>

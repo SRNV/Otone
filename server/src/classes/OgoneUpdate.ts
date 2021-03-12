@@ -36,7 +36,6 @@ export default class OgoneUpdate extends Collections {
     this.getForbiddenTemplate(document);
     // style's specific diagnostics
     this.expectStyleElementToBeLast(document);
-    this.inspectUselessStyleAttrs(document);
     // at the end send all diagnostics
     this.sendDiagnostics(document);
   }
@@ -77,31 +76,6 @@ export default class OgoneUpdate extends Collections {
           source: "otone",
         }]);
       }
-    }
-  }
-  protected inspectUselessStyleAttrs(document: TextDocument) {
-    const o3 = this.getItem(document.uri);
-    if (o3) {
-      const { nodes } = o3;
-      const validAttributes = this.validStyleAttributes;
-      const styles: any = nodes.filter((n: any) => n.nodeType === 1 && n.tagName.toLowerCase() === "style");
-      styles.forEach((style: any) => {
-        const keys = Object.keys(style.attribs);
-        keys
-          .filter(key => !validAttributes.includes(key))
-          .map((key) => {
-            const findAttributePosition = o3.text.indexOf(key, style.startIndex);
-            this.saveDiagnostics([{
-              message: `style attribute '${key}' is not supported, 'global' attribute is supported`,
-              severity: DiagnosticSeverity.Error,
-              range: {
-                start: o3.document.positionAt(findAttributePosition),
-                end: o3.document.positionAt(findAttributePosition + key.length)
-              },
-              source: "otone",
-            }]);
-          });
-      })
     }
   }
   protected inspectUselessTemplateAttrs(document: TextDocument) {
@@ -202,12 +176,12 @@ export default class OgoneUpdate extends Collections {
       const { nodes } = o3;
       const notAllowedElementsOnTopLevel = nodes.filter((n: any) =>
         n.nodeType === 1
-        && !["template", "proto", "style"].includes(n.tagName.toLowerCase())
+        && !["template", "proto"].includes(n.tagName.toLowerCase())
       );
       if (notAllowedElementsOnTopLevel.length) {
         notAllowedElementsOnTopLevel.forEach((element: any) => {
           this.saveDiagnostics([{
-            message: `${element.tagName} has to be inserted into the template, as it is not supported on top level. template (XML), proto (typescript), style are supported`,
+            message: `${element.tagName} has to be inserted into the template, as it is not supported on top level. template (XML), proto (typescript) are supported`,
             severity: DiagnosticSeverity.Error,
             range: {
               start: o3.document.positionAt(element.startIndex),

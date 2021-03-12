@@ -8,19 +8,20 @@
 	"main": "./client/out/extension",
 	"activationEvents": [
 		"onLanguage:ogone",
-		"workspaceContains:**/*.o3"
+		"workspaceContains:**/*.o3",
+		"onView:ogoneHSE"
 	],
 	"scripts": {
 		"start": "node index.js",
 		"vscode:prepublish": "npm run compile",
 		"simulate": "npm start; npm run postinstall; npm run compile",
 		"compile": "tsc -b",
-		"sdb-xmlparser-client": "sudo deno bundle --unstable --no-check -c deno-config/tsconfig.json ./Ogone/classes/XMLParser.ts ./client/src/ogone/XMLParser.js",
-		"sdb-workers-client": "sudo deno bundle --unstable --no-check -c deno-config/tsconfig.json ./Ogone/enums/workers.ts ./client/src/ogone/workers.js",
-		"sdb-style-client": "sudo deno bundle --unstable --no-check -c deno-config/tsconfig.json ./Ogone/classes/StylesheetBuilder.ts ./client/src/ogone/StylesheetBuilder.js",
+		"sdb-xmlparser-client": "sudo deno bundle --unstable --no-check -c deno-config/tsconfig.json ./Ogone/src/classes/XMLParser.ts ./client/src/ogone/XMLParser.js",
+		"sdb-workers-client": "sudo deno bundle --unstable --no-check -c deno-config/tsconfig.json ./Ogone/src/enums/workers.ts ./client/src/ogone/workers.js",
+		"sdb-style-client": "sudo deno bundle --unstable --no-check -c deno-config/tsconfig.json ./Ogone/src/classes/StylesheetBuilder.ts ./client/src/ogone/StylesheetBuilder.js",
 		"watch": "tsc -b -w",
 		"postinstall": "cd client && npm install && cd ../server && npm install && cd ..",
-		"update-ogone": "cd ./Ogone && git pull && npm run sdb-workers-client",
+		"update-ogone": "cd ./Ogone && git checkout master && git pull && cd ../ && npm run sdb-workers-client",
 		"publish": "vsce publish -p pvskp6h3lbgg5uq6a3rh264qtliyjaldxmu7tp5n6x5sm4pthtxa",
 		"hot-publish": "npm start; git add .; git commit -m 'hot publish'; git push; npm version patch; npm run publish",
 		"open:vscode-host": "code --extensionDevelopmentPath=."
@@ -45,6 +46,31 @@
 				"category": "ogone designer"
 			}
 		],
+		"views": {
+		  "ogoneHSE": [
+			{
+			  "id": "ogoneHSE",
+			  "name": "Ogone Hot Scoped Editor",
+			  "icon": "public/otone-outline.svg",
+			  "contextualTitle": "Ogone HSE"
+			}
+		  ]
+		},
+		"viewsContainers": {
+			"activitybar": [
+			  {
+				"id": "ogoneHSE",
+				"title": "Ogone Hot Scoped Editor",
+				"icon": "public/otone-outline.svg"
+			  }
+			]
+		  },
+		  "viewsWelcome": [
+			{
+			  "view": "ogoneHSE",
+			  "contents": "Ogone HSE (Hot Scoped Editor) for live editions without any save, checkout before saving.\n[Start HSE session](command:nodeDependencies.addEntry)"
+			}
+		  ],
 		"iconThemes": [
 			{
 				"id": "ogone",

@@ -2,6 +2,9 @@ import {
   DocumentLink,
   ProviderResult,
   TextDocument,
+  TreeDataProvider,
+  TreeItem,
+  TreeView,
   languages,
   workspace,
   Position,
@@ -18,6 +21,7 @@ import OgoneDocument from './OgoneDocument';
 import OgoneDocumentLinks from './OgoneDocumentLinks';
 import OgoneDocumentHighLight from './OgoneDocumentHIghLight';
 import OgoneDocumentColor from './OgoneDocumentColor';
+import OgoneTreeDataProvider from './OgoneTreeDataProvider';
 import OgoneDocumentHover from './OgoneDocumentHover';
 import OgoneDocumentSignatureHelpProvider from './OgoneDocumentSignatureHelpProvider';
 
@@ -39,5 +43,6 @@ export default class OgoneClient extends OgoneDocument {
     languages.registerSignatureHelpProvider('ogone', new OgoneDocumentSignatureHelpProvider({}));
     // get definitions
     // languages.registerDefinitionProvider('ogone', new OgoneDocumentDefinitionProvider({}));
+
   }
 }

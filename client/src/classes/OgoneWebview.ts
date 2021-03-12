@@ -47,11 +47,12 @@ export default class OgoneWebview extends OgoneDocument {
   updateComponentTimeout: any = 0;
   ws?: Websocket;
   FIFOMessages: string[] = [];
+  activated = false;
   constructor(opts: OgoneWebviewConstructorOptions) {
     super();
     const { context, files } = opts;
     const updateWebview = (document) => {
-      this.updateWebview();
+      if (this.activated) this.updateWebview();
     };
     this.context = context;
     this.files = files;
@@ -69,7 +70,7 @@ export default class OgoneWebview extends OgoneDocument {
       path.join('public', 'ogone-svg.png')
     );
     // start heart beat
-    this.startHeartBeatForActiveComponent();
+    // this.startHeartBeatForActiveComponent();
     // start websocket connection
     const _self = this;
     OgoneWebsocket.server.on('connection', (ws) => {
@@ -90,6 +91,7 @@ export default class OgoneWebview extends OgoneDocument {
     window.onDidChangeWindowState(updateWebview);
     window.onDidChangeVisibleTextEditors(updateWebview);
     window.onDidChangeTextEditorSelection((ev) => {
+      if (!this.activated) return;
       const { document } = ev.textEditor;
       if (!document.uri.path.endsWith('.o3')) {
         this.showWelcomeMessage();
@@ -123,11 +125,13 @@ export default class OgoneWebview extends OgoneDocument {
         case Workers.LSP_CLOSE:
           this.panel.webview.html = this.welcomeMessage;
           this.panel.dispose();
+          this.activated = false;
           break;
         case Workers.LSP_SEND_COMPONENT_INFORMATIONS:
           this.informations[data.data.file] = data.data;
           break;
         case Workers.LSP_OPEN_WEBVIEW:
+          this.activated = true;
           this.openWebview();
           break;
         case Workers.LSP_SEND_PORT:
@@ -157,10 +161,10 @@ export default class OgoneWebview extends OgoneDocument {
     if (!this.panel) {
       const activeEditor = this.getActiveEditor();
       this.panel = window.createWebviewPanel(
-        workspace.name , // Identifies the type of the webview. Used internally
+        workspace.name + Math.random(), // Identifies the type of the webview. Used internally
         `Ogone Designer - ${workspace.name}`, // Title of the panel displayed to the user
         {
-          viewColumn: activeEditor && activeEditor.viewColumn ? activeEditor.viewColumn + 1 : ViewColumn.Two,
+          viewColumn: ViewColumn.Two,
           preserveFocus: true,
         }, // Editor column to show the new webview panel in.
         {
