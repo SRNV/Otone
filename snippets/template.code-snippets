@@ -1,6 +1,6 @@
 {
 	"template": {
-		"prefix": ["$$template", "$$tmpl"],
+		"prefix": ["template", "tmpl"],
 		"scope": "ogone",
 		"description": "start writing the component's template",
 		"body": [
@@ -10,7 +10,7 @@
 		]
 	},
 	"recycle template": {
-		"prefix": ["$$template-recycle", "$$tmplr"],
+		"prefix": ["template-recycle", "tmplr"],
 		"scope": "ogone",
 		"description": "start recycling a component",
 		"body": [

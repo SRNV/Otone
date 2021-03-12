@@ -1,6 +1,6 @@
 {
 	"import statement": {
-		"prefix": "$$import",
+		"prefix": "import",
 		"scope": "ogone",
 		"description": "start importing modules",
 		"body": [
@@ -9,7 +9,7 @@
 		]
 	},
 	"import component": {
-		"prefix": "$$import-comp",
+		"prefix": "import-comp",
 		"scope": "ogone",
 		"description": "start importing a component",
 		"body": [

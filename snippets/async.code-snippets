@@ -1,6 +1,6 @@
 {
 	"Start writing your AsyncComponent": {
-		"prefix": "$$async",
+		"prefix": "asynccomp",
 		"scope": "ogone",
 		"description": "start writing a new component",
 		"body": [
@@ -13,10 +13,7 @@
 			"  default:",
 			"    ${2:// initialization}",
 			"    Async.resolve($3);",
-			"</proto>",
-			"<style>",
-			"  ${4:// scoped by default, add global attribute to make it global}",
-			"</style>"
+			"</proto>"
 		]
 	},
 }

@@ -1,6 +1,6 @@
 {
 	"write the component's protocol using Typescript": {
-		"prefix": "$$proto-declare",
+		"prefix": "proto-declare",
 		"scope": "source.o3 - text.html.derivative",
 		"description": "component's protocol using Typescript",
 		"body": [
@@ -15,7 +15,7 @@
 		]
 	},
 	"write the component's protocol using YAML": {
-		"prefix": "$$proto-def",
+		"prefix": "proto-def",
 		"scope": "source.o3 - text.html.derivative",
 		"description": "component's protocol using YAML",
 		"body": [
@@ -30,7 +30,7 @@
 		]
 	},
 	"write the component's protocol initialization": {
-		"prefix": "$$proto-default",
+		"prefix": "proto-default",
 		"scope": "source.o3 - text.html.derivative",
 		"description": "component's protocol using only default section",
 		"body": [
@@ -43,7 +43,7 @@
 		]
 	},
 	"write the component's protocol": {
-		"prefix": "$$proto-global",
+		"prefix": "proto-global",
 		"scope": "source.o3 - text.html.derivative",
 		"description": "component's protocol using all sections",
 		"body": [

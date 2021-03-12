@@ -1,6 +1,6 @@
 {
 	"Start writing your Component": {
-		"prefix": "$$comp",
+		"prefix": "comp",
 		"scope": "ogone",
 		"description": "start writing a new component",
 		"body": [
@@ -12,10 +12,7 @@
 			"    ${4:// constructor part}",
 			"  default:",
 			"    ${5:// initialization}",
-			"</proto>",
-			"<style>",
-			"  ${3:// scoped by default}",
-			"</style>",
+			"</proto>"
 		]
 	},
 }

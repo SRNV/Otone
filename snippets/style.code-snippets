@@ -1,6 +1,6 @@
 {
 	"global style": {
-		"prefix": ["$$style-global", "$$stlgbl"],
+		"prefix": ["style-global", "stlgbl"],
 		"scope": "ogone",
 		"description": "add style tag to component",
 		"body": [
@@ -17,7 +17,7 @@
 		]
 	},
 	"scoped style": {
-		"prefix": ["$$style", "$$stl"],
+		"prefix": ["style", "stl"],
 		"scope": "ogone",
 		"description": "add style tag to component",
 		"body": [

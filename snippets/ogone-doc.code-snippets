@@ -1,6 +1,6 @@
 {
 	"Start writing your AsyncComponent": {
-		"prefix": "$$doc",
+		"prefix": "jsdoc",
 		"scope": "ogone",
 		"description": "open a block comment",
 		"body": [

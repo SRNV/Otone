@@ -68,7 +68,7 @@
 		  "viewsWelcome": [
 			{
 			  "view": "ogoneHSE",
-			  "contents": "Ogone HSE (Hot Scoped Editor) for live editions without any save, checkout before saving.\n[Start HSE session](command:nodeDependencies.addEntry)"
+			  "contents": "\n[Launch HSE for one component](command:nodeDependencies.addEntry)\n[Start HSE session](command:nodeDependencies.addEntry)"
 			}
 		  ],
 		"iconThemes": [
@@ -141,19 +141,11 @@
 			},
 			{
 				"language": "ogone",
-				"path": "./snippets/use.code-snippets"
-			},
-			{
-				"language": "ogone",
 				"path": "./snippets/tags.code-snippets"
 			},
 			{
 				"language": "ogone",
 				"path": "./snippets/template.code-snippets"
-			},
-			{
-				"language": "ogone",
-				"path": "./snippets/require.code-snippets"
 			},
 			{
 				"language": "ogone",

@@ -5,7 +5,7 @@
 		"description": "use the for flag",
 		"body": [
 			"",
-			"--for={ (${2:item ${3:,id}}) of  ${1:array}} ",
+			"--for={ (${2:item ${3:,id}}) of  ${1:this.array}} ",
 		]
 	}
 }
