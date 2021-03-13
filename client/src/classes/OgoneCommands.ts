@@ -11,17 +11,35 @@ import {
   ColorPresentation,
   commands,
   window,
+  Uri,
   Range,
 } from 'vscode';
 import * as path from 'path';
 import * as fs from 'fs';
+import { walkSync } from 'nodejs-fs-utils';
 import OgoneDocument from './OgoneDocument';
 import OgoneWebview from './OgoneWebview';
 
 
+interface ComponentInformations {
+  type: string;
+  name: string;
+  pathToComponent: string;
+}
 export default class OgoneCommands extends OgoneDocument {
+  folders: string[] = [];
   constructor(private webview: OgoneWebview) {
     super();
+    // get all directories
+    // avoid git directory
+    // node_modules directory
+    // and .ogone directory
+    walkSync(workspace.workspaceFolders[0].uri.path, (err, folderPath, stats, next, cache) => {
+      if (stats.isDirectory() && !folderPath.match(/\/(\.git|node_modules|\.ogone)/)) {
+        this.folders.push(folderPath);
+      }
+      next();
+    });
     /**
      * add commands
      */
@@ -32,7 +50,11 @@ export default class OgoneCommands extends OgoneDocument {
       await this.createApplication();
     });
     commands.registerCommand('otone.createComponent', async () => {
-      await this.createComponent();
+      const infos = await this.getComponentInformations();
+      console.warn(infos);
+      if (infos) {
+        this.createComponent(infos);
+      }
     });
   }
   openWebview(): void {
@@ -77,74 +99,181 @@ export default class OgoneCommands extends OgoneDocument {
       */
     });
   }
-  async createComponent(): Promise<void> {
-    const type = await window.showQuickPick([
-      'component',
-      'store',
-      'router',
-      'async',
-      'app',
-    ], {
-      /**
-       * An optional flag to include the description when filtering the picks.
-       */
-      matchOnDescription: true,
-
-      /**
-       * An optional flag to include the detail when filtering the picks.
-       */
-      matchOnDetail: true,
-
-      /**
-       * An optional string to show as place holder in the input box to guide the user what to pick on.
-       */
-      placeHolder: 'component',
-
-      /**
-       * Set to `true` to keep the picker open when focus moves to another part of the editor or to another window.
-       */
-      ignoreFocusOut: false,
-
-      /**
-       * An optional flag to make the picker accept multiple selections, if true the result is an array of picks.
-       */
-      canPickMany: false,
-    });
-    const path = await window.showInputBox({
+  async createComponent(infos: ComponentInformations) {
+    const { type, pathToComponent, name } = infos;
+    const filePath = path.join(
+      pathToComponent,
+      `${name}.o3`
+    );
+    let templateNode = `
+/**
+ * @name ${name}
+ * @type ${type}
+ * @date ${new Date().toUTCString()}
+ */
+<template>
+  <style>
+      .container {}
+  </style>
+  <!-- nodeType 1, 3, 8 supported -->
+  <div class="container">
+  </div>
+</template>`;
+    let protoBody = '';
+    switch (type) {
+      case 'app':
+        break;
+      case 'component':
+        protoBody = `
+declare:
+  // component's data
+default:
+  // component's initialization
+  break;
+        `;
+        break;
+      case 'store':
+        templateNode = '';
+        protoBody = `
+declare:
+  // store's data
+        `;
+        break;
+      case 'async':
+        protoBody = `
+declare:
+  // component's data
+default:
+  Async.resolve();
+  break;
+        `;
+        break;
+      case 'router':
+        protoBody = `
+def:
+  # router's routes
+  routes: []
+default:
+  // component's initialization
+  break;
+        `;
+        break;
+    }
+    let protoNode = `
+<proto type="${type || 'component'}">
+${protoBody.trim()}
+</proto>`;
+    let file = `
+${templateNode.trim()}
+${protoNode.trim()}
+    `;
+    fs.writeFileSync(filePath, file);
+    window.showInformationMessage(`Component created.`);
+    // now open the new component
+    const openPath = Uri.parse(`file://${filePath}`);
+    workspace.openTextDocument(openPath)
+      .then((doc) => {
+        window.showTextDocument(doc)
+      })
+  }
+  async getComponentInformations(): Promise<ComponentInformations> {
+    let type, pathToComponent, name = await window.showInputBox({
       /**
        * The value to prefill in the input box.
        */
-      value: 'path/to/component',
+      value: 'untitled',
 
       /**
        * The text to display underneath the input box.
        */
-      prompt: 'Path to the new Component',
+      prompt: 'Component\'s name',
 
       /**
        * An optional string to show as place holder in the input box to guide the user what to type.
        */
-      placeHolder: 'component | app | async | router | store',
+      placeHolder: 'Untitled',
 
       /**
        * Set to `true` to keep the input box open when focus moves to another part of the editor or to another window.
        */
       ignoreFocusOut: false,
-
-      /**
-       * An optional function that will be called to validate input and to give a hint
-       * to the user.
-       *
-       * @param value The current value of the input box.
-       * @return A human readable string which is presented as diagnostic message.
-       * Return `undefined`, `null`, or the empty string when 'value' is valid.
-       */
-      /*
-      validateInput(value: string): string | undefined | null | Thenable<string | undefined | null> {
-        return true;
-      }
-      */
     });
-    window.showInformationMessage(`${type} ${path}`);
+    const reg = /(?<componentName>.+?)\|(?<componentType>(app|component|store|async|router))\|(?<componentPath>.+?)/i;
+    let match;
+    if ((match = name.match(reg)) && match.groups) {
+      const {
+        componentName,
+        componentType,
+        componentPath,
+      } = match.groups;
+      name = componentName;
+        type = componentType;
+        pathToComponent = componentPath;
+    } else {
+      type = await window.showQuickPick([
+        'component',
+        'store',
+        'router',
+        'async',
+        'app',
+      ], {
+        /**
+         * An optional flag to include the description when filtering the picks.
+         */
+        matchOnDescription: true,
+
+        /**
+         * An optional flag to include the detail when filtering the picks.
+         */
+        matchOnDetail: true,
+
+        /**
+         * An optional string to show as place holder in the input box to guide the user what to pick on.
+         */
+        placeHolder: 'component',
+
+        /**
+         * Set to `true` to keep the picker open when focus moves to another part of the editor or to another window.
+         */
+        ignoreFocusOut: false,
+
+        /**
+         * An optional flag to make the picker accept multiple selections, if true the result is an array of picks.
+         */
+        canPickMany: false,
+      });
+      pathToComponent = await window.showQuickPick(this.folders,
+      {
+        /**
+         * An optional flag to include the description when filtering the picks.
+         */
+        matchOnDescription: true,
+
+        /**
+         * An optional flag to include the detail when filtering the picks.
+         */
+        matchOnDetail: true,
+
+        /**
+         * An optional string to show as place holder in the input box to guide the user what to pick on.
+         */
+        placeHolder: 'choose a folder for your component',
+
+        /**
+         * Set to `true` to keep the picker open when focus moves to another part of the editor or to another window.
+         */
+        ignoreFocusOut: false,
+
+        /**
+         * An optional flag to make the picker accept multiple selections, if true the result is an array of picks.
+         */
+        canPickMany: false,
+      });
+    }
+    return {
+      type,
+      name,
+      pathToComponent,
+    };
   }
 }
