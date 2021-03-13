@@ -8,11 +8,4 @@ export default abstract class OgoneWebsocket {
     port: 3441,
   });
   public static ws?: Websocket;
-  static startConnection() {
-    console.warn("test")
-    OgoneWebsocket.server.on('connection', (ws) => {
-      console.warn('connected');
-      OgoneWebsocket.ws = ws;
-    })
-  }
 }

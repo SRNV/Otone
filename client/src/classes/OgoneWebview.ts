@@ -88,7 +88,6 @@ export default class OgoneWebview extends OgoneDocument {
         _self.readError(message);
       })
     })
-    window.onDidChangeWindowState(updateWebview);
     window.onDidChangeVisibleTextEditors(updateWebview);
     window.onDidChangeTextEditorSelection((ev) => {
       if (!this.activated) return;
@@ -132,12 +131,10 @@ export default class OgoneWebview extends OgoneDocument {
           break;
         case Workers.LSP_OPEN_WEBVIEW:
           this.activated = true;
-          this.openWebview();
           break;
         case Workers.LSP_SEND_PORT:
           this.port = data.data;
           this.setViewForActiveOgoneDocument();
-          this.openWebview()
           break;
         case Workers.LSP_CURRENT_COMPONENT_RENDERED:
           this.panel.webview.html = this.getHTML(data.data);
@@ -158,46 +155,27 @@ export default class OgoneWebview extends OgoneDocument {
     }
   }
   openWebview() {
-    if (!this.panel) {
-      const activeEditor = this.getActiveEditor();
-      this.panel = window.createWebviewPanel(
-        workspace.name + Math.random(), // Identifies the type of the webview. Used internally
-        `Ogone Designer - ${workspace.name}`, // Title of the panel displayed to the user
-        {
-          viewColumn: ViewColumn.Two,
-          preserveFocus: true,
-        }, // Editor column to show the new webview panel in.
-        {
-          enableScripts: true,
-          localResourceRoots: [Uri.file(path.join(this.context.extensionPath, 'public'))]
-        } // Webview options. More on these later.
-      );
-      this.showWelcomeMessage();
-      this.panel.iconPath = this.iconPath;
-      this.setViewForActiveOgoneDocument();
-      this.panel.onDidDispose(() => {
-        this.panel = null;
-        const activeEditor = this.getActiveEditor();
-        if (activeEditor) {
-          this.openWebview();
-        }
-      });
+    if (this.panel) {
+      this.panel.dispose();
+      this.panel = null;
     }
-  }
-  translateWebview() {
-    const activeEditor = this.getActiveEditor();
-    if (activeEditor) {
-      if (this.panel.viewColumn <= activeEditor.viewColumn) {
-        this.panel.dispose();
-      }
-    }
+    this.panel = window.createWebviewPanel(
+      workspace.name + Math.random(), // Identifies the type of the webview. Used internally
+      `Ogone Designer - ${workspace.name}`, // Title of the panel displayed to the user
+      {
+        viewColumn: ViewColumn.Two,
+        preserveFocus: true,
+      }, // Editor column to show the new webview panel in.
+      {
+        enableScripts: true,
+        localResourceRoots: [Uri.file(path.join(this.context.extensionPath, 'public'))]
+      } // Webview options. More on these later.
+    );
+    this.showWelcomeMessage();
+    this.panel.iconPath = this.iconPath;
+    this.setViewForActiveOgoneDocument();
   }
   updateWebview() {
-    this.translateWebview();
-    this.openWebview()
-    if (!this.panel.visible) {
-      this.panel.reveal(ViewColumn.Two);
-    }
     if (this.document.uri.path.endsWith('.o3')) {
       clearTimeout(this.updateComponentTimeout as any);
       this.updateComponentTimeout = setTimeout(() => {
@@ -229,13 +207,6 @@ export default class OgoneWebview extends OgoneDocument {
   }
   showWelcomeMessage() {
     this.panel.webview.html = this.welcomeMessage;
-  }
-  startHeartBeatForActiveComponent() {
-    setInterval(() => {
-      if (!this.getActiveEditor()) {
-        this.showWelcomeMessage();
-      }
-    }, 500);
   }
   getHTML(inside: string) {
     // And get the special URI to use with the webview

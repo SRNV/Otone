@@ -9,7 +9,7 @@
 	"activationEvents": [
 		"onLanguage:ogone",
 		"workspaceContains:**/*.o3",
-		"onView:ogoneHSE"
+		"onView:otone"
 	],
 	"scripts": {
 		"start": "node index.js",
@@ -47,10 +47,10 @@
 			}
 		],
 		"views": {
-		  "ogoneHSE": [
+		  "otone": [
 			{
-			  "id": "ogoneHSE",
-			  "name": "Ogone Hot Scoped Editor",
+			  "id": "otone",
+			  "name": "Ogone",
 			  "icon": "public/otone-outline.svg",
 			  "contextualTitle": "Ogone HSE"
 			}
@@ -59,16 +59,16 @@
 		"viewsContainers": {
 			"activitybar": [
 			  {
-				"id": "ogoneHSE",
-				"title": "Ogone Hot Scoped Editor",
+				"id": "otone",
+				"title": "Ogone",
 				"icon": "public/otone-outline.svg"
 			  }
 			]
 		  },
 		  "viewsWelcome": [
 			{
-			  "view": "ogoneHSE",
-			  "contents": "\n[Launch HSE for one component](command:nodeDependencies.addEntry)\n[Start HSE session](command:nodeDependencies.addEntry)"
+			  "view": "otone",
+			  "contents": "# Project:\n[Create an application](command:otone.createApplication)\n[Create a component](command:otone.createComponent)\n# Hot Scoped Edition:\n[Start HSE session](command:otone.startHSESession)"
 			}
 		  ],
 		"iconThemes": [

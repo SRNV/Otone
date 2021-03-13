@@ -1,5 +1,10 @@
 import * as path from 'path';
-import { workspace, ExtensionContext, window } from 'vscode';
+import {
+  workspace,
+  ExtensionContext,
+  commands,
+  window
+} from 'vscode';
 import OgoneClient from './classes/OgoneClient';
 import OgoneWebview from './classes/OgoneWebview';
 import OgoneWebsocket from './classes/OgoneWebsocket';
@@ -11,6 +16,7 @@ import {
   TransportKind
 } from 'vscode-languageclient';
 import OgoneTreeDataProvider from './classes/OgoneTreeDataProvider';
+import OgoneCommands from './classes/OgoneCommands';
 
 let client: LanguageClient;
 let webview: OgoneWebview;
@@ -54,12 +60,10 @@ export function activate(context: ExtensionContext) {
   );
   // Start the client. This will also launch the server
   client.start();
-  OgoneWebsocket.startConnection();
   const config = workspace.getConfiguration();
-  // tree data provider
-  window.registerTreeDataProvider('ogoneHSE', new OgoneTreeDataProvider(workspace.workspaceFolders[0].uri.path))
   workspace.findFiles('**/*.o3').then((files) => {
     webview = new OgoneWebview({ context, files });
+    const commands = new OgoneCommands(webview);
     // hooks on the workspace
     const updateWebview = (document) => {
       if (document.languageId === 'ogone') {
@@ -77,6 +81,7 @@ export function activate(context: ExtensionContext) {
       }
     });
   });
+
 }
 
 export function deactivate(): Thenable<void> | undefined {
