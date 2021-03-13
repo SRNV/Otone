@@ -230,7 +230,7 @@ ${protoNode.trim()}
         /**
          * An optional string to show as place holder in the input box to guide the user what to pick on.
          */
-        placeHolder: 'component',
+        placeHolder: 'choose the type of your component',
 
         /**
          * Set to `true` to keep the picker open when focus moves to another part of the editor or to another window.

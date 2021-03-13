@@ -42,8 +42,8 @@
 		"commands": [
 			{
 				"command": "ogone.webview.start",
-				"title": "Ogone Designer",
-				"category": "ogone designer"
+				"title": "Otone HSE",
+				"category": "Otone HSE"
 			}
 		],
 		"views": {

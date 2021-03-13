@@ -161,7 +161,7 @@ export default class OgoneWebview extends OgoneDocument {
     }
     this.panel = window.createWebviewPanel(
       workspace.name + Math.random(), // Identifies the type of the webview. Used internally
-      `Ogone Designer - ${workspace.name}`, // Title of the panel displayed to the user
+      `Otone HSE - ${workspace.name}`, // Title of the panel displayed to the user
       {
         viewColumn: ViewColumn.Two,
         preserveFocus: true,
