@@ -23,6 +23,7 @@ import Workers from '../ogone/workers';
 import * as path from 'path';
 import { Webview } from '../enums/templateWebview';
 import * as Websocket from 'ws';
+import axios from 'axios';
 import OgoneWebsocket from './OgoneWebsocket';
 
 export interface OgoneWebviewConstructorOptions {
@@ -72,22 +73,6 @@ export default class OgoneWebview extends OgoneDocument {
     // start heart beat
     // this.startHeartBeatForActiveComponent();
     // start websocket connection
-    const _self = this;
-    OgoneWebsocket.server.on('connection', (ws) => {
-      _self.ws = ws;
-      _self.FIFOMessages.forEach((m) => {
-        ws.send(m);
-      })
-      _self.FIFOMessages.splice(0);
-      ws.on('message', (message) => {
-        _self.read(message);
-      });
-    });
-    OgoneWebsocket.errorServer.on('connection', (ws) => {
-      ws.on('message', (message) => {
-        _self.readError(message);
-      })
-    })
     window.onDidChangeVisibleTextEditors(updateWebview);
     window.onDidChangeTextEditorSelection((ev) => {
       if (!this.activated) return;
@@ -134,7 +119,7 @@ export default class OgoneWebview extends OgoneDocument {
           break;
         case Workers.LSP_SEND_PORT:
           this.port = data.data;
-          this.setViewForActiveOgoneDocument();
+          // this.setViewForActiveOgoneDocument();
           break;
         case Workers.LSP_CURRENT_COMPONENT_RENDERED:
           this.panel.webview.html = this.getHTML(data.data);
@@ -154,7 +139,9 @@ export default class OgoneWebview extends OgoneDocument {
       this.FIFOMessages.push(JSON.stringify(data))
     }
   }
-  openWebview() {
+  async openWebview() {
+    const res = await axios.get('localhost:533/hse/live');
+    console.warn(res);
     if (this.panel) {
       this.panel.dispose();
       this.panel = null;
@@ -173,8 +160,17 @@ export default class OgoneWebview extends OgoneDocument {
     );
     this.showWelcomeMessage();
     this.panel.iconPath = this.iconPath;
-    this.setViewForActiveOgoneDocument();
+    // this.setViewForActiveOgoneDocument();
   }
+  updateWebview() {
+    if (this.document.uri.path.endsWith('.o3')) {
+      const res = axios.post('localhost:533/hse/update', {
+        ...this.document.uri,
+        text: this.document.getText(),
+      });
+    }
+  }
+  /*
   updateWebview() {
     if (this.document.uri.path.endsWith('.o3')) {
       clearTimeout(this.updateComponentTimeout as any);
@@ -205,6 +201,7 @@ export default class OgoneWebview extends OgoneDocument {
       && editor.document.uri.fsPath.endsWith('.o3'));
     return active;
   }
+  */
   showWelcomeMessage() {
     this.panel.webview.html = this.welcomeMessage;
   }

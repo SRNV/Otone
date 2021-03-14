@@ -151,7 +151,8 @@ default:
       case 'router':
         protoBody = `
 def:
-  # router's routes
+  # YAML
+  # provide the routes objects here
   routes: []
 default:
   // component's initialization

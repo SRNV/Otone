@@ -14,6 +14,7 @@
 	},
 	"scripts": {},
 	"dependencies": {
+		"axios": "^0.21.1",
 		"htmlparser2": "^4.1.0",
 		"jsdoc-api": "^6.0.0",
 		"nodejs-fs-utils": "^1.2.5",
