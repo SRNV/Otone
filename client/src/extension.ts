@@ -72,7 +72,6 @@ export function activate(context: ExtensionContext) {
       }
     }
     workspace.onDidOpenTextDocument(updateWebview);
-    workspace.onDidSaveTextDocument(updateWebview);
     workspace.onDidChangeTextDocument((ev) => {
       const { document } = ev;
       if (document.languageId === 'ogone') {

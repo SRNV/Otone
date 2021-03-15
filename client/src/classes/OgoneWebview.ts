@@ -37,6 +37,7 @@ export interface OgoneWebviewConstructorOptions {
  */
 export default class OgoneWebview extends OgoneDocument {
   public panel?: WebviewPanel;
+  updateTimeout?: ReturnType<typeof setTimeout>;
   informations: any = {};
   files: Uri[];
   port: number = Math.floor(Math.random() * 9000 + 2000);
@@ -53,7 +54,10 @@ export default class OgoneWebview extends OgoneDocument {
     super();
     const { context, files } = opts;
     const updateWebview = (document) => {
-      if (this.activated) this.updateWebview();
+      if (document.uri.path.endsWith('.o3')) {
+        this.setDocument(document);
+        this.updateWebview();
+      }
     };
     this.context = context;
     this.files = files;
@@ -71,11 +75,8 @@ export default class OgoneWebview extends OgoneDocument {
       path.join('public', 'ogone-svg.png')
     );
     // start heart beat
-    // this.startHeartBeatForActiveComponent();
-    // start websocket connection
     window.onDidChangeVisibleTextEditors(updateWebview);
     window.onDidChangeTextEditorSelection((ev) => {
-      if (!this.activated) return;
       const { document } = ev.textEditor;
       if (!document.uri.path.endsWith('.o3')) {
         this.showWelcomeMessage();
@@ -122,7 +123,7 @@ export default class OgoneWebview extends OgoneDocument {
           // this.setViewForActiveOgoneDocument();
           break;
         case Workers.LSP_CURRENT_COMPONENT_RENDERED:
-          this.panel.webview.html = this.getHTML(data.data);
+          this.panel.webview.html = this.getHTML();
           this.openWebview()
           break;
       }
@@ -140,8 +141,13 @@ export default class OgoneWebview extends OgoneDocument {
     }
   }
   async openWebview() {
-    const res = await axios.get('localhost:533/hse/live');
-    console.warn(res);
+    const res = await axios.get('http://localhost:5330/hse/live');
+    if (res.status !== 200) {
+      window.showErrorMessage('Otone - to start HSE session, please run your application.');
+      return;
+    }
+    const resPort = await axios.get('http://localhost:5330/hse/port');
+    this.port = resPort.data;
     if (this.panel) {
       this.panel.dispose();
       this.panel = null;
@@ -162,50 +168,53 @@ export default class OgoneWebview extends OgoneDocument {
     this.panel.iconPath = this.iconPath;
     // this.setViewForActiveOgoneDocument();
   }
-  updateWebview() {
-    if (this.document.uri.path.endsWith('.o3')) {
-      const res = axios.post('localhost:533/hse/update', {
-        ...this.document.uri,
-        text: this.document.getText(),
-      });
+  async updateWebview() {
+    if (!this.panel) {
+      return;
     }
-  }
-  /*
-  updateWebview() {
-    if (this.document.uri.path.endsWith('.o3')) {
-      clearTimeout(this.updateComponentTimeout as any);
-      this.updateComponentTimeout = setTimeout(() => {
-        this.notify(Workers.LSP_UPDATE_CURRENT_COMPONENT, {
+    clearTimeout(this.updateTimeout);
+    this.setViewForActiveOgoneDocument();
+    const res = await axios.get('http://localhost:5330/hse/live');
+    if (res.status !== 200) {
+      window.showErrorMessage('Otone - closing HSE session');
+      this.closeWebview();
+      return;
+    }
+    this.updateTimeout = setTimeout(async () => {
+      if (this.document
+        && this.panel
+        && this.document.uri.path.endsWith('.o3')) {
+        await axios.post('http://localhost:5330/hse/update', {
           ...this.document.uri,
           text: this.document.getText(),
         });
-      }, 500);
-    }
+        this.panel.webview.html = this.getHTML();
+      }
+    }, 250);
   }
   closeWebview() {
     this.panel.dispose();
   }
-  setViewForActiveOgoneDocument() {
+  setViewForActiveOgoneDocument(): ReturnType<OgoneWebview['getActiveEditor']> {
     const active = this.getActiveEditor();
     if (active) {
       this.document = active.document;
-      this.notify(Workers.LSP_UPDATE_CURRENT_COMPONENT, {
-        ...this.document.uri,
-        text: this.document.getText(),
-      });
     }
+    return active;
   }
   getActiveEditor(): TextEditor | undefined {
     const { visibleTextEditors } = window;
     const active = visibleTextEditors.find((editor) => editor.document
       && editor.document.uri.fsPath.endsWith('.o3'));
+    if (active && active.document.uri.path === this.document.uri.path) {
+      return;
+    }
     return active;
   }
-  */
   showWelcomeMessage() {
     this.panel.webview.html = this.welcomeMessage;
   }
-  getHTML(inside: string) {
+  getHTML() {
     // And get the special URI to use with the webview
     return `
     <style>
