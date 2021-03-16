@@ -23,6 +23,7 @@ import Workers from '../ogone/workers';
 import * as path from 'path';
 import { Webview } from '../enums/templateWebview';
 import * as Websocket from 'ws';
+import * as http from 'http';
 import axios from 'axios';
 import OgoneWebsocket from './OgoneWebsocket';
 
@@ -38,6 +39,7 @@ export interface OgoneWebviewConstructorOptions {
 export default class OgoneWebview extends OgoneDocument {
   public panel?: WebviewPanel;
   updateTimeout?: ReturnType<typeof setTimeout>;
+  timeoutUpdateWebview?: ReturnType<typeof setTimeout>;
   informations: any = {};
   files: Uri[];
   port: number = Math.floor(Math.random() * 9000 + 2000);
@@ -50,13 +52,13 @@ export default class OgoneWebview extends OgoneDocument {
   ws?: Websocket;
   FIFOMessages: string[] = [];
   activated = false;
+  server: http.Server;
   constructor(opts: OgoneWebviewConstructorOptions) {
     super();
     const { context, files } = opts;
     const updateWebview = (document) => {
       if (document.uri.path.endsWith('.o3')) {
         this.setDocument(document);
-        this.updateWebview();
       }
     };
     this.context = context;
@@ -84,9 +86,11 @@ export default class OgoneWebview extends OgoneDocument {
       }
       if (document.uri.path !== this.document.uri.path) {
         this.setDocument(document);
-        this.updateWebview();
       }
     });
+  }
+  get httpPort(): number {
+    return this.port + 1;
   }
   get welcomeMessage() {
     return `
@@ -96,38 +100,9 @@ export default class OgoneWebview extends OgoneDocument {
     ${Webview.WELCOME_MESSAGE}
     `;
   }
-  readError(message: Websocket.Data): void {
-    if (message) {
-      const data = JSON.parse(message as string);
-      window.showErrorMessage(data.message as string);
-    }
-  }
-  read(message: Websocket.Data): void {
-    if (message) {
-      const data = JSON.parse(message as string);
-      console.warn(data);
-      switch (data.type) {
-        case Workers.LSP_CLOSE:
-          this.panel.webview.html = this.welcomeMessage;
-          this.panel.dispose();
-          this.activated = false;
-          break;
-        case Workers.LSP_SEND_COMPONENT_INFORMATIONS:
-          this.informations[data.data.file] = data.data;
-          break;
-        case Workers.LSP_OPEN_WEBVIEW:
-          this.activated = true;
-          break;
-        case Workers.LSP_SEND_PORT:
-          this.port = data.data;
-          // this.setViewForActiveOgoneDocument();
-          break;
-        case Workers.LSP_CURRENT_COMPONENT_RENDERED:
-          this.panel.webview.html = this.getHTML();
-          this.openWebview()
-          break;
-      }
-    }
+  setDocument(document: TextDocument) {
+    this.document = document;
+    this.updateWebview();
   }
   notify(type: any, message: Object | string | number) {
     const data = {
@@ -148,6 +123,7 @@ export default class OgoneWebview extends OgoneDocument {
     }
     const resPort = await axios.get('http://localhost:5330/hse/port');
     this.port = resPort.data;
+    this.openServer();
     if (this.panel) {
       this.panel.dispose();
       this.panel = null;
@@ -164,41 +140,46 @@ export default class OgoneWebview extends OgoneDocument {
         localResourceRoots: [Uri.file(path.join(this.context.extensionPath, 'public'))]
       } // Webview options. More on these later.
     );
-    this.showWelcomeMessage();
+    this.panel.webview.html = this.getHTML();
     this.panel.iconPath = this.iconPath;
-    // this.setViewForActiveOgoneDocument();
+    this.setViewForActiveOgoneDocument();
   }
   async updateWebview() {
     if (!this.panel) {
       return;
     }
-    clearTimeout(this.updateTimeout);
-    this.setViewForActiveOgoneDocument();
-    const res = await axios.get('http://localhost:5330/hse/live');
-    if (res.status !== 200) {
-      window.showErrorMessage('Otone - closing HSE session');
-      this.closeWebview();
-      return;
+    if (this.document) {
+      await axios.post('http://localhost:5330/hse/update', {
+        ...this.document.uri,
+        text: this.document.getText(),
+      });
     }
-    this.updateTimeout = setTimeout(async () => {
-      if (this.document
-        && this.panel
+  }
+  openServer() {
+    this.server = http.createServer((req, res) => {
+      if (this.panel
         && this.document.uri.path.endsWith('.o3')) {
-        await axios.post('http://localhost:5330/hse/update', {
-          ...this.document.uri,
-          text: this.document.getText(),
+        this.panel.webview.postMessage({
+          command: 'url',
+          href: `http://localhost:${this.port}/?component=${this.document.uri.path}&port=${this.port}`,
         });
-        this.panel.webview.html = this.getHTML();
       }
-    }, 250);
+      console.log(`request`, req, res);
+      res.writeHead(200);
+      res.end("ok");
+    });
+    this.server.listen(this.httpPort, 'localhost', () => {
+      console.log(`HSE server opened`);
+    });
   }
   closeWebview() {
+    this.server.close();
     this.panel.dispose();
   }
   setViewForActiveOgoneDocument(): ReturnType<OgoneWebview['getActiveEditor']> {
     const active = this.getActiveEditor();
     if (active) {
-      this.document = active.document;
+      this.setDocument(active.document);
     }
     return active;
   }
@@ -206,7 +187,7 @@ export default class OgoneWebview extends OgoneDocument {
     const { visibleTextEditors } = window;
     const active = visibleTextEditors.find((editor) => editor.document
       && editor.document.uri.fsPath.endsWith('.o3'));
-    if (active && active.document.uri.path === this.document.uri.path) {
+    if (this.document && active && active.document.uri.path === this.document.uri.path) {
       return;
     }
     return active;
@@ -217,50 +198,69 @@ export default class OgoneWebview extends OgoneDocument {
   getHTML() {
     // And get the special URI to use with the webview
     return `
-    <style>
-      body {
-        background: #333;
-        padding: 0px;
-        height: 100vh;
-        width: 100vw;
-        overflow: hidden;
-      }
-      iframe {
-        width: 100%;
-        height: 100%;
-        border: 0px;
-        background: url("vscode-resource:${this.transparentBackgroundSpecialUri}") !important;
-        background-image: url("vscode-resource:${this.transparentBackgroundSpecialUri}") !important;
-      }
-      .wbv_container {
-        height: 100%;
-        grid-template-areas:
-          "viewer viewer viewer"
-          "viewer viewer viewer"
-          "status status status";
-        display: grid;
-        grid-template-rows: 2fr 2fr minmax(min-content, min-content);
-        grid-template-columns: 2fr 2fr 1fr;
-      }
-      .wbv_status {
-        grid-area: status;
-      }
-      .wbv_viewer {
-        grid-area: viewer;
-        display: flex;
-      }
-    </style>
-    <div class="wbv_container">
-      <div class="wbv_status">
-        <span style="display: none">${Date.now()}</span>${this.document.uri.path} - ${this.files.length} components in the workspace
+      <head>
+        <style>
+          body {
+            background: #333;
+            padding: 0px;
+            height: 100vh;
+            width: 100vw;
+            overflow: hidden;
+          }
+          iframe {
+            width: 100%;
+            height: 100%;
+            border: 0px;
+            background: url("vscode-resource:${this.transparentBackgroundSpecialUri}") !important;
+            background-image: url("vscode-resource:${this.transparentBackgroundSpecialUri}") !important;
+          }
+          .wbv_container {
+            height: 100%;
+            grid-template-areas:
+              "viewer viewer viewer"
+              "viewer viewer viewer"
+              "status status status";
+            display: grid;
+            grid-template-rows: 2fr 2fr minmax(min-content, min-content);
+            grid-template-columns: 2fr 2fr 1fr;
+          }
+          .wbv_status {
+            grid-area: status;
+          }
+          .wbv_viewer {
+            grid-area: viewer;
+            display: flex;
+          }
+        </style>
+      </head>
+      <body>
+      <div class="wbv_container">
+        <div class="wbv_viewer">
+          <iframe
+            allowtransparency="true"
+            id="viewer"></iframe>
+        </div>
       </div>
-      <div class="wbv_viewer">
-        <iframe
-          allowtransparency="true"
-          id="viewer"
-          src="http://localhost:${this.port}/?component=${this.document.uri.path}&port=${this.port}"></iframe>
-      </div>
-    </div>
+      <script>
+        class State {
+          static mapState = new Map();
+          static viewer = document.getElementById('viewer');
+        }
+        window.addEventListener('message', (event) => {
+          const message = event.data;
+          switch(true) {
+            case message.command === 'reload'
+            && State.viewer
+            && State.viewer.contentWindow:
+              State.viewer.contentWindow.location.reload();
+              break;
+            case message.command === 'url':
+              State.viewer.contentWindow.location.href = message.href;
+              break;
+          }
+        });
+      </script>
+    </body>
     `
   }
 }

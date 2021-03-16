@@ -47,30 +47,30 @@
 			}
 		],
 		"views": {
-		  "otone": [
-			{
-			  "id": "otone",
-			  "name": "Ogone",
-			  "icon": "public/otone-outline.svg",
-			  "contextualTitle": "Ogone HSE"
-			}
-		  ]
+			"otone": [
+				{
+					"id": "otone",
+					"name": "Ogone",
+					"icon": "public/otone-outline.svg",
+					"contextualTitle": "Ogone HSE"
+				}
+			]
 		},
 		"viewsContainers": {
 			"activitybar": [
-			  {
-				"id": "otone",
-				"title": "Ogone",
-				"icon": "public/otone-outline.svg"
-			  }
+				{
+					"id": "otone",
+					"title": "Ogone",
+					"icon": "public/otone-outline.svg"
+				}
 			]
-		  },
-		  "viewsWelcome": [
+		},
+		"viewsWelcome": [
 			{
-			  "view": "otone",
-			  "contents": "# Project:\n[Create an application](command:otone.createApplication)\n[Create a component](command:otone.createComponent)\n# Hot Scoped Edition:\n[Start HSE session](command:otone.startHSESession)"
+				"view": "otone",
+				"contents": "# Project:\n[Create an application](command:otone.createApplication)\n[Create a component](command:otone.createComponent)\n# Hot Scoped Edition:\n[Start HSE session](command:otone.startHSESession)"
 			}
-		  ],
+		],
 		"iconThemes": [
 			{
 				"id": "ogone",
@@ -260,6 +260,7 @@
 	},
 	"dependencies": {
 		"any-json": "^3.1.0",
+		"express": "^4.17.1",
 		"nodemon": "^2.0.4",
 		"supports-color": "^8.0.0"
 	},

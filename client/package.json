@@ -14,16 +14,22 @@
 	},
 	"scripts": {},
 	"dependencies": {
+		"@types/express": "^4.17.11",
 		"axios": "^0.21.1",
+		"express": "^4.17.1",
 		"htmlparser2": "^4.1.0",
 		"jsdoc-api": "^6.0.0",
+		"koa": "^2.13.1",
 		"nodejs-fs-utils": "^1.2.5",
+		"server": "^1.0.32",
 		"vscode-languageclient": "^5.2.1",
 		"vscode-languageserver-textdocument": "^1.0.1",
 		"ws": "^7.4.1"
 	},
 	"devDependencies": {
+		"@types/koa": "^2.13.1",
 		"@types/markdown-it": "^12.0.0",
+		"@types/server": "^1.0.3",
 		"@types/vscode": "^1.32.0",
 		"@types/ws": "^7.4.0"
 	}

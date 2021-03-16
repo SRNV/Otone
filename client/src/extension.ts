@@ -68,7 +68,6 @@ export function activate(context: ExtensionContext) {
     const updateWebview = (document) => {
       if (document.languageId === 'ogone') {
         webview.setDocument(document);
-        webview.updateWebview();
       }
     }
     workspace.onDidOpenTextDocument(updateWebview);
@@ -76,7 +75,6 @@ export function activate(context: ExtensionContext) {
       const { document } = ev;
       if (document.languageId === 'ogone') {
         webview.setDocument(document);
-        webview.updateWebview();
       }
     });
   });
