@@ -68,7 +68,7 @@
 		"viewsWelcome": [
 			{
 				"view": "otone",
-				"contents": "# Project:\n[Create an application](command:otone.createApplication)\n[Create a component](command:otone.createComponent)\n# Hot Scoped Edition:\n[Start HSE session](command:otone.startHSESession)"
+				"contents": "# Project:\n[Create an application](command:otone.createApplication)\n[Create a component](command:otone.createComponent)\n# Hot Scoped Edition:\nstart browsing into your application, seeing the component your editing\n[Start HSE session](command:otone.startHSESession)\nstart seeing any changes on your component without saving\n[Start HSE Experimental session](command:otone.startHSESessionExperimental)"
 			}
 		],
 		"iconThemes": [

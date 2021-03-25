@@ -62,21 +62,23 @@ export function activate(context: ExtensionContext) {
   client.start();
   const config = workspace.getConfiguration();
   workspace.findFiles('**/*.o3').then((files) => {
-    webview = new OgoneWebview({ context, files });
-    const commands = new OgoneCommands(webview);
     // hooks on the workspace
     const updateWebview = (document) => {
       if (document.languageId === 'ogone') {
         webview.setDocument(document);
       }
     }
+    webview = new OgoneWebview({ context, files },
+      undefined,
+      workspace.onDidChangeTextDocument((ev) => {
+        const { document } = ev;
+        if (document.languageId === 'ogone') {
+          webview.setDocument(document);
+        }
+      })
+    );
+    const commands = new OgoneCommands(webview);
     workspace.onDidOpenTextDocument(updateWebview);
-    workspace.onDidChangeTextDocument((ev) => {
-      const { document } = ev;
-      if (document.languageId === 'ogone') {
-        webview.setDocument(document);
-      }
-    });
   });
 
 }

@@ -118,7 +118,7 @@ export default class OgoneUpdate extends Collections {
           .map((key) => {
             const findAttributePosition = o3.text.indexOf(key, proto.startIndex);
             this.saveDiagnostics([{
-              message: `protocol attribute '${key}' is not supported, 'def' and 'type' attributes are supported`,
+              message: `protocol attribute '${key}' is not supported`,
               severity: DiagnosticSeverity.Error,
               range: {
                 start: o3.document.positionAt(findAttributePosition),

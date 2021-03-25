@@ -207,7 +207,7 @@
         },
         "/src/ogone.textnodes.proto.yml": {
             "name": "textnodes.proto.o3",
-            "begin": "(\\<proto\\b([^\\>]*?)\\>)",
+            "begin": "(?=\\<proto\\b([^\\>]*?))",
             "beginCaptures": {
                 "1": {
                     "name": "meta.tag.structure",
@@ -221,7 +221,7 @@
                     ]
                 }
             },
-            "end": "(\\<\\/proto\\b([^\\>]*?)\\>)",
+            "end": "(?=\\<\\/proto\\b([^\\>]*?))",
             "endCaptures": {
                 "1": {
                     "name": "meta.tag.structure",
@@ -235,6 +235,11 @@
                     ]
                 }
             },
+            "patterns": [
+                {
+                    "include": "text.html.derivative"
+                }
+            ],
             "contentName": "textnodes.proto.o3",
             "scope": "html.o3 - source.o3"
         },

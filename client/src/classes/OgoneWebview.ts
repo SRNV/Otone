@@ -17,6 +17,7 @@ import {
   Uri,
   ExtensionContext,
   TextEditor,
+  Disposable,
 } from 'vscode';
 import OgoneDocument from './OgoneDocument';
 import Workers from '../ogone/workers';
@@ -53,7 +54,11 @@ export default class OgoneWebview extends OgoneDocument {
   FIFOMessages: string[] = [];
   activated = false;
   server: http.Server;
-  constructor(opts: OgoneWebviewConstructorOptions) {
+  disposableOnSelect: Disposable;
+  disposableOnChangeVisibleTextEditor: Disposable;
+  constructor(opts: OgoneWebviewConstructorOptions,
+    public disposableOnSave?: Disposable,
+    public disposableOnType?: Disposable) {
     super();
     const { context, files } = opts;
     const updateWebview = (document) => {
@@ -77,8 +82,8 @@ export default class OgoneWebview extends OgoneDocument {
       path.join('public', 'ogone-svg.png')
     );
     // start heart beat
-    window.onDidChangeVisibleTextEditors(updateWebview);
-    window.onDidChangeTextEditorSelection((ev) => {
+    this.disposableOnChangeVisibleTextEditor = window.onDidChangeVisibleTextEditors(updateWebview);
+    this.disposableOnSelect = window.onDidChangeTextEditorSelection((ev) => {
       const { document } = ev.textEditor;
       if (!document.uri.path.endsWith('.o3')) {
         this.showWelcomeMessage();
@@ -103,6 +108,9 @@ export default class OgoneWebview extends OgoneDocument {
   setDocument(document: TextDocument) {
     this.document = document;
     this.updateWebview();
+    if (this.panel) {
+      this.panel.webview.html = this.getHTML();
+    }
   }
   notify(type: any, message: Object | string | number) {
     const data = {
@@ -115,7 +123,14 @@ export default class OgoneWebview extends OgoneDocument {
       this.FIFOMessages.push(JSON.stringify(data))
     }
   }
-  async openWebview() {
+  async openWebview(
+    /**
+     * should dispose from the type reaction
+     */
+    shouldDisposeOnTypeEdition?: boolean) {
+    if (shouldDisposeOnTypeEdition) {
+      this.disposableOnType.dispose();
+    }
     const res = await axios.get('http://localhost:5330/hse/live');
     if (res.status !== 200) {
       window.showErrorMessage('Otone - to start HSE session, please run your application.');
@@ -123,7 +138,7 @@ export default class OgoneWebview extends OgoneDocument {
     }
     const resPort = await axios.get('http://localhost:5330/hse/port');
     this.port = resPort.data;
-    this.openServer();
+    // this.openServer();
     if (this.panel) {
       this.panel.dispose();
       this.panel = null;
@@ -164,13 +179,10 @@ export default class OgoneWebview extends OgoneDocument {
           href: `http://localhost:${this.port}/?component=${this.document.uri.path}&port=${this.port}`,
         });
       }
-      console.log(`request`, req, res);
       res.writeHead(200);
       res.end("ok");
     });
-    this.server.listen(this.httpPort, 'localhost', () => {
-      console.log(`HSE server opened`);
-    });
+    this.server.listen(this.httpPort, 'localhost', () => { });
   }
   closeWebview() {
     this.server.close();
@@ -237,6 +249,11 @@ export default class OgoneWebview extends OgoneDocument {
       <div class="wbv_container">
         <div class="wbv_viewer">
           <iframe
+            src="http://localhost:${this.port}/?component=${
+              this.document?.uri ?
+              this.document.uri.path :
+              "null"
+            }&port=${this.port}"
             allowtransparency="true"
             id="viewer"></iframe>
         </div>

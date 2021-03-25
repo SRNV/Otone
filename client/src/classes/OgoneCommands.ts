@@ -44,22 +44,29 @@ export default class OgoneCommands extends OgoneDocument {
      * add commands
      */
     commands.registerCommand('otone.startHSESession', async () => {
-      this.openWebview();
+      this.openWebviewSaveRequired();
+    });
+    commands.registerCommand('otone.startHSESessionExperimental', async () => {
+      this.openWebviewExperimentalOnType();
     });
     commands.registerCommand('otone.createApplication', async () => {
       await this.createApplication();
     });
     commands.registerCommand('otone.createComponent', async () => {
       const infos = await this.getComponentInformations();
-      console.warn(infos);
       if (infos) {
         this.createComponent(infos);
       }
     });
   }
-  openWebview(): void {
+  openWebviewSaveRequired(): void {
     if (this.webview) {
-      this.webview.openWebview()
+      this.webview.openWebview(true)
+    }
+  }
+  openWebviewExperimentalOnType(): void {
+    if (this.webview) {
+      this.webview.openWebview(false)
     }
   }
   async createApplication(): Promise<void> {
