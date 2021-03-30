@@ -1,6 +1,6 @@
 _includeIn: main
 name: textnodes.proto.o3
-begin: (?=\<proto\b([^\>]*?))
+begin: (?=\<proto\b[^\>]*?)
 beginCaptures:
   1:
     name: meta.tag.structure
