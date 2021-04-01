@@ -93,6 +93,7 @@ export default class OgoneWebview extends OgoneDocument {
         this.setDocument(document);
       }
     });
+    this.setViewForActiveOgoneDocument();
   }
   get httpPort(): number {
     return this.port + 1;
@@ -100,7 +101,10 @@ export default class OgoneWebview extends OgoneDocument {
   get welcomeMessage() {
     return `
     <p align="center">
-      <img src="vscode-resource:${this.ogoneLogoSpecialUri}" />
+      <img
+        width="350"
+        height="350"
+        src="vscode-resource:${this.ogoneLogoSpecialUri}" />
     </p>
     ${Webview.WELCOME_MESSAGE}
     `;
@@ -131,14 +135,18 @@ export default class OgoneWebview extends OgoneDocument {
     if (shouldDisposeOnTypeEdition) {
       this.disposableOnType.dispose();
     }
-    const res = await axios.get('http://localhost:5330/hse/live');
-    if (res.status !== 200) {
-      window.showErrorMessage('Otone - to start HSE session, please run your application.');
+    try {
+      const res = await axios.get('http://localhost:5330/hse/live');
+      if (res.status !== 200) {
+        window.showErrorMessage('Otone - to start HSE session, please run your application.');
+        return;
+      }
+    } catch(err) {
+      window.showErrorMessage('Otone - the ogone dev server isn\'t running, please run your application.');
       return;
     }
     const resPort = await axios.get('http://localhost:5330/hse/port');
     this.port = resPort.data;
-    // this.openServer();
     if (this.panel) {
       this.panel.dispose();
       this.panel = null;
@@ -155,9 +163,9 @@ export default class OgoneWebview extends OgoneDocument {
         localResourceRoots: [Uri.file(path.join(this.context.extensionPath, 'public'))]
       } // Webview options. More on these later.
     );
+    this.setViewForActiveOgoneDocument();
     this.panel.webview.html = this.getHTML();
     this.panel.iconPath = this.iconPath;
-    this.setViewForActiveOgoneDocument();
   }
   async updateWebview() {
     if (!this.panel) {
@@ -258,25 +266,6 @@ export default class OgoneWebview extends OgoneDocument {
             id="viewer"></iframe>
         </div>
       </div>
-      <script>
-        class State {
-          static mapState = new Map();
-          static viewer = document.getElementById('viewer');
-        }
-        window.addEventListener('message', (event) => {
-          const message = event.data;
-          switch(true) {
-            case message.command === 'reload'
-            && State.viewer
-            && State.viewer.contentWindow:
-              State.viewer.contentWindow.location.reload();
-              break;
-            case message.command === 'url':
-              State.viewer.contentWindow.location.href = message.href;
-              break;
-          }
-        });
-      </script>
     </body>
     `
   }
