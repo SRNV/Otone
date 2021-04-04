@@ -25,6 +25,7 @@ import * as path from 'path';
 import { Webview } from '../enums/templateWebview';
 import * as Websocket from 'ws';
 import * as http from 'http';
+import * as fs from 'fs';
 import axios from 'axios';
 import OgoneWebsocket from './OgoneWebsocket';
 
@@ -62,7 +63,7 @@ export default class OgoneWebview extends OgoneDocument {
     super();
     const { context, files } = opts;
     const updateWebview = (document) => {
-      if (document.uri.path.endsWith('.o3')) {
+      if (document.uri.path.endsWith('.o3') && document.uri.path !== this.document.uri.path) {
         this.setDocument(document);
       }
     };
@@ -99,11 +100,17 @@ export default class OgoneWebview extends OgoneDocument {
     return this.port + 1;
   }
   get welcomeMessage() {
-    return `
+    return /**html*/`
     <p align="center">
+    <style>
+    img {
+      max-width: 350px;
+      max-height: 350px;
+    }
+    </style>
       <img
-        width="350"
-        height="350"
+        width="350px"
+        height="350px"
         src="vscode-resource:${this.ogoneLogoSpecialUri}" />
     </p>
     ${Webview.WELCOME_MESSAGE}
@@ -112,20 +119,6 @@ export default class OgoneWebview extends OgoneDocument {
   setDocument(document: TextDocument) {
     this.document = document;
     this.updateWebview();
-    if (this.panel) {
-      this.panel.webview.html = this.getHTML();
-    }
-  }
-  notify(type: any, message: Object | string | number) {
-    const data = {
-      type: type || 'message',
-      data: message
-    };
-    if (this.ws) {
-      this.ws.send(JSON.stringify(data));
-    } else {
-      this.FIFOMessages.push(JSON.stringify(data))
-    }
   }
   async openWebview(
     /**
@@ -135,8 +128,10 @@ export default class OgoneWebview extends OgoneDocument {
     if (shouldDisposeOnTypeEdition) {
       this.disposableOnType.dispose();
     }
+    const filePort = fs.readFileSync(path.join(workspace.workspaceFolders[0].uri.path,'./.ogone/channel/port'), { encoding: 'utf8' });
+    this.port = parseFloat(filePort);
     try {
-      const res = await axios.get('http://localhost:5330/hse/live');
+      const res = await axios.get(`http://localhost:${this.port}/`);
       if (res.status !== 200) {
         window.showErrorMessage('Otone - to start HSE session, please run your application.');
         return;
@@ -145,8 +140,6 @@ export default class OgoneWebview extends OgoneDocument {
       window.showErrorMessage('Otone - the ogone dev server isn\'t running, please run your application.');
       return;
     }
-    const resPort = await axios.get('http://localhost:5330/hse/port');
-    this.port = resPort.data;
     if (this.panel) {
       this.panel.dispose();
       this.panel = null;
@@ -166,34 +159,32 @@ export default class OgoneWebview extends OgoneDocument {
     this.setViewForActiveOgoneDocument();
     this.panel.webview.html = this.getHTML();
     this.panel.iconPath = this.iconPath;
+    this.watchApplication();
   }
-  async updateWebview() {
+  watchApplication() {
+    fs.watch(path.join(workspace.workspaceFolders[0].uri.path, './.ogone/channel/application'), { encoding: 'utf-8' }, () => {
+      clearTimeout(this.timeoutUpdateWebview);
+      this.timeoutUpdateWebview = setTimeout(async () => {
+        await this.openWebview();
+        if (this.panel) {
+          this.panel.webview.html = this.getHTML();
+        }
+      }, 1000);
+    });
+  }
+  updateWebview() {
     if (!this.panel) {
       return;
     }
     if (this.document) {
-      await axios.post('http://localhost:5330/hse/update', {
+      const json = JSON.stringify({
         ...this.document.uri,
         text: this.document.getText(),
       });
+      fs.writeFileSync(path.join(workspace.workspaceFolders[0].uri.path, './.ogone/channel/component.json'), json);
     }
   }
-  openServer() {
-    this.server = http.createServer((req, res) => {
-      if (this.panel
-        && this.document.uri.path.endsWith('.o3')) {
-        this.panel.webview.postMessage({
-          command: 'url',
-          href: `http://localhost:${this.port}/?component=${this.document.uri.path}&port=${this.port}`,
-        });
-      }
-      res.writeHead(200);
-      res.end("ok");
-    });
-    this.server.listen(this.httpPort, 'localhost', () => { });
-  }
   closeWebview() {
-    this.server.close();
     this.panel.dispose();
   }
   setViewForActiveOgoneDocument(): ReturnType<OgoneWebview['getActiveEditor']> {
@@ -257,11 +248,7 @@ export default class OgoneWebview extends OgoneDocument {
       <div class="wbv_container">
         <div class="wbv_viewer">
           <iframe
-            src="http://localhost:${this.port}/?component=${
-              this.document?.uri ?
-              this.document.uri.path :
-              "null"
-            }&port=${this.port}"
+            src="http://localhost:${this.port}/?component=${this.document.uri.path}&port=${this.port}"
             allowtransparency="true"
             id="viewer"></iframe>
         </div>
