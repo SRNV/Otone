@@ -22,7 +22,7 @@
 		"watch": "tsc -b -w",
 		"postinstall": "cd client && npm install && cd ../server && npm install && cd ..",
 		"update-ogone": "cd ./Ogone && git checkout master && git pull && cd ../ && npm run sdb-workers-client",
-		"publish": "vsce publish -p pvskp6h3lbgg5uq6a3rh264qtliyjaldxmu7tp5n6x5sm4pthtxa",
+		"publish": "vsce publish -p 6a2g7cbomc7y5twioabjbnxndcjegb6yk7vivjhmgs4bxuantcda",
 		"hot-publish": "npm start; git add .; git commit -m 'hot publish'; git push; npm version patch; npm run publish",
 		"open:vscode-host": "code --extensionDevelopmentPath=."
 	},
