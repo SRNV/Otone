@@ -3,7 +3,7 @@
 	"displayName": "otone",
 	"publisher": "SRNV",
 	"description": "Support for Ogone Single File components",
-	"version": "0.1.189",
+	"version": "0.1.190",
 	"icon": "public/ogone-svg.png",
 	"main": "./client/out/extension",
 	"activationEvents": [
