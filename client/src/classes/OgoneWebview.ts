@@ -181,10 +181,7 @@ export default class OgoneWebview extends OgoneDocument {
     }
     if (this.document) {
       this.showLoadingMessage();
-      const json = JSON.stringify({
-        ...this.document.uri,
-        text: this.document.getText(),
-      });
+      const json = JSON.stringify(this.document.uri);
       fs.writeFileSync(path.join(workspace.workspaceFolders[0].uri.path, './.ogone/channel/component.json'), json);
     }
   }
