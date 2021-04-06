@@ -42,6 +42,7 @@ export default class OgoneWebview extends OgoneDocument {
   public panel?: WebviewPanel;
   updateTimeout?: ReturnType<typeof setTimeout>;
   timeoutUpdateWebview?: ReturnType<typeof setTimeout>;
+  heartBeatInterval?: ReturnType<typeof setTimeout>;
   informations: any = {};
   files: Uri[];
   port: number = Math.floor(Math.random() * 9000 + 2000);
@@ -128,16 +129,21 @@ export default class OgoneWebview extends OgoneDocument {
     if (shouldDisposeOnTypeEdition) {
       this.disposableOnType.dispose();
     }
-    const filePort = fs.readFileSync(path.join(workspace.workspaceFolders[0].uri.path,'./.ogone/channel/port'), { encoding: 'utf8' });
-    this.port = parseFloat(filePort);
+    try {
+      const filePort = fs.readFileSync(path.join(workspace.workspaceFolders[0].uri.path, './.ogone/channel/port'), { encoding: 'utf8' });
+      this.port = parseFloat(filePort);
+    } catch (err) {
+      this.closeWebview();
+    }
+    const errorDevServerNotRunning = 'Otone - the ogone dev server isn\'t running, please run your application before trying to start a session.';
     try {
       const res = await axios.get(`http://localhost:${this.port}/`);
       if (res.status !== 200) {
-        window.showErrorMessage('Otone - to start HSE session, please run your application.');
+        window.showErrorMessage(errorDevServerNotRunning);
         return;
       }
-    } catch(err) {
-      window.showErrorMessage('Otone - the ogone dev server isn\'t running, please run your application.');
+    } catch (err) {
+      window.showErrorMessage(errorDevServerNotRunning);
       return;
     }
     if (this.panel) {
@@ -156,20 +162,17 @@ export default class OgoneWebview extends OgoneDocument {
         localResourceRoots: [Uri.file(path.join(this.context.extensionPath, 'public'))]
       } // Webview options. More on these later.
     );
+    this.panel.iconPath = this.iconPath;
+    this.startHeartBeat();
+    this.watchApplication();
     this.setViewForActiveOgoneDocument();
     this.panel.webview.html = this.getHTML();
-    this.panel.iconPath = this.iconPath;
-    this.watchApplication();
   }
   watchApplication() {
     fs.watch(path.join(workspace.workspaceFolders[0].uri.path, './.ogone/channel/application'), { encoding: 'utf-8' }, () => {
-      clearTimeout(this.timeoutUpdateWebview);
-      this.timeoutUpdateWebview = setTimeout(async () => {
-        await this.openWebview();
-        if (this.panel) {
-          this.panel.webview.html = this.getHTML();
-        }
-      }, 1000);
+      if (this.panel) {
+        this.panel.webview.html = this.getHTML();
+      }
     });
   }
   updateWebview() {
@@ -177,6 +180,7 @@ export default class OgoneWebview extends OgoneDocument {
       return;
     }
     if (this.document) {
+      this.showLoadingMessage();
       const json = JSON.stringify({
         ...this.document.uri,
         text: this.document.getText(),
@@ -185,6 +189,7 @@ export default class OgoneWebview extends OgoneDocument {
     }
   }
   closeWebview() {
+    clearTimeout(this.heartBeatInterval);
     this.panel.dispose();
   }
   setViewForActiveOgoneDocument(): ReturnType<OgoneWebview['getActiveEditor']> {
@@ -205,6 +210,53 @@ export default class OgoneWebview extends OgoneDocument {
   }
   showWelcomeMessage() {
     this.panel.webview.html = this.welcomeMessage;
+  }
+  showLoadingMessage() {
+    this.panel.webview.html = `
+    <style>
+    @keyframes spin {
+      from {
+        opacity: 0;
+      }
+      to {
+        opacity: 1;
+      }
+    }
+    img {
+      max-width: 350px;
+      max-height: 350px;
+      animation: 1s linear 0s infinite alternate spin;
+    }
+    .container {
+      margin: auto;
+      width: 400px;
+      height: 400px;
+    }
+    </style>
+    <div class="container">
+      <p align="center">
+          <img
+            width="350px"
+            height="350px"
+            src="vscode-resource:${this.ogoneLogoSpecialUri}" />
+      </p>
+      <p align="center">loading...</p>
+      </div>`;
+  }
+  async startHeartBeat() {
+    try {
+      const res = await axios.get(`http://localhost:${this.port}/`);
+      if (res.status !== 200) {
+        this.closeWebview();
+      } else {
+        this.setViewForActiveOgoneDocument();
+        this.heartBeatInterval = setTimeout(async () => {
+          this.startHeartBeat();
+        }, 500);
+      }
+    } catch (err) {
+      this.closeWebview();
+    }
   }
   getHTML() {
     // And get the special URI to use with the webview
