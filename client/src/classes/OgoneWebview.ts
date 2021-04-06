@@ -91,11 +91,7 @@ export default class OgoneWebview extends OgoneDocument {
         this.showWelcomeMessage();
         return;
       }
-      if (document.uri.path !== this.document.uri.path) {
-        this.setDocument(document);
-      }
     });
-    this.setViewForActiveOgoneDocument();
   }
   get httpPort(): number {
     return this.port + 1;
@@ -126,7 +122,7 @@ export default class OgoneWebview extends OgoneDocument {
      * should dispose from the type reaction
      */
     shouldDisposeOnTypeEdition?: boolean) {
-    if (shouldDisposeOnTypeEdition) {
+    if (shouldDisposeOnTypeEdition && this.disposableOnType) {
       this.disposableOnType.dispose();
     }
     try {
@@ -163,16 +159,13 @@ export default class OgoneWebview extends OgoneDocument {
       } // Webview options. More on these later.
     );
     this.panel.iconPath = this.iconPath;
-    this.startHeartBeat();
+    await this.startHeartBeat();
     this.watchApplication();
-    this.setViewForActiveOgoneDocument();
-    this.panel.webview.html = this.getHTML();
+    this.showLoadingMessage();
   }
   watchApplication() {
     fs.watch(path.join(workspace.workspaceFolders[0].uri.path, './.ogone/channel/application'), { encoding: 'utf-8' }, () => {
-      if (this.panel) {
-        this.panel.webview.html = this.getHTML();
-      }
+      this.render();
     });
   }
   updateWebview() {
@@ -186,8 +179,9 @@ export default class OgoneWebview extends OgoneDocument {
     }
   }
   closeWebview() {
+    window.showInformationMessage('otone - closing webview.');
     clearTimeout(this.heartBeatInterval);
-    this.panel.dispose();
+    if (this.panel) this.panel.dispose();
   }
   setViewForActiveOgoneDocument(): ReturnType<OgoneWebview['getActiveEditor']> {
     const active = this.getActiveEditor();
@@ -210,49 +204,57 @@ export default class OgoneWebview extends OgoneDocument {
   }
   showLoadingMessage() {
     this.panel.webview.html = `
-    <style>
-    @keyframes spin {
-      from {
-        opacity: 0;
-      }
-      to {
-        opacity: 1;
-      }
+<style>
+  @keyframes spin {
+    from {
+      opacity: 0;
     }
-    img {
-      max-width: 350px;
-      max-height: 350px;
-      animation: 1s linear 0s infinite alternate spin;
+    to {
+      opacity: 1;
     }
-    .container {
-      margin: auto;
-      width: 400px;
-      height: 400px;
-    }
-    </style>
-    <div class="container">
-      <p align="center">
-          <img
-            width="350px"
-            height="350px"
-            src="vscode-resource:${this.ogoneLogoSpecialUri}" />
-      </p>
-      <p align="center">loading...</p>
-      </div>`;
+  }
+  img {
+    max-width: 350px;
+    max-height: 350px;
+    animation: 1s linear 0s infinite alternate spin;
+  }
+  .container {
+    margin: auto;
+    width: 400px;
+    height: 400px;
+  }
+</style>
+<div class="container">
+  <p align="center">
+      <img
+        width="350px"
+        height="350px"
+        src="vscode-resource:${this.ogoneLogoSpecialUri}" />
+  </p>
+  <p align="center">loading...</p>
+  </div>`;
   }
   async startHeartBeat() {
     try {
       const res = await axios.get(`http://localhost:${this.port}/`);
-      if (res.status !== 200) {
+      if (res.status > 400) {
         this.closeWebview();
       } else {
-        this.setViewForActiveOgoneDocument();
+        const active = this.setViewForActiveOgoneDocument();
+        if (active) {
+          this.render();
+        }
         this.heartBeatInterval = setTimeout(async () => {
           this.startHeartBeat();
         }, 500);
       }
     } catch (err) {
       this.closeWebview();
+    }
+  }
+  render() {
+    if (this.panel) {
+      this.panel.webview.html = this.getHTML();
     }
   }
   getHTML() {
