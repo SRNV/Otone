@@ -88,13 +88,14 @@ export default class OgoneWebview extends OgoneDocument {
     this.disposableOnSelect = window.onDidChangeTextEditorSelection((ev) => {
       const { document } = ev.textEditor;
       if (!document.uri.path.endsWith('.o3')) {
+        this.document = document;
         this.showWelcomeMessage();
         return;
       }
+      if (document.uri.path.endsWith('.o3') && document.uri.path !== this.document.uri.path) {
+        this.setDocument(document);
+      }
     });
-  }
-  get httpPort(): number {
-    return this.port + 1;
   }
   get welcomeMessage() {
     return /**html*/`

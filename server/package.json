@@ -16,5 +16,8 @@
 		"vscode-languageserver": "^5.2.1",
 		"vscode-languageserver-textdocument": "^1.0.1"
 	},
-	"scripts": {}
+	"scripts": {},
+	"devDependencies": {
+		"deno-bin": "^1.8.2"
+	}
 }

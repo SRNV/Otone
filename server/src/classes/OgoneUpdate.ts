@@ -14,9 +14,12 @@ import {
 	CompletionItemKind,
 	TextDocumentPositionParams,
   TextDocumentSyncKind,
-	InitializeResult
+	InitializeResult,
 } from 'vscode-languageserver';
 import * as ts from 'typescript';
+import * as path from 'path';
+import * as fs from 'fs';
+import * as childProcess from 'child_process';
 export default class OgoneUpdate extends Collections {
   protected update(document: TextDocument) {
     // reset diagnostics
@@ -25,7 +28,10 @@ export default class OgoneUpdate extends Collections {
     this.inspectForbiddenTextnodes(document);
     this.inspectNoUnknownElementOnTopLevel(document);
     this.inspectForbiddenDuplication(document);
+    this.requiredLineBreakForProtoAndTemplate(document);
+    this.EOFDiagnostics(document);
     // asset's specific diagnostics
+    this.importDiagnostics(document);
     // protcol's specific diagnostics
     // this.inspectForbiddenElementInsideProto(document);
     this.inspectProtocolTypes(document);
@@ -34,10 +40,140 @@ export default class OgoneUpdate extends Collections {
     // template's specific diagnostics
     this.inspectUselessTemplateAttrs(document);
     this.getForbiddenTemplate(document);
-    // style's specific diagnostics
-    this.expectStyleElementToBeLast(document);
     // at the end send all diagnostics
     this.sendDiagnostics(document);
+  }
+  protected async importDiagnostics(document: TextDocument) {
+    const o3 = this.getItem(document.uri);
+    const workspace = await this.connection.workspace.getWorkspaceFolders();
+    if (o3) {
+      let { assets } = o3;
+      let match;
+      const assetRegExp = /(?<=import\b(.+?))\bfrom\s+([`'"])(?<pathToAsset>.+?)(\2)/mi;
+      while (assets && (match = assets.match(assetRegExp)) && match.groups) {
+        const [input] = match;
+        const { index, groups } = match;
+        const { pathToAsset } = groups;
+        const newPath = workspace && path.normalize(path.join(path.dirname(o3.document.uri), pathToAsset)).replace(workspace[0].uri, '');
+        console.log(newPath);
+
+       if (pathToAsset
+        && pathToAsset.startsWith('.')
+        && !fs.existsSync(newPath)) {
+        this.saveDiagnostics([{
+          message: `unreachable file: this file doesn't exist`,
+          severity: DiagnosticSeverity.Error,
+          range: {
+            start: o3.document.positionAt(index),
+            end: o3.document.positionAt(index + input.length)
+          },
+          source: "otone",
+        }]);
+       } else if (pathToAsset
+        && pathToAsset.startsWith('@/')
+        && !fs.existsSync(pathToAsset.replace('@/', ''))) {
+        this.saveDiagnostics([{
+          message: `unreachable file: this file doesn't exist`,
+          severity: DiagnosticSeverity.Error,
+          range: {
+            start: o3.document.positionAt(index),
+            end: o3.document.positionAt(index + input.length)
+          },
+          source: "otone",
+        }]);
+       }
+       assets = assets.replace(assetRegExp, ' '.repeat(input.length))
+      }
+    }
+  }
+  protected EOFDiagnostics(document: TextDocument) {
+    const o3 = this.getItem(document.uri);
+    if (o3) {
+      const { text } = o3;
+      if (!text.endsWith('\n')) {
+        this.saveDiagnostics([{
+          message: `a line break at the end of the file is required`,
+          severity: DiagnosticSeverity.Error,
+          range: {
+            start: o3.document.positionAt(text.length -1),
+            end: o3.document.positionAt(text.length)
+          },
+          source: "otone",
+        }]);
+      }
+      let match;
+      if ((match = text.match(/(?<=\n)(\n)$/gmi))) {
+        const [input] = match;
+        const { index } = match;
+        this.saveDiagnostics([{
+          message: `multiple line break at the end of the file`,
+          severity: DiagnosticSeverity.Error,
+          range: {
+            start: o3.document.positionAt(index),
+            end: o3.document.positionAt(index + input.length)
+          },
+          source: "otone",
+        }]);
+      }
+    }
+  }
+  protected requiredLineBreakForProtoAndTemplate(document: TextDocument) {
+    const o3 = this.getItem(document.uri);
+    if (o3) {
+      const { nodes, text } = o3;
+      const proto: any = nodes.find((n: any) => n.nodeType === 1 && n.tagName.toLowerCase() === "proto");
+      const lastProtoChild: any = proto
+        && proto.childNodes
+        && proto.childNodes[proto.childNodes.length - 1];
+      const template: any = nodes.find((n: any) => n.nodeType === 1 && n.tagName.toLowerCase() === "template");
+      const lastTemplateChild: any = template
+        && template.childNodes
+        && template.childNodes[template.childNodes.length - 1];
+      if (proto && !text[proto.startIndex -1]?.match(/\n/)) {
+        this.saveDiagnostics([{
+          message: `a line break is required before the proto element`,
+          severity: DiagnosticSeverity.Error,
+          range: {
+            start: o3.document.positionAt(proto.startIndex),
+            end: o3.document.positionAt(proto.endIndex + 1)
+          },
+          source: "otone",
+        }]);
+      }
+      if (template && !text[template.startIndex -1]?.match(/\n/)) {
+        this.saveDiagnostics([{
+          message: `a line break is required before the template element`,
+          severity: DiagnosticSeverity.Error,
+          range: {
+            start: o3.document.positionAt(template.startIndex),
+            end: o3.document.positionAt(template.endIndex + 1)
+          },
+          source: "otone",
+        }]);
+      }
+      if (lastProtoChild && !text[lastProtoChild.endIndex]?.match(/\n/)) {
+        this.saveDiagnostics([{
+          message: `a line break is required after this element`,
+          severity: DiagnosticSeverity.Error,
+          range: {
+            start: o3.document.positionAt(lastProtoChild.startIndex),
+            end: o3.document.positionAt(lastProtoChild.endIndex + 1)
+          },
+          source: "otone",
+        }]);
+      }
+      if (lastTemplateChild && !text[lastTemplateChild.endIndex]?.match(/\n/)) {
+        this.saveDiagnostics([{
+          message: `a line break is required after this element`,
+          severity: DiagnosticSeverity.Error,
+          range: {
+            start: o3.document.positionAt(lastTemplateChild.startIndex),
+            end: o3.document.positionAt(lastTemplateChild.endIndex + 1)
+          },
+          source: "otone",
+        }]);
+      }
+    }
   }
   protected getForbiddenTemplate(document: TextDocument) {
     const o3 = this.getItem(document.uri);
@@ -190,29 +326,6 @@ export default class OgoneUpdate extends Collections {
             source: "otone",
           }]);
         })
-      }
-    }
-  }
-
-  protected expectStyleElementToBeLast(document: TextDocument) : void{
-    const o3 = this.getItem(document.uri);
-    if (o3) {
-      const { nodes } = o3;
-      const notWellPlacedTag = nodes.filter(n => n.nodeType === 1).find((n: any, i, arr) =>
-        n.tagName.toLowerCase() !== "style"
-        && arr[i -1]
-        && (arr[i -1] as any).tagName.toLowerCase() === "style"
-      );
-      if (notWellPlacedTag) {
-        this.saveDiagnostics([{
-          message: "no other elements are allowed after a style element",
-          severity: DiagnosticSeverity.Error,
-          range: {
-            start: o3.document.positionAt(notWellPlacedTag.startIndex),
-            end: o3.document.positionAt(notWellPlacedTag.endIndex + 1)
-          },
-          source: "otone",
-        }])
       }
     }
   }
