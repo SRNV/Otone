@@ -102,6 +102,9 @@
                     "include": "#/src/ogone.define.keyword.yml"
                 },
                 {
+                    "include": "#/src/ogone.import.ambient.yml"
+                },
+                {
                     "include": "#/src/ogone.import.modules.yml"
                 },
                 {
@@ -129,6 +132,44 @@
                 },
                 {
                     "include": "text.html.derivative"
+                }
+            ]
+        },
+        "/src/ogone.import.ambient.yml": {
+            "contentName": "meta.import.ts",
+            "scope": "source.ts meta.import.ts",
+            "begin": "(import)(\\s+)(['\"])(.*?)(\\3)",
+            "beginCaptures": {
+                "0": {
+                    "name": "keyword.control"
+                },
+                "1": {
+                    "name": "keyword.control"
+                },
+                "3": {
+                    "name": "string"
+                },
+                "4": {
+                    "name": "string"
+                },
+                "5": {
+                    "name": "string"
+                }
+            },
+            "end": "(;|\\n)",
+            "endCaptures": {
+                "0": {
+                    "name": "ponctuation"
+                }
+            },
+            "patterns": [
+                {
+                    "include": "source.ts",
+                    "patterns": [
+                        {
+                            "include": "meta.import.ts"
+                        }
+                    ]
                 }
             ]
         },

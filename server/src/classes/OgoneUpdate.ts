@@ -33,6 +33,7 @@ export default class OgoneUpdate extends Collections {
     // asset's specific diagnostics
     this.fileNotFound(document);
     this.uselessAssets(document);
+    this.unsupportedPatternInAsset(document);
     // protcol's specific diagnostics
     // this.inspectForbiddenElementInsideProto(document);
     this.inspectProtocolTypes(document);
@@ -45,6 +46,53 @@ export default class OgoneUpdate extends Collections {
     this.getUselessTemplate(document);
     // at the end send all diagnostics
     this.sendDiagnostics(document);
+  }
+  protected unsupportedPatternInAsset(document: TextDocument) {
+    const o3 = this.getItem(document.uri);
+    if (o3) {
+      let { assets } = o3;
+      let text = assets;
+      const regExps = [
+        /\/\/(.*?)(\n)/gi,
+        /\/\*(.*?)*\//gmi,
+        /\bimport\s+(["'])(.+?)(\1)(;){0,1}/gmi,
+        /\bimport(\s+type|component){0,1}\s+(.+?)\s+from\s+(["'])(.+?)(\3)(;){0,1}/gmi,
+        //,
+      ];
+      if (assets) {
+        regExps
+          .filter((regExp) => assets.match(regExp))
+          .forEach((regExp) => {
+            let match = assets.match(regExp)!;
+            const [value] = match;
+            assets = assets.replace(regExp, ' '.repeat(value.length));
+          });
+        console.warn(assets);
+        if (assets.trim().length) {
+          const reg = new RegExp(`(${assets
+            .trim()
+            .replace(/\s+/gi, '|')
+            .replace(/([^\d\w\|])/gi, '\\$1')
+          })`, 'i');
+          console.warn(1, reg);
+          let match ;
+          while ((match = assets.match(reg))) {
+            let { index } = match;
+            const [input] = match;
+            this.saveDiagnostics([{
+              message: `Unexpected syntax. only import statements and comments are supported here.`,
+              severity: DiagnosticSeverity.Error,
+              range: {
+                start: o3.document.positionAt(index),
+                end: o3.document.positionAt(input.length + index)
+              },
+              source: "otone",
+            }]);
+            assets = assets.replace(reg, ' '.repeat(input.length))
+          }
+        }
+      }
+    }
   }
   protected BadStartForProto(document: TextDocument) {
     const o3 = this.getItem(document.uri);
