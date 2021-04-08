@@ -31,19 +31,68 @@ export default class OgoneUpdate extends Collections {
     this.requiredLineBreakForProtoAndTemplate(document);
     this.EOFDiagnostics(document);
     // asset's specific diagnostics
-    this.importDiagnostics(document);
+    this.fileNotFound(document);
+    this.uselessAssets(document);
     // protcol's specific diagnostics
     // this.inspectForbiddenElementInsideProto(document);
     this.inspectProtocolTypes(document);
     this.inspectUselessProtocolAttrs(document);
     this.inspectRequiredProtocolNamespace(document);
+    this.BadStartForProto(document);
     // template's specific diagnostics
     this.inspectUselessTemplateAttrs(document);
     this.getForbiddenTemplate(document);
+    this.getUselessTemplate(document);
     // at the end send all diagnostics
     this.sendDiagnostics(document);
   }
-  protected async importDiagnostics(document: TextDocument) {
+  protected BadStartForProto(document: TextDocument) {
+    const o3 = this.getItem(document.uri);
+    if (o3) {
+      const { nodes } = o3;
+      const proto: any = nodes.find((n: any) => n.nodeType === 1 && n.tagName.toLowerCase() === "proto");
+      const text = proto && proto.childNodes.find((t, n) => t.nodeType === 3 && n === 0);
+      let match;
+      if (proto
+        && text
+        && text.data.trim().length
+        && !(match = text.data.match(/^([\s\n]*)(declare|default|def|compute|before\-each|case\s+([`'"])(.+?)(\3))\s*\:/i))) {
+        this.saveDiagnostics([{
+          message: `unexpected start of the protocol. only def, default, declare, compute, before-each or a case are supported as modifiers.`,
+          severity: DiagnosticSeverity.Error,
+          range: {
+            start: o3.document.positionAt(text.startIndex),
+            end: o3.document.positionAt(text.endIndex + 1)
+          },
+          source: "otone",
+        }]);
+      }
+    }
+  }
+  protected uselessAssets(document: TextDocument) {
+    const o3 = this.getItem(document.uri);
+    if (o3) {
+      let { assets } = o3;
+      let match;
+      if (assets
+        && assets.length
+        && !assets.trim().length
+        && (match = assets.match(/^\s+$/i))) {
+        const [input] = match;
+        const { index } = match;
+        this.saveDiagnostics([{
+          message: `useless spaces starting the file`,
+          severity: DiagnosticSeverity.Error,
+          range: {
+            start: o3.document.positionAt(index),
+            end: o3.document.positionAt(index + input.length)
+          },
+          source: "otone",
+        }]);
+      }
+    }
+  }
+  protected async fileNotFound(document: TextDocument) {
     const o3 = this.getItem(document.uri);
     const workspace = await this.connection.workspace.getWorkspaceFolders();
     if (o3) {
@@ -55,33 +104,31 @@ export default class OgoneUpdate extends Collections {
         const { index, groups } = match;
         const { pathToAsset } = groups;
         const newPath = workspace && path.normalize(path.join(path.dirname(o3.document.uri), pathToAsset)).replace(workspace[0].uri, '');
-        console.log(newPath);
-
-       if (pathToAsset
-        && pathToAsset.startsWith('.')
-        && !fs.existsSync(newPath)) {
-        this.saveDiagnostics([{
-          message: `unreachable file: this file doesn't exist`,
-          severity: DiagnosticSeverity.Error,
-          range: {
-            start: o3.document.positionAt(index),
-            end: o3.document.positionAt(index + input.length)
-          },
-          source: "otone",
-        }]);
-       } else if (pathToAsset
-        && pathToAsset.startsWith('@/')
-        && !fs.existsSync(pathToAsset.replace('@/', ''))) {
-        this.saveDiagnostics([{
-          message: `unreachable file: this file doesn't exist`,
-          severity: DiagnosticSeverity.Error,
-          range: {
-            start: o3.document.positionAt(index),
-            end: o3.document.positionAt(index + input.length)
-          },
-          source: "otone",
-        }]);
-       }
+        if (pathToAsset
+          && pathToAsset.startsWith('.')
+          && !fs.existsSync(newPath)) {
+          this.saveDiagnostics([{
+            message: `unreachable file: this file doesn't exist`,
+            severity: DiagnosticSeverity.Error,
+            range: {
+              start: o3.document.positionAt(index),
+              end: o3.document.positionAt(index + input.length)
+            },
+            source: "otone",
+          }]);
+        } else if (pathToAsset
+          && pathToAsset.startsWith('@/')
+          && !fs.existsSync(pathToAsset.replace('@/', ''))) {
+          this.saveDiagnostics([{
+            message: `unreachable file: this file doesn't exist`,
+            severity: DiagnosticSeverity.Error,
+            range: {
+              start: o3.document.positionAt(index),
+              end: o3.document.positionAt(index + input.length)
+            },
+            source: "otone",
+          }]);
+        }
        assets = assets.replace(assetRegExp, ' '.repeat(input.length))
       }
     }
@@ -129,7 +176,9 @@ export default class OgoneUpdate extends Collections {
       const lastTemplateChild: any = template
         && template.childNodes
         && template.childNodes[template.childNodes.length - 1];
-      if (proto && !text[proto.startIndex -1]?.match(/\n/)) {
+      if (proto
+        && !text[proto.startIndex -1]?.match(/\n/)
+        && proto.startIndex -1 > 0) {
         this.saveDiagnostics([{
           message: `a line break is required before the proto element`,
           severity: DiagnosticSeverity.Error,
@@ -140,7 +189,9 @@ export default class OgoneUpdate extends Collections {
           source: "otone",
         }]);
       }
-      if (template && !text[template.startIndex -1]?.match(/\n/)) {
+      if (template
+        && !text[template.startIndex -1]?.match(/\n/)
+        && template.startIndex -1 > 0) {
         this.saveDiagnostics([{
           message: `a line break is required before the template element`,
           severity: DiagnosticSeverity.Error,
@@ -185,6 +236,30 @@ export default class OgoneUpdate extends Collections {
         this.saveDiagnostics([{
           message: `template element is not allowed in ${proto.attribs.type} components`,
           severity: DiagnosticSeverity.Error,
+          range: {
+            start: o3.document.positionAt(template.startIndex),
+            end: o3.document.positionAt(template.endIndex + 1)
+          },
+          source: "otone",
+        }]);
+      }
+    }
+  }
+  protected getUselessTemplate(document: TextDocument) {
+    const o3 = this.getItem(document.uri);
+    if (o3) {
+      const { nodes } = o3;
+      const template: any = nodes.find((n: any) => n.nodeType === 1 && n.tagName.toLowerCase() === "template");
+      if (template
+        && (!template.attribs.is
+          || !template.attribs.is.length)
+        && (!template.childNodes.length
+          || template.childNodes.length === 1
+          && template.childNodes[0].nodeType === 3
+          && !template.childNodes[0].data.trim().length)) {
+        this.saveDiagnostics([{
+          message: `this template is useless because it's empty`,
+          severity: DiagnosticSeverity.Warning,
           range: {
             start: o3.document.positionAt(template.startIndex),
             end: o3.document.positionAt(template.endIndex + 1)
@@ -412,6 +487,6 @@ export default class OgoneUpdate extends Collections {
   }
   getAssets(nodes): string | null {
     const firstNode = nodes[0];
-    return firstNode.nodeType === 3 ? (nodes[0] as any).nodeValue : null
+    return firstNode && firstNode.nodeType === 3 ? (nodes[0] as any).nodeValue : null
   }
 }
