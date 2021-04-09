@@ -45,6 +45,7 @@ export default class OgoneUpdate extends Collections {
     this.inspectUselessProtocolAttrs(document);
     this.inspectRequiredProtocolNamespace(document);
     this.BadStartForProto(document);
+    this.getUnsupportedModifiers(document);
     // template's specific diagnostics
     this.inspectUselessTemplateAttrs(document);
     this.getForbiddenTemplate(document);
@@ -119,7 +120,6 @@ export default class OgoneUpdate extends Collections {
     for (let i = 0, a = lines.length; i < a; i++) {
       const line = lines[i];
       const match = line.match(/\s+$/i);
-      console.warn(match);
       if (match) {
         const [input] = match;
         const { index } = match;
@@ -260,7 +260,7 @@ export default class OgoneUpdate extends Collections {
             let { index } = match;
             const [input] = match;
             this.saveDiagnostics([{
-              message: `Unexpected syntax. only import statements and comments are supported here.`,
+              message: `Unexpected ${input.length === 1 ? input[0] : 'token'}. only import statements and comments are supported here.`,
               severity: DiagnosticSeverity.Error,
               range: {
                 start: o3.document.positionAt(index),
@@ -294,6 +294,85 @@ export default class OgoneUpdate extends Collections {
           },
           source: "otone",
         }]);
+      }
+    }
+  }
+  protected getUnsupportedModifiers(document: TextDocument) {
+    const o3 = this.getItem(document.uri);
+    if (o3) {
+      const { nodes } = o3;
+      const proto: any = nodes.find((n: any) => n.nodeType === 1 && n.tagName.toLowerCase() === "proto");
+      const texts = proto && proto.childNodes.filter((t, n) => t.nodeType === 3 && t.data.trim().length);
+      let numberSpaces = 0;
+      if (texts) {
+        /**
+         * when a text with the same indentation
+         * of the first modifier is not supported
+         */
+        texts.forEach((text: any) => {
+          let match;
+          let data = new String(text.data);
+          let dataIndent = new String(text.data);
+          (match = text.data.match(/^\n{0,1}(?<spaces>[\s]*)(declare|default|def|compute|before\-each|case\s+([`'"])(.+?)(\3))\s*\:/i))
+          if (match && match.groups) {
+            const { spaces } = match.groups;
+            numberSpaces = spaces && spaces.length || 0;
+          }
+          const reg = new RegExp(`(?<=\n{1}|^)(\\s){${numberSpaces}}(?<modifier>[\\S](.*?))(?:\\s*\\:)`, 'i')
+          while (proto
+            &&  (match = data.match(reg))
+            && match.groups) {
+            const { index } = match;
+            const [input] = match;
+            const { modifier } = match.groups;
+            if (
+              !modifier.startsWith('case ')
+              && ![
+                'def',
+                'default',
+                'compute',
+                'before-each',
+                'case',
+                'declare',
+              ].includes(modifier)) {
+              this.saveDiagnostics([{
+                message: `unsupported modifier: ${modifier}.`,
+                severity: DiagnosticSeverity.Error,
+                range: {
+                  start: o3.document.positionAt(text.startIndex + numberSpaces + index),
+                  end: o3.document.positionAt(text.startIndex + numberSpaces + index + modifier.trim().length)
+                },
+                source: "otone",
+              }]);
+            }
+            data = data.replace(reg, ' '.repeat(input.length))
+          }
+          /**
+           * any text that has less indentation
+           * than the first modifier
+           */
+          const lines = dataIndent.split('\n');
+          const regIndent = new RegExp(`^(?!(\\s){${numberSpaces}})([\\S]*?)`, 'i');
+           for (let i = 0, a = lines.length; i < a; i++) {
+            const line = lines[i];
+            const match = line.match(regIndent);
+            if (match) {
+              const [input] = match;
+              const { index } = match;
+              if (text.startIndex + dataIndent.indexOf(line) + index !== text.startIndex) {
+                this.saveDiagnostics([{
+                  message: `protocol is broken here, please respect the indentation of the first modifier.`,
+                  severity: DiagnosticSeverity.Error,
+                  range: {
+                    start: o3.document.positionAt(text.startIndex + dataIndent.indexOf(line) + index),
+                    end: o3.document.positionAt(text.startIndex + dataIndent.indexOf(line) + line.length)
+                  },
+                  source: "otone",
+                }]);
+              }
+            }
+          }
+        });
       }
     }
   }
