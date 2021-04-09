@@ -19,9 +19,10 @@ import {
 import * as ts from 'typescript';
 import * as path from 'path';
 import * as fs from 'fs';
+import { HTMLElementDeprecatedTagNameMap, SVGElementTagNameMap, HTMLElementTagNameMap } from '../utils/tagnameMaps';
 import * as childProcess from 'child_process';
 export default class OgoneUpdate extends Collections {
-  protected update(document: TextDocument) {
+  protected async update(document: TextDocument) {
     // reset diagnostics
     this.diagnostics.splice(0);
     this.updateDocument(document);
@@ -29,9 +30,13 @@ export default class OgoneUpdate extends Collections {
     this.inspectNoUnknownElementOnTopLevel(document);
     this.inspectForbiddenDuplication(document);
     this.requiredLineBreakForProtoAndTemplate(document);
+    this.requireLineBreakForLines(document);
     this.EOFDiagnostics(document);
+    this.getTrailingSpaces(document);
     // asset's specific diagnostics
-    this.fileNotFound(document);
+    await this.fileNotFound(document);
+    this.getDeclaredComponentMultipleTime(document);
+    this.requireExtensionForImportedComponent(document);
     this.uselessAssets(document);
     this.unsupportedPatternInAsset(document);
     // protcol's specific diagnostics
@@ -44,37 +49,212 @@ export default class OgoneUpdate extends Collections {
     this.inspectUselessTemplateAttrs(document);
     this.getForbiddenTemplate(document);
     this.getUselessTemplate(document);
+    this.getElementsSupport(document);
+    this.getTextElementSupport(document);
     // at the end send all diagnostics
     this.sendDiagnostics(document);
+  }
+  protected getDeclaredComponentMultipleTime(document: TextDocument) {
+    const o3 = this.getItem(document.uri);
+    const componentSet = new Set();
+    if (o3) {
+      let { assets } = o3;
+      let match;
+      const assetRegExp = /(?<importStatement>import\s+component\s+)(?<componentName>.+?)(?<fromStatement>\s+from)/mi;
+      while (assets && (match = assets.match(assetRegExp)) && match.groups) {
+        const [input] = match;
+        const { index, groups } = match;
+        const { componentName, importStatement } = groups;
+        const { size } = componentSet;
+        if (componentSet.add(componentName).size === size) {
+          this.saveDiagnostics([{
+            message: `the component ${componentName} has already been declared. cannot redeclare the same name for a component.`,
+            severity: DiagnosticSeverity.Error,
+            range: {
+              start: o3.document.positionAt(index + importStatement.length),
+              end: o3.document.positionAt(index + importStatement.length + componentName.length)
+            },
+            source: "otone",
+          }]);
+        }
+
+        if (componentSet.add(componentName).size === size) {
+          this.saveDiagnostics([{
+            message: `the component ${componentName} has already been declared. cannot redeclare the same name for a component.`,
+            severity: DiagnosticSeverity.Error,
+            range: {
+              start: o3.document.positionAt(index + importStatement.length),
+              end: o3.document.positionAt(index + importStatement.length + componentName.length)
+            },
+            source: "otone",
+          }]);
+        }
+       assets = assets.replace(assetRegExp, ' '.repeat(input.length))
+      }
+    }
+  }
+  protected requireLineBreakForLines(document: TextDocument) {
+    const o3 = this.getItem(document.uri);
+    const lines = o3.text.split('\n');
+    const { text } = o3;
+    for (let i = 0, a = lines.length; i < a; i++) {
+      const line = lines[i];
+      if (line.replace(/((['"])(.+?)(\2)|\/\/(.*?)(?=\n))/gi, '').length > 150) {
+        this.saveDiagnostics([{
+          message: `too many characters on this line`,
+          severity: DiagnosticSeverity.Warning,
+          range: {
+            start: o3.document.positionAt(text.indexOf(line)),
+            end: o3.document.positionAt(text.indexOf(line) + line.length)
+          },
+          source: "otone",
+        }]);
+      }
+    }
+  }
+  protected getTrailingSpaces(document: TextDocument) {
+    const o3 = this.getItem(document.uri);
+    const lines = o3.text.split('\n');
+    const { text } = o3;
+    for (let i = 0, a = lines.length; i < a; i++) {
+      const line = lines[i];
+      const match = line.match(/\s+$/i);
+      console.warn(match);
+      if (match) {
+        const [input] = match;
+        const { index } = match;
+        this.saveDiagnostics([{
+          message: `remove trailing space here`,
+          severity: DiagnosticSeverity.Error,
+          range: {
+            start: o3.document.positionAt(text.indexOf(line) + index),
+            end: o3.document.positionAt(text.indexOf(line) + index + input.length)
+          },
+          source: "otone",
+        }]);
+      }
+    }
+  }
+  protected getTextElementSupport(document: TextDocument) {
+    const o3 = this.getItem(document.uri);
+    const allTextnodes = this.getAllTextNodes(document.uri);
+    if (o3 && allTextnodes) {
+      // require spaces
+      allTextnodes.filter((textnode: any) => textnode.nodeType === 3 && !textnode.data.match(/^[\n\s]/i))
+        .forEach((textnode: any) => {
+          this.saveDiagnostics([{
+            message: `a space or a line break is required here`,
+            severity: DiagnosticSeverity.Error,
+            range: {
+              start: o3.document.positionAt(textnode.startIndex),
+              end: o3.document.positionAt(textnode.startIndex + 1)
+            },
+            source: "otone",
+          }]);
+        });
+      allTextnodes.filter((textnode: any) => textnode.nodeType === 3 && !textnode.data.match(/[\n\s]$/i))
+        .forEach((textnode: any) => {
+          this.saveDiagnostics([{
+            message: `a space or a line break is required here`,
+            severity: DiagnosticSeverity.Error,
+            range: {
+              start: o3.document.positionAt(textnode.endIndex),
+              end: o3.document.positionAt(textnode.endIndex + 1)
+            },
+            source: "otone",
+          }]);
+        });
+    }
+  }
+  protected getElementsSupport(document: TextDocument) {
+    const o3 = this.getItem(document.uri);
+    const allnodes = this.getAllNodes(document.uri);
+    if (o3 && allnodes) {
+      // for deprecated elements
+      allnodes.filter((node: any) => HTMLElementDeprecatedTagNameMap.includes(node.tagName.toLowerCase()))
+        .forEach((node: any) => {
+          this.saveDiagnostics([{
+            message: `${node.tagName.toLowerCase()} is deprecated`,
+            severity: DiagnosticSeverity.Information,
+            range: {
+              start: o3.document.positionAt(node.startIndex),
+              end: o3.document.positionAt(node.endIndex + 1)
+            },
+            source: "otone",
+          }]);
+        });
+      // for unsupported elements
+      allnodes.filter((node: any) =>
+        node.name[0] !== node.name[0].toUpperCase()
+        && !node.name.includes('-')
+        && !['proto'].includes(node.name)
+        && !SVGElementTagNameMap.includes(node.name)
+        && !HTMLElementTagNameMap.includes(node.name)
+        || node.name.endsWith('-'))
+        .forEach((node: any) => {
+          this.saveDiagnostics([{
+            message: `${node.tagName.toLowerCase()} is not supported`,
+            severity: DiagnosticSeverity.Error,
+            range: {
+              start: o3.document.positionAt(node.startIndex),
+              end: o3.document.positionAt(node.endIndex + 1)
+            },
+            source: "otone",
+          }]);
+        });
+    }
+  }
+  protected requireExtensionForImportedComponent(document: TextDocument) {
+    const o3 = this.getItem(document.uri);
+    if (o3) {
+      let { assets } = o3;
+      let match;
+      const assetRegExp = /import\s+(?!component\s+)(.+?)\bfrom\s+([`'"])(?<pathToAsset>.+?)(\.o3)(\3)(;){0,1}/mi;
+      while (assets && (match = assets.match(assetRegExp)) && match.groups) {
+        const [input] = match;
+        const { index, groups } = match;
+        const { pathToAsset } = groups;
+        this.saveDiagnostics([{
+          message: `you're trying to import a component as a module.\nPlease use the following syntax 'import component ... from '${pathToAsset}.o3'`,
+          severity: DiagnosticSeverity.Error,
+          range: {
+            start: o3.document.positionAt(index),
+            end: o3.document.positionAt(index + input.length)
+          },
+          source: "otone",
+        }]);
+       assets = assets.replace(assetRegExp, ' '.repeat(input.length))
+      }
+    }
   }
   protected unsupportedPatternInAsset(document: TextDocument) {
     const o3 = this.getItem(document.uri);
     if (o3) {
       let { assets } = o3;
-      let text = assets;
       const regExps = [
-        /\/\/(.*?)(\n)/gi,
-        /\/\*(.*?)*\//gmi,
-        /\bimport\s+(["'])(.+?)(\1)(;){0,1}/gmi,
-        /\bimport(\s+type|component){0,1}\s+(.+?)\s+from\s+(["'])(.+?)(\3)(;){0,1}/gmi,
+        /(?<=['"])(?<removed>\S+?)(?=['"])/i,
+        /\/\/(.*?)(?=\n)/i,
+        /\/\*([\s\S]*)+\*\//i,
+        /import\s+(["'])(.+?)(\1)(;){0,1}/i,
+        /import(\s+type|\s+component){0,1}\s+(.+?)\s+from\s+(["'])(.+?)(\3)(;){0,1}/i,
         //,
       ];
       if (assets) {
         regExps
-          .filter((regExp) => assets.match(regExp))
           .forEach((regExp) => {
-            let match = assets.match(regExp)!;
-            const [value] = match;
-            assets = assets.replace(regExp, ' '.repeat(value.length));
+            let match = assets.match(regExp);
+            while (match) {
+              const [value] = match;
+              assets = assets.replace(regExp, ' '.repeat(value.length));
+              match = assets.match(regExp);
+            }
           });
-        console.warn(assets);
         if (assets.trim().length) {
           const reg = new RegExp(`(${assets
             .trim()
-            .replace(/\s+/gi, '|')
+            .replace(/([\s\n\r]+)/gi, '|')
             .replace(/([^\d\w\|])/gi, '\\$1')
-          })`, 'i');
-          console.warn(1, reg);
+          })`, 'mi');
           let match ;
           while ((match = assets.match(reg))) {
             let { index } = match;
@@ -88,7 +268,7 @@ export default class OgoneUpdate extends Collections {
               },
               source: "otone",
             }]);
-            assets = assets.replace(reg, ' '.repeat(input.length))
+            assets = assets.replace(input, ' '.repeat(input.length))
           }
         }
       }
@@ -146,12 +326,14 @@ export default class OgoneUpdate extends Collections {
     if (o3) {
       let { assets } = o3;
       let match;
-      const assetRegExp = /(?<=import\b(.+?))\bfrom\s+([`'"])(?<pathToAsset>.+?)(\2)/mi;
+      const assetRegExp = /(?<=import\b(.+?)\bfrom\s+)([`'"])(?<pathToAsset>.+?)(\2)/mi;
       while (assets && (match = assets.match(assetRegExp)) && match.groups) {
         const [input] = match;
         const { index, groups } = match;
         const { pathToAsset } = groups;
-        const newPath = workspace && path.normalize(path.join(path.dirname(o3.document.uri), pathToAsset)).replace(workspace[0].uri, '');
+        const newPath = workspace &&
+          path.join(path.dirname(o3.document.uri), pathToAsset).replace('file:/', 'file:///')
+          .replace(`${workspace[0].uri}/`, '');
         if (pathToAsset
           && pathToAsset.startsWith('.')
           && !fs.existsSync(newPath)) {
@@ -306,7 +488,7 @@ export default class OgoneUpdate extends Collections {
           && template.childNodes[0].nodeType === 3
           && !template.childNodes[0].data.trim().length)) {
         this.saveDiagnostics([{
-          message: `this template is useless because it's empty`,
+          message: `empty template`,
           severity: DiagnosticSeverity.Warning,
           range: {
             start: o3.document.positionAt(template.startIndex),

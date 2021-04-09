@@ -40,4 +40,40 @@ export default class Collections {
   getItem(key: string): O3Document | undefined {
     return this.collection.get(key);
   }
+  getAllNodes(key: string): O3Document["nodes"] | null {
+    const allNodes = [];
+    const o3 = this.getItem(key);
+    if (!o3) return null;
+    function recursive(n: any) {
+      if (n.nodeType === 1 && n.childNodes) {
+        allNodes.push(n);
+        n.childNodes.forEach((child) => {
+          recursive(child);
+        });
+      }
+    }
+    o3.nodes.forEach((child) => {
+      recursive(child);
+    });
+    return allNodes;
+  }
+  getAllTextNodes(key: string): O3Document["nodes"] | null {
+    const allNodes = [];
+    const o3 = this.getItem(key);
+    if (!o3) return null;
+    function recursive(n: any) {
+      if (n.nodeType === 3 && n.parent) {
+        allNodes.push(n);
+      }
+      if (n.nodeType === 1 && n.childNodes) {
+        n.childNodes.forEach((child) => {
+          recursive(child);
+        });
+      }
+    }
+    o3.nodes.forEach((child) => {
+      recursive(child);
+    });
+    return allNodes;
+  }
 }
