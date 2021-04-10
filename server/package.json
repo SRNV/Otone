@@ -18,6 +18,7 @@
 	},
 	"scripts": {},
 	"devDependencies": {
-		"deno-bin": "^1.8.2"
+		"deno-bin": "^1.8.2",
+		"ts-morph": "^10.0.2"
 	}
 }

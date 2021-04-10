@@ -1,7 +1,7 @@
 import { TextDocument } from 'vscode-languageserver-textdocument';
 import * as HTMLParser from 'htmlparser2';
 import { O3Document } from '../types/definition';
-import Collections from './Collections';
+import OgoneProject from './OgoneProject';
 import {
 	createConnection,
 	TextDocuments,
@@ -16,15 +16,15 @@ import {
   TextDocumentSyncKind,
 	InitializeResult,
 } from 'vscode-languageserver';
-import * as ts from 'typescript';
 import * as path from 'path';
 import * as fs from 'fs';
 import { HTMLElementDeprecatedTagNameMap, SVGElementTagNameMap, HTMLElementTagNameMap } from '../utils/tagnameMaps';
 import * as childProcess from 'child_process';
-export default class OgoneUpdate extends Collections {
+export default class OgoneUpdate extends OgoneProject {
   protected async update(document: TextDocument) {
     // reset diagnostics
     this.diagnostics.splice(0);
+    await this.readProject(document);
     this.updateDocument(document);
     this.inspectForbiddenTextnodes(document);
     this.inspectNoUnknownElementOnTopLevel(document);
@@ -98,6 +98,7 @@ export default class OgoneUpdate extends Collections {
     const o3 = this.getItem(document.uri);
     const lines = o3.text.split('\n');
     const { text } = o3;
+    let start = 0;
     for (let i = 0, a = lines.length; i < a; i++) {
       const line = lines[i];
       if (line.replace(/((['"])(.+?)(\2)|\/\/(.*?)(?=\n))/gi, '').length > 150) {
@@ -111,12 +112,14 @@ export default class OgoneUpdate extends Collections {
           source: "otone",
         }]);
       }
+      start += +line.length;
     }
   }
   protected getTrailingSpaces(document: TextDocument) {
     const o3 = this.getItem(document.uri);
     const lines = o3.text.split('\n');
     const { text } = o3;
+    let start = 0;
     for (let i = 0, a = lines.length; i < a; i++) {
       const line = lines[i];
       const match = line.match(/\s+$/i);
@@ -133,6 +136,7 @@ export default class OgoneUpdate extends Collections {
           source: "otone",
         }]);
       }
+      start += +line.length;
     }
   }
   protected getTextElementSupport(document: TextDocument) {
@@ -352,11 +356,12 @@ export default class OgoneUpdate extends Collections {
            * than the first modifier
            */
           const lines = dataIndent.split('\n');
+          let start = 0;
           const regIndent = new RegExp(`^(?!(\\s){${numberSpaces}})([\\S]*?)`, 'i');
            for (let i = 0, a = lines.length; i < a; i++) {
             const line = lines[i];
             const match = line.match(regIndent);
-            if (match) {
+            if (match && line.length) {
               const [input] = match;
               const { index } = match;
               if (text.startIndex + dataIndent.indexOf(line) + index !== text.startIndex) {
@@ -371,6 +376,7 @@ export default class OgoneUpdate extends Collections {
                 }]);
               }
             }
+            start += + line.length;
           }
         });
       }
@@ -780,12 +786,6 @@ export default class OgoneUpdate extends Collections {
       o3.nodes = this.render(o3.text);
       o3.assets = this.getAssets(o3.nodes);
     }
-  }
-  protected saveDiagnostics(diagnostics: Diagnostic[]) {
-    this.diagnostics = this.diagnostics.concat(diagnostics);
-  }
-  protected sendDiagnostics(document: TextDocument) {
-    this.connection.sendDiagnostics({ uri: document.uri, diagnostics: this.diagnostics });
   }
   render(text:string) {
     return HTMLParser.parseDOM(text, {
