@@ -1,5 +1,6 @@
 import { TextDocument } from 'vscode-languageserver-textdocument';
 import Collections from "./Collections";
+import {XMLParser} from "../ogone/XMLParser.js";
 import {
   createConnection,
   TextDocuments,
@@ -39,6 +40,8 @@ export default class OgoneProject extends Collections {
   protected async readProject(document: TextDocument) {
     const o3 = this.getItem(document.uri);
     const { text } = o3;
+    const parsed = await XMLParser.parse(document.uri, text);
+    console.warn(parsed);
     /**
      * create the project from ts-morph
      */
@@ -107,7 +110,7 @@ export default class OgoneProject extends Collections {
       ${dependencies}
       export class Protocol {
 
-        };`.split('\n');
+      };`.split('\n');
       console.warn(lines);
       lines.forEach((line) => {
         writer.writeLine(line);
@@ -125,9 +128,8 @@ export default class OgoneProject extends Collections {
     const lines = `
     ${dependencies}
       import { Protocol } from './protocol.ts'; export class Template extends Protocol { render() { return ${render};
-        }
-      };
-    `.split('\n');
+import XMLParser from '../../../Ogone/src/classes/XMLParser';
+      }};`.split('\n');
     console.warn(1, lines);
     lines.forEach((line) => {
       writer.writeLine(line);
@@ -143,7 +145,7 @@ export default class OgoneProject extends Collections {
       const reg = /import\s+component\s+(.+?)\s+from\s+(['"])(.*?)(\.o3)(\2)(\;){0,1}/i;
       let dependencies = assets;
       let match;
-      while ((match = dependencies.match(reg))) {
+      while (dependencies && (match = dependencies.match(reg))) {
         const [input] = match;
         dependencies = dependencies.replace(reg, ' '.repeat(input.length))
       }
@@ -156,14 +158,15 @@ export default class OgoneProject extends Collections {
    * should return a string containing a JSX like template
    */
   private renderTemplate(document: TextDocument): string {
-    function renderJSX(node: any): string {
-      if (node.nodeType === 3) return `${node.data}`;
-      if (node.nodeType === 1 && ['script', 'style'].includes(node.name)) return `<${node.tagName}>{\`${node.childNodes ? node.childNodes.map(renderJSX) : '' }\`}</${node.tagName}>`;
-      return `<${node.tagName}>${node.childNodes ? node.childNodes.map(renderJSX) : '' }</${node.tagName}>`;
-    }
     const o3 = this.getItem(document.uri);
     if (o3) {
-      const { nodes } = o3;
+      const { nodes, text } = o3;
+      function renderJSX(node: any): string {
+        console.warn(node.attributes, node.attribs);
+        if (node.nodeType === 3) return `${node.data}`;
+        if (node.nodeType === 1 && ['script', 'style'].includes(node.name)) return `<${node.tagName}>{\`${node.childNodes ? node.childNodes.map(renderJSX) : '' }\`}</${node.tagName}>`;
+        return `<${node.tagName}>${node.childNodes ? node.childNodes.map(renderJSX) : '' }</${node.tagName}>`;
+      }
       const template = nodes.find((node: any) => node.nodeType === 1 && node.name === "template");
       if (template) return renderJSX(template);
     }
