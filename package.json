@@ -17,7 +17,6 @@
 		"simulate": "npm start; npm run postinstall; npm run compile",
 		"compile": "tsc -b",
 		"sdb-xmlparser-client": "sudo deno bundle --unstable --no-check -c deno-config/tsconfig.json ./Ogone/src/classes/XMLParser.ts ./client/src/ogone/XMLParser.js",
-		"sdb-xmlparser-server": "sudo deno bundle --unstable --no-check -c deno-config/tsconfig.json ./Ogone/src/classes/XMLParser.ts ./server/src/ogone/XMLParser.js",
 		"sdb-workers-client": "sudo deno bundle --unstable --no-check -c deno-config/tsconfig.json ./Ogone/src/enums/workers.ts ./client/src/ogone/workers.js",
 		"sdb-style-client": "sudo deno bundle --unstable --no-check -c deno-config/tsconfig.json ./Ogone/src/classes/StylesheetBuilder.ts ./client/src/ogone/StylesheetBuilder.js",
 		"watch": "tsc -b -w",

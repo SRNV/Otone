@@ -1,6 +1,5 @@
 import { TextDocument } from 'vscode-languageserver-textdocument';
 import Collections from "./Collections";
-import {XMLParser} from "../ogone/XMLParser.js";
 import {
   createConnection,
   TextDocuments,
@@ -37,11 +36,9 @@ export default class OgoneProject extends Collections {
   protected sendDiagnostics(document: TextDocument) {
     this.connection.sendDiagnostics({ uri: document.uri, diagnostics: this.diagnostics });
   }
-  protected async readProject(document: TextDocument) {
+  protected readProject(document: TextDocument) {
     const o3 = this.getItem(document.uri);
     const { text } = o3;
-    const parsed = await XMLParser.parse(document.uri, text);
-    console.warn(parsed);
     /**
      * create the project from ts-morph
      */
@@ -128,7 +125,6 @@ export default class OgoneProject extends Collections {
     const lines = `
     ${dependencies}
       import { Protocol } from './protocol.ts'; export class Template extends Protocol { render() { return ${render};
-import XMLParser from '../../../Ogone/src/classes/XMLParser';
       }};`.split('\n');
     console.warn(1, lines);
     lines.forEach((line) => {
