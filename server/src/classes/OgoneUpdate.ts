@@ -21,11 +21,62 @@ import * as fs from 'fs';
 import { HTMLElementDeprecatedTagNameMap, SVGElementTagNameMap, HTMLElementTagNameMap } from '../utils/tagnameMaps';
 import * as childProcess from 'child_process';
 export default class OgoneUpdate extends OgoneProject {
+  private flags = [
+    /**
+     * structural flags
+     */
+    '--for',
+    '--await',
+    '--if',
+    '--else-if',
+    '--else',
+    /**
+     * DOM L3 events
+     */
+    '--click',
+    '--dblclick',
+    '--mouseenter',
+    '--mouseover',
+    '--mousemove',
+    '--mousedown',
+    '--mouseup',
+    '--mouseleave',
+    '--keypress',
+    '--keydown',
+    '--keyup',
+    '--wheel',
+    /**
+     * custom event flags
+     */
+    '--event',
+    /**
+     * style flags
+     */
+    '--class',
+    '--style',
+    '--keyframes',
+    /**
+     * value flags
+     */
+    '--bind',
+    /**
+     * router flags
+     */
+    '--router-go',
+    '--router-dev-tool',
+    /**
+     * async flags
+     */
+    '--defer',
+    '--then',
+    '--finally',
+    '--catch',
+  ];
   protected async update(document: TextDocument) {
     // reset diagnostics
     this.diagnostics.splice(0);
-    await this.readProject(document);
     this.updateDocument(document);
+    await this.readProject(document);
     this.inspectForbiddenTextnodes(document);
     this.inspectNoUnknownElementOnTopLevel(document);
     this.inspectForbiddenDuplication(document);
@@ -33,6 +84,9 @@ export default class OgoneUpdate extends OgoneProject {
     this.requireLineBreakForLines(document);
     this.EOFDiagnostics(document);
     this.getTrailingSpaces(document);
+    this.checkEmptyForStatement(document);
+    this.checkForStatementPattern(document);
+    this.checkWrongFlagAttributes(document);
     // asset's specific diagnostics
     await this.fileNotFound(document);
     this.getDeclaredComponentMultipleTime(document);
@@ -54,6 +108,96 @@ export default class OgoneUpdate extends OgoneProject {
     this.getTextElementSupport(document);
     // at the end send all diagnostics
     this.sendDiagnostics(document);
+  }
+  protected checkWrongFlagAttributes(document: TextDocument) {
+    const o3 = this.getItem(document.uri);
+    if (o3) {
+      const allNodes = this.getAllNodes(document.uri);
+      allNodes.forEach((n: any) => {
+        const keys = Object.entries(n.attribs);
+        keys
+          .map(([key, value]: [string, string]) => {
+            const attribute = n.attributesMap.get(key);
+            if (key.startsWith('--') && attribute.type !== 'flag' && value.length) {
+              this.saveDiagnostics([{
+                message: `Unexpected: ${key} should be opened with curly braces`,
+                severity: DiagnosticSeverity.Error,
+                range: {
+                  start: o3.document.positionAt(attribute.position.start + key.length),
+                  end: o3.document.positionAt(attribute.position.end)
+                },
+                source: "otone",
+              }]);
+            } else if (key.startsWith('--')
+              && (!this.flags.includes(key)
+                && !this.flags.find((flag) => key.startsWith(`${flag}:`)))) {
+                  this.saveDiagnostics([{
+                    message: `Unexpected: ${key} is not a supported flag`,
+                    severity: DiagnosticSeverity.Error,
+                    range: {
+                      start: o3.document.positionAt(attribute.position.start),
+                      end: o3.document.positionAt(attribute.position.start + key.length)
+                    },
+                    source: "otone",
+                  }]);
+            }
+          });
+      })
+    }
+  }
+  protected checkForStatementPattern(document: TextDocument) {
+    const o3 = this.getItem(document.uri);
+    if (o3) {
+      const allNodes = this.getAllNodes(document.uri);
+      allNodes.forEach((n: any) => {
+        const keys = Object.entries(n.attribs);
+        keys
+          .map(([key, value]: [string, string]) => {
+            if (key === '--for' && (
+              !value.match(/^\((.+?),\s*(\w+?)\)\s+of\s+(.+?)$/gi)
+                && !value.match(/^(.+?)\s+of\s+(.+?)$/gi)
+            )) {
+              const attribute = n.attributesMap.get(key);
+              this.saveDiagnostics([{
+                message: `Unexpected syntax: please follow one of these patterns:
+              - <value> of <Array>
+              - (<value>, <key>) of <Array>
+                `,
+                severity: DiagnosticSeverity.Error,
+                range: {
+                  start: o3.document.positionAt(attribute.position.start),
+                  end: o3.document.positionAt(attribute.position.end)
+                },
+                source: "otone",
+              }]);
+            }
+          });
+      })
+    }
+  }
+  protected checkEmptyForStatement(document: TextDocument) {
+    const o3 = this.getItem(document.uri);
+    if (o3) {
+      const { text } = o3;
+      const allNodes = this.getAllNodes(document.uri);
+      allNodes.forEach((n: any) => {
+        const keys = Object.entries(n.attribs);
+        keys
+          .map(([key, value]: [string, string]) => {
+            if (key === '--for' && !value.length) {
+              this.saveDiagnostics([{
+                message: `the for flag is empty, a value is required`,
+                severity: DiagnosticSeverity.Error,
+                range: {
+                  start: o3.document.positionAt(n.startIndex + 1),
+                  end: o3.document.positionAt(n.startIndex + n.tagName.length + 1)
+                },
+                source: "otone",
+              }]);
+            }
+          });
+      })
+    }
   }
   protected getDeclaredComponentMultipleTime(document: TextDocument) {
     const o3 = this.getItem(document.uri);
@@ -197,7 +341,7 @@ export default class OgoneUpdate extends OgoneProject {
         || node.name.endsWith('-'))
         .forEach((node: any) => {
           this.saveDiagnostics([{
-            message: `${node.tagName.toLowerCase()} is not supported`,
+            message: `${node.tagName.toLowerCase()} is not a supported element`,
             severity: DiagnosticSeverity.Error,
             range: {
               start: o3.document.positionAt(node.startIndex),
@@ -464,7 +608,7 @@ export default class OgoneUpdate extends OgoneProject {
         }]);
       }
       let match;
-      if ((match = text.match(/(?<=\n)(\n)$/gmi))) {
+      if ((match = text.match(/(\n){2,}$/gi))) {
         const [input] = match;
         const { index } = match;
         this.saveDiagnostics([{
@@ -496,7 +640,7 @@ export default class OgoneUpdate extends OgoneProject {
         && proto.startIndex -1 > 0) {
         this.saveDiagnostics([{
           message: `a line break is required before the proto element`,
-          severity: DiagnosticSeverity.Error,
+          severity: DiagnosticSeverity.Warning,
           range: {
             start: o3.document.positionAt(proto.startIndex),
             end: o3.document.positionAt(proto.endIndex + 1)
@@ -509,7 +653,7 @@ export default class OgoneUpdate extends OgoneProject {
         && template.startIndex -1 > 0) {
         this.saveDiagnostics([{
           message: `a line break is required before the template element`,
-          severity: DiagnosticSeverity.Error,
+          severity: DiagnosticSeverity.Warning,
           range: {
             start: o3.document.positionAt(template.startIndex),
             end: o3.document.positionAt(template.endIndex + 1)
@@ -519,8 +663,8 @@ export default class OgoneUpdate extends OgoneProject {
       }
       if (lastProtoChild && !text[lastProtoChild.endIndex]?.match(/\n/)) {
         this.saveDiagnostics([{
-          message: `a line break is required after this element`,
-          severity: DiagnosticSeverity.Error,
+          message: `a line break is required at the end of the protocol`,
+          severity: DiagnosticSeverity.Warning,
           range: {
             start: o3.document.positionAt(lastProtoChild.startIndex),
             end: o3.document.positionAt(lastProtoChild.endIndex + 1)
@@ -528,10 +672,12 @@ export default class OgoneUpdate extends OgoneProject {
           source: "otone",
         }]);
       }
-      if (lastTemplateChild && !text[lastTemplateChild.endIndex]?.match(/\n/)) {
+      if (lastTemplateChild
+            && !(lastTemplateChild.nodeType === 3
+              && lastTemplateChild.data.match(/\n$/gi))) {
         this.saveDiagnostics([{
           message: `a line break is required after this element`,
-          severity: DiagnosticSeverity.Error,
+          severity: DiagnosticSeverity.Warning,
           range: {
             start: o3.document.positionAt(lastTemplateChild.startIndex),
             end: o3.document.positionAt(lastTemplateChild.endIndex + 1)
@@ -615,13 +761,13 @@ export default class OgoneUpdate extends OgoneProject {
         keys
           .filter(key => !validAttributes.includes(key))
           .map((key) => {
-            const findAttributePosition = o3.text.indexOf(key, template.startIndex);
+            const attribute = template.attributesMap.get(key);
             this.saveDiagnostics([{
               message: `template attribute '${key}' is not supported, 'is' attribute is supported`,
               severity: DiagnosticSeverity.Error,
               range: {
-                start: o3.document.positionAt(findAttributePosition),
-                end: o3.document.positionAt(findAttributePosition + key.length)
+                start: o3.document.positionAt(attribute.position.start),
+                end: o3.document.positionAt(attribute.position.start + key.length)
               },
               source: "otone",
             }]);
@@ -785,6 +931,9 @@ export default class OgoneUpdate extends OgoneProject {
       o3.text = document.getText();
       o3.nodes = this.render(o3.text);
       o3.assets = this.getAssets(o3.nodes);
+      o3.encodedText = this.encode(o3.text);
+      o3.encodedNodes =  this.render(o3.encodedText);
+      this.syncNodes(document.uri);
     }
   }
   render(text:string) {

@@ -21,7 +21,7 @@ import {
   SourceFile,
   CodeBlockWriter,
 } from 'ts-morph';
-
+import read from '../lib/ogone-compiler/utils/agnostic-transformer';
 export interface ComponentSources {
   proto: SourceFile;
   template: SourceFile;
@@ -108,7 +108,6 @@ export default class OgoneProject extends Collections {
       export class Protocol {
 
       };`.split('\n');
-      console.warn(lines);
       lines.forEach((line) => {
         writer.writeLine(line);
       });
@@ -126,7 +125,6 @@ export default class OgoneProject extends Collections {
     ${dependencies}
       import { Protocol } from './protocol.ts'; export class Template extends Protocol { render() { return ${render};
       }};`.split('\n');
-    console.warn(1, lines);
     lines.forEach((line) => {
       writer.writeLine(line);
     });
@@ -138,6 +136,7 @@ export default class OgoneProject extends Collections {
     const o3 = this.getItem(document.uri);
     if (o3) {
       const { assets } = o3;
+      if (!assets) return '';
       const reg = /import\s+component\s+(.+?)\s+from\s+(['"])(.*?)(\.o3)(\2)(\;){0,1}/i;
       let dependencies = assets;
       let match;
@@ -158,10 +157,9 @@ export default class OgoneProject extends Collections {
     if (o3) {
       const { nodes, text } = o3;
       function renderJSX(node: any): string {
-        console.warn(node.attributes, node.attribs);
         if (node.nodeType === 3) return `${node.data}`;
-        if (node.nodeType === 1 && ['script', 'style'].includes(node.name)) return `<${node.tagName}>{\`${node.childNodes ? node.childNodes.map(renderJSX) : '' }\`}</${node.tagName}>`;
-        return `<${node.tagName}>${node.childNodes ? node.childNodes.map(renderJSX) : '' }</${node.tagName}>`;
+        if (node.nodeType === 1 && ['script', 'style'].includes(node.name)) return `<${node.tagName}>{\`${node.childNodes ? node.childNodes.map(renderJSX) : ''}\`}</${node.tagName}>`;
+        return `<${node.tagName}>${node.childNodes ? node.childNodes.map(renderJSX) : ''}</${node.tagName}>`;
       }
       const template = nodes.find((node: any) => node.nodeType === 1 && node.name === "template");
       if (template) return renderJSX(template);

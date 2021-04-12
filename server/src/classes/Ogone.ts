@@ -38,13 +38,17 @@ export default class Ogone extends OgoneUpdate {
   subscribe(document: TextDocument): boolean {
     const text = document.getText();
     const nodes = this.render(text);
+    const encodedText = this.encode(text);
     const item: O3Document = {
       document,
       text,
+      encodedText,
+      encodedNodes: this.render(encodedText),
       nodes,
       assets: this.getAssets(nodes),
     };
     this.collection.set(document.uri, item);
+    this.syncNodes(document.uri);
     return true;
   }
 }
