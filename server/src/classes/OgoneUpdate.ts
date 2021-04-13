@@ -799,7 +799,7 @@ export default class OgoneUpdate extends OgoneProject {
         const keys = Object.keys(proto.attribs);
         keys
           .filter(key => !validAttributes.includes(key)
-            && (!['conroller', 'store'].includes(proto.attribs.type) && key !== 'namespace')
+            && (['conroller', 'store'].includes(proto.attribs.type) && key !== 'namespace')
             || (!['conroller', 'store'].includes(proto.attribs.type) && !validAttributes.includes(key)))
           .map((key) => {
             const attribute = proto.attributesMap.get(key);
