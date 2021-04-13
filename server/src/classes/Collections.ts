@@ -18,6 +18,7 @@ export default class Collections {
   protected collection: Map<string, O3Document> = new Map();
   protected connection: ReturnType<typeof createConnection>;
   protected diagnostics: Diagnostic[] = [];
+  protected cancelledNode: string[] = ['proto', 'script', 'style'];
   public readonly supportedTypes: string[] = [
     "component",
     "async",
@@ -25,7 +26,6 @@ export default class Collections {
     "store",
     "app",
     "router",
-    "gl",
   ];
   public readonly validProtocolAttributes: string[] = ['def', 'type', 'engine', 'namespace', 'base'];
   public readonly validTemplateAttributes: string[] = ['is', 'private', 'protected'];
@@ -125,6 +125,8 @@ export default class Collections {
     let tagLevel = 0;
     let jsxAttributesLevel = 0;
     let stringLevel = 0;
+    let cancelNodesLevel = 0;
+    let previous: string = '';
     function provideChar(char: string) {
       result += char;
     }
@@ -133,6 +135,10 @@ export default class Collections {
     }
     while (text.length) {
       const char = text[0];
+      cancelNodesLevel = previous === '<' && this.cancelledNode.find((tag) => text.startsWith(`${tag}`)) ?
+        1 :
+          previous === '<' && this.cancelledNode.find((tag) => text.startsWith(`/${tag}`)) ?
+          0 : cancelNodesLevel;
       let size = contextSet.size;
       switch (char) {
         case '%':
@@ -173,7 +179,10 @@ export default class Collections {
           }
           break;
         case '<':
-          if (stringLevel || jsxAttributesLevel || contextSet.add(char).size === size) {
+          if (cancelNodesLevel
+              || stringLevel
+              || jsxAttributesLevel
+              || contextSet.add(char).size === size) {
             /**
              * the Set didn't accept the new character because it's already inside
              * we need to encode it
@@ -203,6 +212,7 @@ export default class Collections {
           break;
       }
       text = text.slice(1);
+      previous = char;
     }
     return result;
   }

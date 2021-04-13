@@ -87,6 +87,7 @@ export default class OgoneUpdate extends OgoneProject {
     this.checkEmptyForStatement(document);
     this.checkForStatementPattern(document);
     this.checkWrongFlagAttributes(document);
+    this.requireLineBreakAfterAttributes(document);
     // asset's specific diagnostics
     await this.fileNotFound(document);
     this.getDeclaredComponentMultipleTime(document);
@@ -109,6 +110,17 @@ export default class OgoneUpdate extends OgoneProject {
     // at the end send all diagnostics
     this.sendDiagnostics(document);
   }
+  protected requireLineBreakAfterAttributes(document: TextDocument) {
+    const o3 = this.getItem(document.uri);
+    if (o3) {
+      const { text } = o3;
+      const allNodes = this.getAllNodes(document.uri);
+      allNodes.forEach((n: any) => {
+        const keys = Object.entries(n.attribs);
+        const spacesBeforeNode = text.slice(n.startIndex);
+      });
+    }
+  }
   protected checkWrongFlagAttributes(document: TextDocument) {
     const o3 = this.getItem(document.uri);
     if (o3) {
@@ -117,6 +129,7 @@ export default class OgoneUpdate extends OgoneProject {
         const keys = Object.entries(n.attribs);
         keys
           .map(([key, value]: [string, string]) => {
+            if (!n.attributesMap) return;
             const attribute = n.attributesMap.get(key);
             if (key.startsWith('--') && attribute.type !== 'flag' && value.length) {
               this.saveDiagnostics([{
@@ -150,6 +163,7 @@ export default class OgoneUpdate extends OgoneProject {
     if (o3) {
       const allNodes = this.getAllNodes(document.uri);
       allNodes.forEach((n: any) => {
+        if (!n.attributesMap) return;
         const keys = Object.entries(n.attribs);
         keys
           .map(([key, value]: [string, string]) => {
@@ -788,13 +802,13 @@ export default class OgoneUpdate extends OgoneProject {
             && (!['conroller', 'store'].includes(proto.attribs.type) && key !== 'namespace')
             || (!['conroller', 'store'].includes(proto.attribs.type) && !validAttributes.includes(key)))
           .map((key) => {
-            const findAttributePosition = o3.text.indexOf(key, proto.startIndex);
+            const attribute = proto.attributesMap.get(key);
             this.saveDiagnostics([{
               message: `protocol attribute '${key}' is not supported`,
               severity: DiagnosticSeverity.Error,
               range: {
-                start: o3.document.positionAt(findAttributePosition),
-                end: o3.document.positionAt(findAttributePosition + key.length)
+                start: o3.document.positionAt(attribute.position.start),
+                end: o3.document.positionAt(attribute.position.end)
               },
               source: "otone",
             }]);
