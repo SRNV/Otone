@@ -60,6 +60,8 @@ export function activate(context: ExtensionContext) {
   );
   // Start the client. This will also launch the server
   client.start();
+  client.sendRequest('textDocument/documentColor');
+  client.sendRequest('textDocument/colorPresentation');
   const config = workspace.getConfiguration();
   workspace.findFiles('**/*.o3').then((files) => {
     // hooks on the workspace

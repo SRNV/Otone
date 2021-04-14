@@ -14,12 +14,13 @@ import {
 	CompletionItemKind,
 	TextDocumentPositionParams,
   TextDocumentSyncKind,
+  CompletionList,
 	InitializeResult,
 } from 'vscode-languageserver';
 import * as path from 'path';
 import * as fs from 'fs';
 import { HTMLElementDeprecatedTagNameMap, SVGElementTagNameMap, HTMLElementTagNameMap } from '../utils/tagnameMaps';
-import * as childProcess from 'child_process';
+
 export default class OgoneUpdate extends OgoneProject {
   private flags = [
     /**
@@ -275,26 +276,21 @@ export default class OgoneUpdate extends OgoneProject {
   }
   protected getTrailingSpaces(document: TextDocument) {
     const o3 = this.getItem(document.uri);
-    const lines = o3.text.split('\n');
-    const { text } = o3;
-    let start = 0;
-    for (let i = 0, a = lines.length; i < a; i++) {
-      const line = lines[i];
-      const match = line.match(/\s+$/i);
-      if (match) {
-        const [input] = match;
-        const { index } = match;
-        this.saveDiagnostics([{
-          message: `remove trailing space here`,
-          severity: DiagnosticSeverity.Error,
-          range: {
-            start: o3.document.positionAt(text.indexOf(line) + index),
-            end: o3.document.positionAt(text.indexOf(line) + index + input.length)
-          },
-          source: "otone",
-        }]);
-      }
-      start += +line.length;
+    let { text } = o3;
+    let match, reg = /( +)(?=\n)/i;
+    while ((match = text.match(reg))) {
+      const [input] = match;
+      const { index } = match;
+      this.saveDiagnostics([{
+        message: `remove trailing space here`,
+        severity: DiagnosticSeverity.Error,
+        range: {
+          start: o3.document.positionAt(index),
+          end: o3.document.positionAt(index + input.length)
+        },
+        source: "otone",
+      }]);
+      text = text.replace(reg, '_'.repeat(input.length))
     }
   }
   protected getTextElementSupport(document: TextDocument) {

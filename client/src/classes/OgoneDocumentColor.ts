@@ -34,13 +34,15 @@ export default class OgoneDocumentColor extends OgoneDocument {
   }
   getDocumentColors(): ProviderResult<ColorInformation[]> {
     let colors = [
-      /*{
+      /*
+      {
         range: new Range(
-          document.positionAt(0),
-          document.positionAt(document.getText().length)
+          this.document.positionAt(0),
+          this.document.positionAt(this.document.getText().length)
         ),
         color: new Color(1, 0, 0, 1),
-      }*/
+      }
+      */
     ];
 
     return colors;

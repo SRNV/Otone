@@ -5,6 +5,7 @@
 import {
 	createConnection,
 	TextDocuments,
+	CompletionList,
 	Diagnostic,
 	DiagnosticSeverity,
 	ProposedFeatures,
@@ -14,13 +15,15 @@ import {
 	CompletionItemKind,
 	TextDocumentPositionParams,
 	TextDocumentSyncKind,
-	InitializeResult
+	InitializeResult,
+	DocumentColorParams
 } from 'vscode-languageserver';
 
 import Ogone from './classes/Ogone';
 import {
 	TextDocument
 } from 'vscode-languageserver-textdocument';
+import { ColorInformation } from 'vscode-css-languageservice';
 
 // Create a connection for the server, using Node's IPC as a transport.
 // Also include all preview / proposed LSP features.
@@ -53,6 +56,7 @@ connection.onInitialize((params: InitializeParams) => {
 
 	const result: InitializeResult = {
 		capabilities: {
+			colorProvider : true,
 			textDocumentSync: TextDocumentSyncKind.Full,
 			// Tell the client that this server supports code completion.
 			completionProvider: {
@@ -153,35 +157,37 @@ connection.onDidChangeWatchedFiles(_change => {
 // This handler provides the initial list of the completion items.
 connection.onCompletion(
 	(_textDocumentPosition: TextDocumentPositionParams): CompletionItem[] => {
+		const document = documents.get(_textDocumentPosition.textDocument.uri);
+		if (!document) return null;
 		// The pass parameter contains the position of the text document in
 		// which code complete got requested. For the example we ignore this
 		// info and always provide the same completion items.
-		return [
-			{
-				label: 'TypeScript',
-				kind: CompletionItemKind.Text,
-				data: 1
-			},
-			{
-				label: 'JavaScript',
-				kind: CompletionItemKind.Text,
-				data: 2
-			}
-		];
+		ogoneExtension.updatePosition(_textDocumentPosition.position);
+		if (ogoneExtension.isInStyleNode(document)) {
+			const cssComp = ogoneExtension.doStyleCompletion(document);
+			// @ts-ignore
+			return cssComp.items;
+		}
 	}
 );
-
+connection.onColorPresentation((colorPresentationParams) => {
+	if (!colorPresentationParams) return [];
+	const document = documents.get(colorPresentationParams.textDocument.uri);
+	if (!document) return [];
+	return ogoneExtension.getColorPresentation(document, colorPresentationParams.color, colorPresentationParams.range);
+})
+/*
+*/
+connection.onDocumentColor((params: DocumentColorParams): ColorInformation[] => {
+	if(!params) return [];
+	const document = documents.get(params.textDocument.uri);
+	if (!document) return [];
+	return ogoneExtension.findDocumentColors(document);
+});
 // This handler resolves additional information for the item selected in
 // the completion list.
 connection.onCompletionResolve(
 	(item: CompletionItem): CompletionItem => {
-		if (item.data === 1) {
-			item.detail = 'TypeScript details';
-			item.documentation = 'TypeScript documentation';
-		} else if (item.data === 2) {
-			item.detail = 'JavaScript details';
-			item.documentation = 'JavaScript documentation';
-		}
 		return item;
 	}
 );

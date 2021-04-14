@@ -13,7 +13,6 @@ import {
 } from 'vscode';
 import * as path from 'path';
 import * as HTMLParser from 'htmlparser2';
-
 export default abstract class OgoneDocument {
   protected document: TextDocument;
   get nodes() {
@@ -55,5 +54,18 @@ export default abstract class OgoneDocument {
   }
   setDocument(document: TextDocument) {
     this.document = document;
+  }
+  public getCompleteCSS(): string {
+    let result = ``;
+    const styles = this.styleNodes.filter((n: any) => n.nodeType === 1 && n.tagName.toLowerCase() === 'style');
+    styles.forEach((node: any) => {
+      if (!node.childNodes.length) return;
+      const [textnode] = node.childNodes;
+      // add white spaces before css text
+      result += ' '.repeat(textnode.startIndex - result.length);
+      // add the css text
+      result += textnode.data;
+    });
+    return result;
   }
 }

@@ -1,6 +1,7 @@
 import { O3Document } from '../types/definition';
 import {
   createConnection,
+  Position,
   TextDocuments,
   Diagnostic,
   DiagnosticSeverity,
@@ -15,6 +16,7 @@ import {
 } from 'vscode-languageserver';
 import * as urlencode from 'urlencode';
 export default class Collections {
+  position?: Position;
   protected collection: Map<string, O3Document> = new Map();
   protected connection: ReturnType<typeof createConnection>;
   protected diagnostics: Diagnostic[] = [];

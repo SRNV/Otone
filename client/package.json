@@ -22,6 +22,7 @@
 		"koa": "^2.13.1",
 		"nodejs-fs-utils": "^1.2.5",
 		"server": "^1.0.32",
+		"vscode-css-languageservice": "^5.1.0",
 		"vscode-languageclient": "^5.2.1",
 		"vscode-languageserver-textdocument": "^1.0.1",
 		"ws": "^7.4.1"

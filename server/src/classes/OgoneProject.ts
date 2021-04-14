@@ -13,6 +13,10 @@ import {
   TextDocumentPositionParams,
   TextDocumentSyncKind,
   InitializeResult,
+  Color,
+  ColorPresentation,
+  Position,
+  Range,
 } from 'vscode-languageserver';
 import {
   ts,
@@ -21,7 +25,9 @@ import {
   SourceFile,
   CodeBlockWriter,
 } from 'ts-morph';
-import read from '../lib/ogone-compiler/utils/agnostic-transformer';
+import { getCSSLanguageService, getSCSSLanguageService, Stylesheet, ColorInformation } from 'vscode-css-languageservice';
+const cssLanguageService = getCSSLanguageService();
+const scssLanguageService = getSCSSLanguageService();
 export interface ComponentSources {
   proto: SourceFile;
   template: SourceFile;
@@ -30,6 +36,29 @@ export interface ComponentSources {
 export default class OgoneProject extends Collections {
   protected project?: Project;
   protected componentSources?: ComponentSources;
+  protected getCursorPosition(document: TextDocument, position: Position): number {
+    const o3 = this.getItem(document.uri);
+    if (o3) {
+      const { text } = o3;
+      const lines = text.split(/(?<=\n)/);
+      let cursor = 0;
+      lines
+        .slice(0, position.line + 1)
+        .forEach((line, i) => {
+        let chars = 0;
+        while (chars < position.character) {
+          chars++;
+        }
+        if (i === position.line) {
+          cursor +=+ chars;
+        } else {
+          cursor +=+ line.length;
+        }
+      });
+      return cursor;
+    }
+    return 0;
+  }
   protected saveDiagnostics(diagnostics: Diagnostic[]) {
     this.diagnostics = this.diagnostics.concat(diagnostics);
   }
@@ -165,5 +194,134 @@ export default class OgoneProject extends Collections {
       if (template) return renderJSX(template);
     }
     return '';
+  }
+  getStylesheet(document: TextDocument, text: string): [Stylesheet, TextDocument] {
+    const embeddedStyleDocument = TextDocument.create(document.uri, 'css', document.version, text);
+    const stylesheet = cssLanguageService.parseStylesheet(embeddedStyleDocument);
+    return [stylesheet, embeddedStyleDocument];
+  }
+  /**
+   * start using CSS language service's completion
+   * provide to it only the parts with CSS
+   */
+   public doStyleCompletion(document: TextDocument): ReturnType<typeof cssLanguageService.doComplete> {
+    const o3 = this.getItem(document.uri);
+    const cursor = this.getCursorPosition(document, this.position);
+    if (o3 && this.position) {
+      let result = this.getCompleteCSS(document);
+      /**
+       * slice the content
+       * using the cursor position
+       */
+      result = result.slice(0, cursor);
+      let slicedText = result;
+      /**
+       * start extracting the rule
+       * or the query selector that is currently edited
+       */
+      let match,
+        regInRule = /([^;\}\{]*?)(\{)([^\{\}]*?)$/i,
+        regInSelector = /([^\{;\}]*?)$/i;
+      if ((match = result.match(regInRule))) {
+        const { index } = match;
+        result = `${' '.repeat(index)}${result.slice(index).replace(/([^\{\}])(?=.*?)$/i, ' ')}\n}`;
+      } else if ((match = result.match(regInSelector))) {
+        const { index } = match;
+        result = `${' '.repeat(index)}${result.slice(index)}`;
+      }
+      result = `${result.slice(0, cursor)}${result.slice(cursor)}`;
+      result = result.replace(/\$/gi, ' ');
+      /**
+       * create virtual css document
+       */
+      const [stylesheet, embeddedStyleDocument] = this.getStylesheet(document, result);
+      const completeList = cssLanguageService.doComplete(embeddedStyleDocument, this.position, stylesheet);
+      /**
+       * need to select the correct
+       */
+      completeList.items = completeList.items.filter((item: CompletionItem) => {
+        /**
+         * start recomputing the range
+         * of textEdit
+         */
+        const match = slicedText.match(/([^\s;\{\}]*?)$/i);
+        let unshift = 0;
+        if (match) {
+          const { index } = match;
+          unshift = cursor - index;
+          const range = Range.create(
+            document.positionAt(cursor - unshift),
+            document.positionAt(cursor),
+          );
+          item.textEdit.range = range;
+        }
+        return !item.deprecated;
+      });
+			return completeList;
+    }
+  }
+  isInStyleNode(document: TextDocument) {
+    const o3 = this.getItem(document.uri);
+    const cursor = this.getCursorPosition(document, this.position);
+    let result = false;
+    if (o3 && this.position) {
+      const allNodes = this.getAllNodes(document.uri);
+      const styles = allNodes.filter((n: any) => n.nodeType === 1 && n.tagName.toLowerCase() === 'style');
+      styles.forEach((node: any) => {
+        if (!node.childNodes.length) return;
+        const [textnode] = node.childNodes;
+        if (!textnode) return;
+        if (textnode.startIndex <= cursor && textnode.endIndex >= cursor) {
+          result = true;
+        }
+      });
+    }
+    return result;
+  }
+  public getCompleteCSS(document: TextDocument): string {
+    const o3 = this.getItem(document.uri);
+    let result = ``;
+    if (o3) {
+      const allNodes = this.getAllNodes(document.uri);
+      const styles = allNodes.filter((n: any) => n.nodeType === 1 && n.tagName.toLowerCase() === 'style');
+      styles.forEach((node: any) => {
+        if (!node.childNodes.length) return;
+        const [textnode] = node.childNodes;
+        // add white spaces before css text
+        if (!result.length) {
+          result += o3.text.slice(0, textnode.startIndex)
+            .replace(/[^\n]/gi, ' ');
+        } else {
+          result += o3.text.slice(textnode.startIndex - result.length)
+          .replace(/[^\n]/gi, ' ');
+        }
+        // add the css text
+        result += textnode.data;
+      });
+    }
+    return result;
+  }
+  findDocumentColors(document: TextDocument): ColorInformation[] {
+    const o3 = this.getItem(document.uri);
+    if (o3) {
+      const [styleSheet, embedded] = this.getStylesheet(document, this.getCompleteCSS(document));
+      const colors = [
+        ...scssLanguageService.findDocumentColors(embedded, styleSheet),
+      ];
+
+      return colors;
+    }
+    return [];
+  }
+  getColorPresentation(document: TextDocument, color: Color, range: Range): ColorPresentation[] {
+    const o3 = this.getItem(document.uri);
+    if (o3) {
+      const [styleSheet, embedded] = this.getStylesheet(document, this.getCompleteCSS(document));
+      const colors = [
+        ...scssLanguageService.getColorPresentations(embedded, styleSheet, color, range),
+      ];
+      return colors;
+    }
+    return [];
   }
 }

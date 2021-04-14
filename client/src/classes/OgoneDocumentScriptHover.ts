@@ -38,7 +38,6 @@ import {
         contents: [],
         range: new Range(new Position(0, 0), new Position(0, 0)),
       };
-      console.warn(links);
       if (links) {
         const visitedNode = links.find((nodeLink) => {
           const nodePositionStart = this.document.positionAt(nodeLink.node.startIndex);

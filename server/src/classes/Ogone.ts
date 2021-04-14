@@ -4,6 +4,7 @@ import OgoneUpdate from './OgoneUpdate';
 import { O3Document } from '../types/definition';
 import {
 	createConnection,
+  Position,
 	TextDocuments,
 	Diagnostic,
 	DiagnosticSeverity,
@@ -34,6 +35,9 @@ export default class Ogone extends OgoneUpdate {
       this.subscribe(document);
       this.update(document);
     }
+  }
+  updatePosition(position: Position) {
+    this.position = position;
   }
   subscribe(document: TextDocument): boolean {
     const text = document.getText();
