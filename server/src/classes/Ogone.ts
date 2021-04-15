@@ -50,6 +50,8 @@ export default class Ogone extends OgoneUpdate {
       encodedNodes: this.render(encodedText),
       nodes,
       assets: this.getAssets(nodes),
+      protocolOpeningSpacesAmount: 0,
+      modifiers: [],
     };
     this.collection.set(document.uri, item);
     this.syncNodes(document.uri);

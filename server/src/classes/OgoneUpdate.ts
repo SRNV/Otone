@@ -77,7 +77,12 @@ export default class OgoneUpdate extends OgoneProject {
     // reset diagnostics
     this.diagnostics.splice(0);
     this.updateDocument(document);
+    this.saveModifiers(document);
+    // now the document is updated
     await this.readProject(document);
+    // TODO implement a custom lexer for Ogone CSS
+    // await this.validateStylesSheets(document);
+    await this.validateDefModifier(document);
     this.inspectForbiddenTextnodes(document);
     this.inspectNoUnknownElementOnTopLevel(document);
     this.inspectForbiddenDuplication(document);
@@ -461,7 +466,6 @@ export default class OgoneUpdate extends OgoneProject {
       const { nodes } = o3;
       const proto: any = nodes.find((n: any) => n.nodeType === 1 && n.tagName.toLowerCase() === "proto");
       const texts = proto && proto.childNodes.filter((t, n) => t.nodeType === 3 && t.data.trim().length);
-      let numberSpaces = 0;
       if (texts) {
         /**
          * when a text with the same indentation
@@ -474,9 +478,9 @@ export default class OgoneUpdate extends OgoneProject {
           (match = text.data.match(/^\n{0,1}(?<spaces>[\s]*)(declare|default|def|compute|before\-each|case\s+([`'"])(.+?)(\3))\s*\:/i))
           if (match && match.groups) {
             const { spaces } = match.groups;
-            numberSpaces = spaces && spaces.length || 0;
+            o3.protocolOpeningSpacesAmount = spaces && spaces.length || 0;
           }
-          const reg = new RegExp(`(?<=\n{1}|^)(\\s){${numberSpaces}}(?<modifier>[\\S](.*?))(?:\\s*\\:)`, 'i')
+          const reg = new RegExp(`(?<=\\n{1}|^)(\\s){${o3.protocolOpeningSpacesAmount}}(?<modifier>[\\S](.*?))(?:\\s*\\:)`, 'i')
           while (proto
             &&  (match = data.match(reg))
             && match.groups) {
@@ -497,8 +501,8 @@ export default class OgoneUpdate extends OgoneProject {
                 message: `unsupported modifier: ${modifier}.`,
                 severity: DiagnosticSeverity.Error,
                 range: {
-                  start: o3.document.positionAt(text.startIndex + numberSpaces + index),
-                  end: o3.document.positionAt(text.startIndex + numberSpaces + index + modifier.trim().length)
+                  start: o3.document.positionAt(text.startIndex + o3.protocolOpeningSpacesAmount + index),
+                  end: o3.document.positionAt(text.startIndex + o3.protocolOpeningSpacesAmount + index + modifier.trim().length)
                 },
                 source: "otone",
               }]);
@@ -511,7 +515,7 @@ export default class OgoneUpdate extends OgoneProject {
            */
           const lines = dataIndent.split('\n');
           let start = 0;
-          const regIndent = new RegExp(`^(?!(\\s){${numberSpaces}})([\\S]*?)`, 'i');
+          const regIndent = new RegExp(`^(?!(\\s){${o3.protocolOpeningSpacesAmount}})([\\S]*?)`, 'i');
            for (let i = 0, a = lines.length; i < a; i++) {
             const line = lines[i];
             const match = line.match(regIndent);

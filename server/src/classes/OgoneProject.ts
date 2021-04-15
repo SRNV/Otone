@@ -26,8 +26,11 @@ import {
   CodeBlockWriter,
 } from 'ts-morph';
 import { getCSSLanguageService, getSCSSLanguageService, Stylesheet, ColorInformation } from 'vscode-css-languageservice';
+import { YAMLDocument, JSONSchema, LanguageSettings, getLanguageService } from 'vscode-yaml-languageservice';
+
 const cssLanguageService = getCSSLanguageService();
 const scssLanguageService = getSCSSLanguageService();
+const yamlLanguageService = getLanguageService({});
 export interface ComponentSources {
   proto: SourceFile;
   template: SourceFile;
@@ -36,26 +39,29 @@ export interface ComponentSources {
 export default class OgoneProject extends Collections {
   protected project?: Project;
   protected componentSources?: ComponentSources;
-  protected getCursorPosition(document: TextDocument, position: Position): number {
-    const o3 = this.getItem(document.uri);
-    if (o3) {
-      const { text } = o3;
-      const lines = text.split(/(?<=\n)/);
-      let cursor = 0;
-      lines
-        .slice(0, position.line + 1)
-        .forEach((line, i) => {
+  protected getTextCursorPosition(text: string, position: Position): number {
+    const lines = text.split(/(?<=\n)/);
+    let cursor = 0;
+    lines
+      .slice(0, position.line + 1)
+      .forEach((line, i) => {
         let chars = 0;
         while (chars < position.character) {
           chars++;
         }
         if (i === position.line) {
-          cursor +=+ chars;
+          cursor += + chars;
         } else {
-          cursor +=+ line.length;
+          cursor += + line.length;
         }
       });
-      return cursor;
+    return cursor;
+  }
+  protected getCursorPosition(document: TextDocument, position: Position): number {
+    const o3 = this.getItem(document.uri);
+    if (o3) {
+      const { text } = o3;
+      return this.getTextCursorPosition(text, position);
     }
     return 0;
   }
@@ -195,6 +201,11 @@ export default class OgoneProject extends Collections {
     }
     return '';
   }
+  getYAMLDocument(document: TextDocument, text: string): [YAMLDocument, TextDocument] {
+    const embeddedYAMLDocument = TextDocument.create(document.uri, 'yaml', document.version, text);
+    const yamlDoc = yamlLanguageService.parseYAMLDocument(embeddedYAMLDocument);
+    return [yamlDoc, embeddedYAMLDocument];
+  }
   getStylesheet(document: TextDocument, text: string): [Stylesheet, TextDocument] {
     const embeddedStyleDocument = TextDocument.create(document.uri, 'css', document.version, text);
     const stylesheet = cssLanguageService.parseStylesheet(embeddedStyleDocument);
@@ -204,7 +215,7 @@ export default class OgoneProject extends Collections {
    * start using CSS language service's completion
    * provide to it only the parts with CSS
    */
-   public doStyleCompletion(document: TextDocument): ReturnType<typeof cssLanguageService.doComplete> {
+  public doStyleCompletion(document: TextDocument): ReturnType<typeof cssLanguageService.doComplete> {
     const o3 = this.getItem(document.uri);
     const cursor = this.getCursorPosition(document, this.position);
     if (o3 && this.position) {
@@ -257,7 +268,7 @@ export default class OgoneProject extends Collections {
         }
         return !item.deprecated;
       });
-			return completeList;
+      return completeList;
     }
   }
   isInStyleNode(document: TextDocument) {
@@ -293,7 +304,7 @@ export default class OgoneProject extends Collections {
             .replace(/[^\n]/gi, ' ');
         } else {
           result += o3.text.slice(textnode.startIndex - result.length)
-          .replace(/[^\n]/gi, ' ');
+            .replace(/[^\n]/gi, ' ');
         }
         // add the css text
         result += textnode.data;
@@ -323,5 +334,109 @@ export default class OgoneProject extends Collections {
       return colors;
     }
     return [];
+  }
+  /**
+   * validate that all is correct in the style elements
+   */
+  validateStylesSheets(document: TextDocument) {
+    const o3 = this.getItem(document.uri);
+    if (o3) {
+      const [styleSheet, embedded] = this.getStylesheet(document, this.getCompleteCSS(document));
+      const result = scssLanguageService.doValidation(embedded, styleSheet, {
+        validate: true,
+      });
+      console.warn(result);
+      this.saveDiagnostics(result.filter((diagnostic) => {
+        return !(diagnostic.code === 'unknownAtRules'
+          && (diagnostic.message.endsWith('@const') || diagnostic.message.endsWith('@export')))
+      }));
+    }
+  }
+  /**
+   * should save the protocol modifiers
+   */
+  protected saveModifiers(document: TextDocument) {
+    const o3 = this.getItem(document.uri);
+    if (o3) {
+      // clear all the previous modifiers
+      o3.modifiers.splice(0);
+      // start parsing modifiers
+      const { nodes } = o3;
+      const proto: any = nodes.find((n: any) => n.nodeType === 1 && n.tagName.toLowerCase() === "proto");
+      const texts = proto && proto.childNodes.filter((t, n) => t.nodeType === 3 && t.data.trim().length);
+      if (texts) {
+        texts.forEach((text: any) => {
+          let match;
+          (match = text.data.match(/^\n{0,1}(?<spaces>[\s]*)(declare|default|def|compute|before\-each|case\s+([`'"])(.+?)(\3))\s*\:/i))
+          if (match && match.groups) {
+            const { spaces } = match.groups;
+            o3.protocolOpeningSpacesAmount = spaces && spaces.length || 0;
+          }
+          let data = text.data;
+          const reg = new RegExp(`(?:\n{1}|^)(?:\\s){${o3.protocolOpeningSpacesAmount}}(?=(?:case|default|def|declare|before-each|compute))`, 'mi');
+          const splittedProtocol = data.split(reg);
+          console.warn(splittedProtocol, splittedProtocol.length)
+          splittedProtocol.forEach((modification: string) => {
+            function renderMatch(match: RegExpMatchArray) {
+              if (match && match.groups) {
+                const [input] = match;
+                const { index } = match;
+                const { args, name } = match.groups;
+                const indexOfModification = data.indexOf(modification) + text.startIndex;
+                const endOfModification = indexOfModification + modification.length;
+                o3.modifiers.push({
+                  name,
+                  args,
+                  source: modification,
+                  content: modification.slice(input.length),
+                  position: {
+                    start: indexOfModification,
+                    end: endOfModification,
+                  }
+                });
+              }
+            }
+            const matchModifier = modification.match(/^(?<name>def|declare|default|compute|before-each)(?<args>.*?)\:/i);
+            const matchCaseModifier = modification.match(/^(?<name>case)(\s*)(['"])(?<args>.*?)(\3)\s*\:/i);
+            renderMatch(matchModifier);
+            renderMatch(matchCaseModifier);
+          })
+        });
+        console.warn(o3.modifiers)
+      }
+    }
+  }
+  protected async validateDefModifier(document: TextDocument) {
+    const o3 = this.getItem(document.uri);
+    if (o3) {
+      const defModifier = o3.modifiers.find((modifier) => modifier.name === 'def');
+      if (defModifier) {
+        const [yamlDocument, embeddedYamlDoc] = this.getYAMLDocument(document, defModifier.source);
+        try {
+          const diagnostics = await yamlLanguageService.doValidation(embeddedYamlDoc, yamlDocument);
+          diagnostics.forEach((diag) => {
+            const startCursor = this.getTextCursorPosition(defModifier.source, diag.range.start);
+            const endCursor = this.getTextCursorPosition(defModifier.source, diag.range.end);
+            console.warn(diag);
+            diag.range = Range.create(
+              document.positionAt(defModifier.position.start + startCursor),
+              document.positionAt(defModifier.position.start + endCursor),
+            );
+          })
+          this.saveDiagnostics(diagnostics);
+        } catch (err) {
+          this.saveDiagnostics([
+            {
+              severity: 1,
+              range: Range.create(
+                document.positionAt(defModifier.position.start),
+                document.positionAt(defModifier.position.end),
+              ),
+              message: `YAML Error Caught :\n${err.message}`,
+            }
+          ])
+        }
+      }
+    }
   }
 }
