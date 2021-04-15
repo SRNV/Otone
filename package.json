@@ -131,7 +131,7 @@
 			{
 				"label": "Ogone",
 				"uiTheme": "vs-dark",
-				"path": "./themes/Ogone-color-themea.json"
+				"path": "./themes/Ogone-color-theme.json"
 			}
 		],
 		"snippets": [
