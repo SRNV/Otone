@@ -29,7 +29,6 @@ export default class OgoneTreeDataProvider extends OgoneDocument implements Tree
     return element;
   }
   getChildren(element?: ComponentItem): Thenable<ComponentItem[]> {
-    console.warn(element);
     if (!this.workspaceRoot) {
       window.showInformationMessage('No dependency in empty workspace');
       return Promise.resolve([]);

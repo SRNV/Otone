@@ -16,7 +16,8 @@ import {
 	TextDocumentPositionParams,
 	TextDocumentSyncKind,
 	InitializeResult,
-	DocumentColorParams
+	DocumentColorParams,
+	Hover
 } from 'vscode-languageserver';
 
 import Ogone from './classes/Ogone';
@@ -57,6 +58,7 @@ connection.onInitialize((params: InitializeParams) => {
 	const result: InitializeResult = {
 		capabilities: {
 			colorProvider : true,
+			hoverProvider : true,
 			textDocumentSync: TextDocumentSyncKind.Full,
 			// Tell the client that this server supports code completion.
 			completionProvider: {
@@ -163,7 +165,7 @@ connection.onCompletion(
 		// which code complete got requested. For the example we ignore this
 		// info and always provide the same completion items.
 		ogoneExtension.updatePosition(_textDocumentPosition.position);
-		if (ogoneExtension.isInStyleNode(document)) {
+		if (ogoneExtension.isInStyleNode(document, _textDocumentPosition.position)) {
 			const cssComp = ogoneExtension.doStyleCompletion(document);
 			// @ts-ignore
 			return cssComp.items;
@@ -183,6 +185,19 @@ connection.onDocumentColor((params: DocumentColorParams): ColorInformation[] => 
 	const document = documents.get(params.textDocument.uri);
 	if (!document) return [];
 	return ogoneExtension.findDocumentColors(document);
+});
+connection.onHover(async (params: TextDocumentPositionParams) => {
+	if (!params) return;
+	const document = documents.get(params.textDocument.uri);
+	if (!document) return;
+	if (ogoneExtension.isInDefModifier(document, params.position)) {
+		const yamlHover = await ogoneExtension.doYAMLHover(document, params.position);
+		return yamlHover;
+	}
+	if (ogoneExtension.isInStyleNode(document, params.position)) {
+		const hover = ogoneExtension.doStyleHover(document, params.position);
+		return hover;
+	}
 });
 // This handler resolves additional information for the item selected in
 // the completion list.

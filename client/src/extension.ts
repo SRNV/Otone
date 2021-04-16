@@ -66,6 +66,7 @@ export function activate(context: ExtensionContext) {
     .then(() => {
       client.sendRequest('textDocument/documentColor');
       client.sendRequest('textDocument/colorPresentation');
+      client.sendRequest('textDocument/hover');
     })
   const config = workspace.getConfiguration();
   workspace.findFiles('**/*.o3').then((files) => {

@@ -822,12 +822,13 @@ export default class OgoneUpdate extends OgoneProject {
       const { nodes } = o3;
       const proto: any = nodes.find((n: any) => n.nodeType === 1 && n.tagName.toLowerCase() === "proto");
       if (proto && proto.attribs.type && proto.attribs.type.length && !this.supportedTypes.includes(proto.attribs.type)) {
+        const attribute = proto.attributesMap.get('type');
         this.saveDiagnostics([{
           message: `protocol type ${proto.attribs.type} is not supported`,
           severity: DiagnosticSeverity.Error,
           range: {
-            start: o3.document.positionAt(proto.startIndex),
-            end: o3.document.positionAt(proto.startIndex + 6)
+            start: o3.document.positionAt(attribute.position.start),
+            end: o3.document.positionAt(attribute.position.start + 4)
           },
           source: "otone",
         }]);

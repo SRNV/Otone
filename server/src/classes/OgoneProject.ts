@@ -17,6 +17,7 @@ import {
   ColorPresentation,
   Position,
   Range,
+  Hover,
 } from 'vscode-languageserver';
 import {
   ts,
@@ -271,11 +272,11 @@ export default class OgoneProject extends Collections {
       return completeList;
     }
   }
-  isInStyleNode(document: TextDocument) {
+  isInStyleNode(document: TextDocument, position: Position) {
     const o3 = this.getItem(document.uri);
-    const cursor = this.getCursorPosition(document, this.position);
+    const cursor = this.getCursorPosition(document, position);
     let result = false;
-    if (o3 && this.position) {
+    if (o3) {
       const allNodes = this.getAllNodes(document.uri);
       const styles = allNodes.filter((n: any) => n.nodeType === 1 && n.tagName.toLowerCase() === 'style');
       styles.forEach((node: any) => {
@@ -288,6 +289,20 @@ export default class OgoneProject extends Collections {
       });
     }
     return result;
+  }
+  /**
+   * if the position of the user is currently on the def modifier
+   */
+  isInDefModifier(document: TextDocument, position: Position) {
+    const o3 = this.getItem(document.uri);
+    const cursor = this.getCursorPosition(document, position);
+    if (o3) {
+      const defModifier = o3.modifiers.find((modifier) => modifier.name === 'def');
+      if (defModifier) {
+        return cursor <= defModifier.position.end && cursor >= defModifier.position.start;
+      }
+    }
+    return false;
   }
   public getCompleteCSS(document: TextDocument): string {
     const o3 = this.getItem(document.uri);
@@ -345,7 +360,6 @@ export default class OgoneProject extends Collections {
       const result = scssLanguageService.doValidation(embedded, styleSheet, {
         validate: true,
       });
-      console.warn(result);
       this.saveDiagnostics(result.filter((diagnostic) => {
         return !(diagnostic.code === 'unknownAtRules'
           && (diagnostic.message.endsWith('@const') || diagnostic.message.endsWith('@export')))
@@ -375,7 +389,6 @@ export default class OgoneProject extends Collections {
           let data = text.data;
           const reg = new RegExp(`(?:\n{1}|^)(?:\\s){${o3.protocolOpeningSpacesAmount}}(?=(?:case|default|def|declare|before-each|compute))`, 'mi');
           const splittedProtocol = data.split(reg);
-          console.warn(splittedProtocol, splittedProtocol.length)
           splittedProtocol.forEach((modification: string) => {
             function renderMatch(match: RegExpMatchArray) {
               if (match && match.groups) {
@@ -402,7 +415,6 @@ export default class OgoneProject extends Collections {
             renderMatch(matchCaseModifier);
           })
         });
-        console.warn(o3.modifiers)
       }
     }
   }
@@ -417,7 +429,6 @@ export default class OgoneProject extends Collections {
           diagnostics.forEach((diag) => {
             const startCursor = this.getTextCursorPosition(defModifier.source, diag.range.start);
             const endCursor = this.getTextCursorPosition(defModifier.source, diag.range.end);
-            console.warn(diag);
             diag.range = Range.create(
               document.positionAt(defModifier.position.start + startCursor),
               document.positionAt(defModifier.position.start + endCursor),
@@ -437,6 +448,29 @@ export default class OgoneProject extends Collections {
           ])
         }
       }
+    }
+  }
+  public async doYAMLHover(document: TextDocument, position: Position): Promise<Hover> {
+    const o3 = this.getItem(document.uri);
+    if (o3) {
+      const defModifier = o3.modifiers.find((modifier) => modifier.name === 'def');
+      if (defModifier) {
+        const cursor = this.getCursorPosition(document, position);
+        const [yamlDocument, embeddedYamlDoc] = this.getYAMLDocument(document, defModifier.source);
+        const hover = await yamlLanguageService.doHover(embeddedYamlDoc, document.positionAt(cursor - defModifier.position.start), yamlDocument);
+        return hover
+      }
+    }
+  }
+  public doStyleHover(document: TextDocument, position: Position): Hover {
+    const o3 = this.getItem(document.uri);
+    if (o3) {
+      const [styleSheet, embedded] = this.getStylesheet(document, this.getCompleteCSS(document));
+      const result = scssLanguageService.doHover(embedded, position, styleSheet, {
+        documentation: true,
+        references: true,
+      });
+      return result;
     }
   }
 }
