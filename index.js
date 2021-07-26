@@ -22,3 +22,7 @@ buildTmL(
   "./injections/deno/",
   process.cwd() + "/syntaxes/injection.deno-source.json",
 );
+buildTmL(
+  "./injections/compo/",
+  process.cwd() + "/syntaxes/injection.compo-source.json",
+);

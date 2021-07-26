@@ -198,6 +198,9 @@ connection.onHover(async (params: TextDocumentPositionParams) => {
 		const hover = ogoneExtension.doStyleHover(document, params.position);
 		return hover;
 	}
+	if (ogoneExtension.isInTemplate(document, params.position)) {
+		return ogoneExtension.doHTMLHover(document, params.position);
+	}
 });
 // This handler resolves additional information for the item selected in
 // the completion list.

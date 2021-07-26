@@ -13,6 +13,7 @@ import {
   window,
   Uri,
   Range,
+  SnippetString,
 } from 'vscode';
 import * as path from 'path';
 import * as fs from 'fs';
@@ -46,6 +47,9 @@ export default class OgoneCommands extends OgoneDocument {
     commands.registerCommand('otone.startHSESession', async () => {
       this.openWebviewSaveRequired();
     });
+    commands.registerCommand('otone.navigation.previous', async () => {
+      this.getPreviousFile();
+    });
     commands.registerCommand('otone.startHSESessionExperimental', async () => {
       this.openWebviewExperimentalOnType();
     });
@@ -57,6 +61,9 @@ export default class OgoneCommands extends OgoneDocument {
       if (infos) {
         this.createComponent(infos);
       }
+    });
+    commands.registerCommand('otone.action.create', async () => {
+      this.appendComponentToDocument();
     });
   }
   openWebviewSaveRequired(): void {
@@ -283,5 +290,38 @@ ${protoNode.trim()}
       name,
       pathToComponent,
     };
+  }
+  getPreviousFile() {
+    window.activeTextEditor.hide();
+  }
+  appendComponentToDocument() {
+    const active = window.activeTextEditor;
+    if (!active) return;
+    const document = active.document;
+    const text = document.getText();
+    active.insertSnippet(
+      new SnippetString(`
+component <$\{1:Name}$6>
+  <style>
+    div {
+      color: red;
+    }
+  </style>
+  <div --if(this.show)>
+    $\{ this.message }
+  </div>
+  <proto type=$\{3|app,component,async,router,store,gl|}>
+    declare:
+      public message: string = '$\{4|test,Hello Ogone,Hello World|}';
+      public show: boolean = $\{5|true,false|};
+    default: break;
+  </proto>
+</$\{1:Name}>
+`),
+      new Range(
+        document.positionAt(text.length),
+        document.positionAt(text.length),
+      )
+    )
   }
 }

@@ -109,7 +109,7 @@
                 },
                 {
                     "name": "comment.block",
-                    "match": "\\b(from|import|define)\\b"
+                    "match": "\\b(from|import)\\b"
                 },
                 {
                     "include": "#/src/ogone.require.vars.yml"

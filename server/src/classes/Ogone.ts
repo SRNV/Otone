@@ -52,6 +52,7 @@ export default class Ogone extends OgoneUpdate {
       assets: this.getAssets(nodes),
       protocolOpeningSpacesAmount: 0,
       modifiers: [],
+      diagnostics: [],
     };
     this.collection.set(document.uri, item);
     this.syncNodes(document.uri);

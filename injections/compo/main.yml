@@ -1,0 +1,10 @@
+patterns:
+  - include: "#main"
+scopeName: keyword.compose.o3
+injectionSelector: L:source.o3
+scope: source.o3
+repository:
+  main:
+    patterns:
+      - name: keyword.control
+        match: \b((export\s+){0,1}(component|controller|app|router|store|gl|async))(?=\s*\<)

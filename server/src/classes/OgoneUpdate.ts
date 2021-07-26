@@ -75,16 +75,13 @@ export default class OgoneUpdate extends OgoneProject {
   ];
   protected async update(document: TextDocument) {
     // reset diagnostics
-    this.diagnostics.splice(0);
+    this.resetDiagnostics(document);
     this.updateDocument(document);
     this.saveModifiers(document);
-    // now the document is updated
-    await this.readProject(document);
     // TODO implement a custom lexer for Ogone CSS
     // await this.validateStylesSheets(document);
     await this.validateDefModifier(document);
-    this.inspectForbiddenTextnodes(document);
-    this.inspectNoUnknownElementOnTopLevel(document);
+    // this.inspectNoUnknownElementOnTopLevel(document);
     this.inspectForbiddenDuplication(document);
     this.requiredLineBreakForProtoAndTemplate(document);
     this.requireLineBreakForLines(document);
@@ -92,14 +89,14 @@ export default class OgoneUpdate extends OgoneProject {
     this.getTrailingSpaces(document);
     this.checkEmptyForStatement(document);
     this.checkForStatementPattern(document);
-    this.checkWrongFlagAttributes(document);
-    this.requireLineBreakAfterAttributes(document);
+    // this.checkWrongFlagAttributes(document);
+    // this.requireLineBreakAfterAttributes(document);
     // asset's specific diagnostics
     await this.fileNotFound(document);
     this.getDeclaredComponentMultipleTime(document);
     this.requireExtensionForImportedComponent(document);
     this.uselessAssets(document);
-    this.unsupportedPatternInAsset(document);
+    // this.unsupportedPatternInAsset(document);
     // protcol's specific diagnostics
     // this.inspectForbiddenElementInsideProto(document);
     this.inspectProtocolTypes(document);
@@ -113,19 +110,11 @@ export default class OgoneUpdate extends OgoneProject {
     this.getUselessTemplate(document);
     this.getElementsSupport(document);
     this.getTextElementSupport(document);
+    // now the document is updated
+    // TODO fix ts-morph is creating files into working directory
+    // await this.readProject(document);
     // at the end send all diagnostics
     this.sendDiagnostics(document);
-  }
-  protected requireLineBreakAfterAttributes(document: TextDocument) {
-    const o3 = this.getItem(document.uri);
-    if (o3) {
-      const { text } = o3;
-      const allNodes = this.getAllNodes(document.uri);
-      allNodes.forEach((n: any) => {
-        const keys = Object.entries(n.attribs);
-        const spacesBeforeNode = text.slice(n.startIndex);
-      });
-    }
   }
   protected checkWrongFlagAttributes(document: TextDocument) {
     const o3 = this.getItem(document.uri);
@@ -138,7 +127,7 @@ export default class OgoneUpdate extends OgoneProject {
             if (!n.attributesMap) return;
             const attribute = n.attributesMap.get(key);
             if (key.startsWith('--') && attribute.type !== 'flag' && value.length) {
-              this.saveDiagnostics([{
+              this.saveDiagnostics(document, [{
                 message: `Unexpected: ${key} should be opened with curly braces`,
                 severity: DiagnosticSeverity.Error,
                 range: {
@@ -150,7 +139,7 @@ export default class OgoneUpdate extends OgoneProject {
             } else if (key.startsWith('--')
               && (!this.flags.includes(key)
                 && !this.flags.find((flag) => key.startsWith(`${flag}:`)))) {
-                  this.saveDiagnostics([{
+                  this.saveDiagnostics(document, [{
                     message: `Unexpected: ${key} is not a supported flag`,
                     severity: DiagnosticSeverity.Error,
                     range: {
@@ -164,6 +153,32 @@ export default class OgoneUpdate extends OgoneProject {
       })
     }
   }
+  protected setForStatementDescription(node: any, value: string): boolean {
+    const regItem = /^(?<item>[^\(\)\,]+?)\s+of\s+(?<array>(.+?))$/i;
+    const regItemAndId = /^\((?<item>.+?),\s*(?<id>\w+?)\)\s+of\s+(?<array>.+?)$/i;
+    const matchRegItemAndId = value.match(regItemAndId);
+    const matchRegItem = value.match(regItem);
+    if (matchRegItem && matchRegItem.groups) {
+      const { item, array } = matchRegItem.groups;
+      if (node.attributesMap && node.attributesMap.get('--for')) {
+        const attribute = node.attributesMap.get('--for');
+        attribute.data.item = item;
+        attribute.data.array = array;
+      }
+      return true;
+    }
+    if (matchRegItemAndId && matchRegItemAndId.groups) {
+      const { item, array, id } = matchRegItemAndId.groups;
+      if (node.attributesMap && node.attributesMap.get('--for')) {
+        const attribute = node.attributesMap.get('--for');
+        attribute.data.item = item;
+        attribute.data.array = array;
+        attribute.data.id = id;
+      }
+      return true;
+    }
+    return false;
+  }
   protected checkForStatementPattern(document: TextDocument) {
     const o3 = this.getItem(document.uri);
     if (o3) {
@@ -173,12 +188,9 @@ export default class OgoneUpdate extends OgoneProject {
         const keys = Object.entries(n.attribs);
         keys
           .map(([key, value]: [string, string]) => {
-            if (key === '--for' && (
-              !value.match(/^\((.+?),\s*(\w+?)\)\s+of\s+(.+?)$/gi)
-                && !value.match(/^(.+?)\s+of\s+(.+?)$/gi)
-            )) {
+            if (key === '--for' && !this.setForStatementDescription(n, value)) {
               const attribute = n.attributesMap.get(key);
-              this.saveDiagnostics([{
+              this.saveDiagnostics(document, [{
                 message: `Unexpected syntax: please follow one of these patterns:
               - <value> of <Array>
               - (<value>, <key>) of <Array>
@@ -205,7 +217,7 @@ export default class OgoneUpdate extends OgoneProject {
         keys
           .map(([key, value]: [string, string]) => {
             if (key === '--for' && !value.length) {
-              this.saveDiagnostics([{
+              this.saveDiagnostics(document, [{
                 message: `the for flag is empty, a value is required`,
                 severity: DiagnosticSeverity.Error,
                 range: {
@@ -232,7 +244,7 @@ export default class OgoneUpdate extends OgoneProject {
         const { componentName, importStatement } = groups;
         const { size } = componentSet;
         if (componentSet.add(componentName).size === size) {
-          this.saveDiagnostics([{
+          this.saveDiagnostics(document, [{
             message: `the component ${componentName} has already been declared. cannot redeclare the same name for a component.`,
             severity: DiagnosticSeverity.Error,
             range: {
@@ -244,7 +256,7 @@ export default class OgoneUpdate extends OgoneProject {
         }
 
         if (componentSet.add(componentName).size === size) {
-          this.saveDiagnostics([{
+          this.saveDiagnostics(document, [{
             message: `the component ${componentName} has already been declared. cannot redeclare the same name for a component.`,
             severity: DiagnosticSeverity.Error,
             range: {
@@ -266,7 +278,7 @@ export default class OgoneUpdate extends OgoneProject {
     for (let i = 0, a = lines.length; i < a; i++) {
       const line = lines[i];
       if (line.replace(/((['"])(.+?)(\2)|\/\/(.*?)(?=\n))/gi, '').length > 150) {
-        this.saveDiagnostics([{
+        this.saveDiagnostics(document, [{
           message: `too many characters on this line`,
           severity: DiagnosticSeverity.Warning,
           range: {
@@ -286,7 +298,7 @@ export default class OgoneUpdate extends OgoneProject {
     while ((match = text.match(reg))) {
       const [input] = match;
       const { index } = match;
-      this.saveDiagnostics([{
+      this.saveDiagnostics(document, [{
         message: `remove trailing space here`,
         severity: DiagnosticSeverity.Error,
         range: {
@@ -305,7 +317,7 @@ export default class OgoneUpdate extends OgoneProject {
       // require spaces
       allTextnodes.filter((textnode: any) => textnode.nodeType === 3 && !textnode.data.match(/^[\n\s]/i))
         .forEach((textnode: any) => {
-          this.saveDiagnostics([{
+          this.saveDiagnostics(document, [{
             message: `a space or a line break is required here`,
             severity: DiagnosticSeverity.Error,
             range: {
@@ -317,7 +329,7 @@ export default class OgoneUpdate extends OgoneProject {
         });
       allTextnodes.filter((textnode: any) => textnode.nodeType === 3 && !textnode.data.match(/[\n\s]$/i))
         .forEach((textnode: any) => {
-          this.saveDiagnostics([{
+          this.saveDiagnostics(document, [{
             message: `a space or a line break is required here`,
             severity: DiagnosticSeverity.Error,
             range: {
@@ -336,7 +348,7 @@ export default class OgoneUpdate extends OgoneProject {
       // for deprecated elements
       allnodes.filter((node: any) => HTMLElementDeprecatedTagNameMap.includes(node.tagName.toLowerCase()))
         .forEach((node: any) => {
-          this.saveDiagnostics([{
+          this.saveDiagnostics(document, [{
             message: `${node.tagName.toLowerCase()} is deprecated`,
             severity: DiagnosticSeverity.Information,
             range: {
@@ -355,7 +367,7 @@ export default class OgoneUpdate extends OgoneProject {
         && !HTMLElementTagNameMap.includes(node.name)
         || node.name.endsWith('-'))
         .forEach((node: any) => {
-          this.saveDiagnostics([{
+          this.saveDiagnostics(document, [{
             message: `${node.tagName.toLowerCase()} is not a supported element`,
             severity: DiagnosticSeverity.Error,
             range: {
@@ -377,7 +389,7 @@ export default class OgoneUpdate extends OgoneProject {
         const [input] = match;
         const { index, groups } = match;
         const { pathToAsset } = groups;
-        this.saveDiagnostics([{
+        this.saveDiagnostics(document, [{
           message: `you're trying to import a component as a module.\nPlease use the following syntax 'import component ... from '${pathToAsset}.o3'`,
           severity: DiagnosticSeverity.Error,
           range: {
@@ -399,6 +411,7 @@ export default class OgoneUpdate extends OgoneProject {
         /\/\/(.*?)(?=\n)/i,
         /\/\*([\s\S]*)+\*\//i,
         /import\s+(["'])(.+?)(\1)(;){0,1}/i,
+        /\bcomponent(?=\s*\<)/i,
         /import(\s+type|\s+component){0,1}\s+(.+?)\s+from\s+(["'])(.+?)(\3)(;){0,1}/i,
         //,
       ];
@@ -422,8 +435,8 @@ export default class OgoneUpdate extends OgoneProject {
           while ((match = assets.match(reg))) {
             let { index } = match;
             const [input] = match;
-            this.saveDiagnostics([{
-              message: `Unexpected ${input.length === 1 ? input[0] : 'token'}. only import statements and comments are supported here.`,
+            this.saveDiagnostics(document, [{
+              message: `Unexpected ${input.length === 1 ? input[0] : 'token'}.`,
               severity: DiagnosticSeverity.Error,
               range: {
                 start: o3.document.positionAt(index),
@@ -448,7 +461,7 @@ export default class OgoneUpdate extends OgoneProject {
         && text
         && text.data.trim().length
         && !(match = text.data.match(/^([\s\n]*)(declare|default|def|compute|before\-each|case\s+([`'"])(.+?)(\3))\s*\:/i))) {
-        this.saveDiagnostics([{
+        this.saveDiagnostics(document, [{
           message: `unexpected start of the protocol. only def, default, declare, compute, before-each or a case are supported as modifiers.`,
           severity: DiagnosticSeverity.Error,
           range: {
@@ -497,7 +510,7 @@ export default class OgoneUpdate extends OgoneProject {
                 'case',
                 'declare',
               ].includes(modifier)) {
-              this.saveDiagnostics([{
+              this.saveDiagnostics(document, [{
                 message: `unsupported modifier: ${modifier}.`,
                 severity: DiagnosticSeverity.Error,
                 range: {
@@ -523,7 +536,7 @@ export default class OgoneUpdate extends OgoneProject {
               const [input] = match;
               const { index } = match;
               if (text.startIndex + dataIndent.indexOf(line) + index !== text.startIndex) {
-                this.saveDiagnostics([{
+                this.saveDiagnostics(document, [{
                   message: `protocol is broken here, please respect the indentation of the first modifier.`,
                   severity: DiagnosticSeverity.Error,
                   range: {
@@ -551,7 +564,7 @@ export default class OgoneUpdate extends OgoneProject {
         && (match = assets.match(/^\s+$/i))) {
         const [input] = match;
         const { index } = match;
-        this.saveDiagnostics([{
+        this.saveDiagnostics(document, [{
           message: `useless spaces starting the file`,
           severity: DiagnosticSeverity.Error,
           range: {
@@ -580,7 +593,7 @@ export default class OgoneUpdate extends OgoneProject {
         if (pathToAsset
           && pathToAsset.startsWith('.')
           && !fs.existsSync(newPath)) {
-          this.saveDiagnostics([{
+          this.saveDiagnostics(document, [{
             message: `unreachable file: this file doesn't exist`,
             severity: DiagnosticSeverity.Error,
             range: {
@@ -592,7 +605,7 @@ export default class OgoneUpdate extends OgoneProject {
         } else if (pathToAsset
           && pathToAsset.startsWith('@/')
           && !fs.existsSync(pathToAsset.replace('@/', ''))) {
-          this.saveDiagnostics([{
+          this.saveDiagnostics(document, [{
             message: `unreachable file: this file doesn't exist`,
             severity: DiagnosticSeverity.Error,
             range: {
@@ -611,7 +624,7 @@ export default class OgoneUpdate extends OgoneProject {
     if (o3) {
       const { text } = o3;
       if (!text.endsWith('\n')) {
-        this.saveDiagnostics([{
+        this.saveDiagnostics(document, [{
           message: `a line break at the end of the file is required`,
           severity: DiagnosticSeverity.Error,
           range: {
@@ -625,7 +638,7 @@ export default class OgoneUpdate extends OgoneProject {
       if ((match = text.match(/(\n){2,}$/gi))) {
         const [input] = match;
         const { index } = match;
-        this.saveDiagnostics([{
+        this.saveDiagnostics(document, [{
           message: `multiple line break at the end of the file`,
           severity: DiagnosticSeverity.Error,
           range: {
@@ -652,7 +665,7 @@ export default class OgoneUpdate extends OgoneProject {
       if (proto
         && !text[proto.startIndex -1]?.match(/\n/)
         && proto.startIndex -1 > 0) {
-        this.saveDiagnostics([{
+        this.saveDiagnostics(document, [{
           message: `a line break is required before the proto element`,
           severity: DiagnosticSeverity.Warning,
           range: {
@@ -665,7 +678,7 @@ export default class OgoneUpdate extends OgoneProject {
       if (template
         && !text[template.startIndex -1]?.match(/\n/)
         && template.startIndex -1 > 0) {
-        this.saveDiagnostics([{
+        this.saveDiagnostics(document, [{
           message: `a line break is required before the template element`,
           severity: DiagnosticSeverity.Warning,
           range: {
@@ -675,8 +688,8 @@ export default class OgoneUpdate extends OgoneProject {
           source: "otone",
         }]);
       }
-      if (lastProtoChild && !text[lastProtoChild.endIndex]?.match(/\n/)) {
-        this.saveDiagnostics([{
+      if (false && lastProtoChild && !text[lastProtoChild.endIndex]?.match(/\n/)) {
+        this.saveDiagnostics(document, [{
           message: `a line break is required at the end of the protocol`,
           severity: DiagnosticSeverity.Warning,
           range: {
@@ -689,7 +702,7 @@ export default class OgoneUpdate extends OgoneProject {
       if (lastTemplateChild
             && !(lastTemplateChild.nodeType === 3
               && lastTemplateChild.data.match(/\n$/gi))) {
-        this.saveDiagnostics([{
+        this.saveDiagnostics(document, [{
           message: `a line break is required after this element`,
           severity: DiagnosticSeverity.Warning,
           range: {
@@ -708,7 +721,7 @@ export default class OgoneUpdate extends OgoneProject {
       const proto: any = nodes.find((n: any) => n.nodeType === 1 && n.tagName.toLowerCase() === "proto");
       const template: any = nodes.find((n: any) => n.nodeType === 1 && n.tagName.toLowerCase() === "template");
       if (proto && template && ['controller'].includes(proto.attribs.type)) {
-        this.saveDiagnostics([{
+        this.saveDiagnostics(document, [{
           message: `template element is not allowed in ${proto.attribs.type} components`,
           severity: DiagnosticSeverity.Error,
           range: {
@@ -732,7 +745,7 @@ export default class OgoneUpdate extends OgoneProject {
           || template.childNodes.length === 1
           && template.childNodes[0].nodeType === 3
           && !template.childNodes[0].data.trim().length)) {
-        this.saveDiagnostics([{
+        this.saveDiagnostics(document, [{
           message: `empty template`,
           severity: DiagnosticSeverity.Warning,
           range: {
@@ -752,7 +765,7 @@ export default class OgoneUpdate extends OgoneProject {
       if (proto
         && ['controller', 'store'].includes(proto.attribs.type)
         && (proto.attribs.namespace === undefined || !proto.attribs.namespace.length)) {
-        this.saveDiagnostics([{
+        this.saveDiagnostics(document, [{
           message: `namespace is required for ${proto.attribs.type} components`,
           severity: DiagnosticSeverity.Error,
           range: {
@@ -776,7 +789,7 @@ export default class OgoneUpdate extends OgoneProject {
           .filter(key => !validAttributes.includes(key))
           .map((key) => {
             const attribute = template.attributesMap.get(key);
-            this.saveDiagnostics([{
+            this.saveDiagnostics(document, [{
               message: `template attribute '${key}' is not supported, 'is' attribute is supported`,
               severity: DiagnosticSeverity.Error,
               range: {
@@ -803,7 +816,7 @@ export default class OgoneUpdate extends OgoneProject {
             || (!['conroller', 'store'].includes(proto.attribs.type) && !validAttributes.includes(key)))
           .map((key) => {
             const attribute = proto.attributesMap.get(key);
-            this.saveDiagnostics([{
+            this.saveDiagnostics(document, [{
               message: `protocol attribute '${key}' is not supported`,
               severity: DiagnosticSeverity.Error,
               range: {
@@ -823,7 +836,7 @@ export default class OgoneUpdate extends OgoneProject {
       const proto: any = nodes.find((n: any) => n.nodeType === 1 && n.tagName.toLowerCase() === "proto");
       if (proto && proto.attribs.type && proto.attribs.type.length && !this.supportedTypes.includes(proto.attribs.type)) {
         const attribute = proto.attributesMap.get('type');
-        this.saveDiagnostics([{
+        this.saveDiagnostics(document, [{
           message: `protocol type ${proto.attribs.type} is not supported`,
           severity: DiagnosticSeverity.Error,
           range: {
@@ -844,7 +857,7 @@ export default class OgoneUpdate extends OgoneProject {
         proto.childNodes
             .filter((n: any) => n.nodeType === 1)
             .map((n: any) => {
-              this.saveDiagnostics([{
+              this.saveDiagnostics(document, [{
                 message: `unsupported <${n.tagName}> found inside <proto>`,
                 severity: DiagnosticSeverity.Error,
                 range: {
@@ -867,7 +880,7 @@ export default class OgoneUpdate extends OgoneProject {
       );
       if (notAllowedElementsOnTopLevel.length) {
         notAllowedElementsOnTopLevel.forEach((element: any) => {
-          this.saveDiagnostics([{
+          this.saveDiagnostics(document, [{
             message: `${element.tagName} has to be inserted into the template, as it is not supported on top level. template (XML), proto (typescript) are supported`,
             severity: DiagnosticSeverity.Error,
             range: {
@@ -888,7 +901,7 @@ export default class OgoneUpdate extends OgoneProject {
       const templates = nodes.filter((node: any) => node.tagName && node.tagName.toLowerCase() === "template")
       if (protos.length > 1) {
         protos.forEach((proto) => {
-          this.saveDiagnostics([{
+          this.saveDiagnostics(document, [{
             severity: DiagnosticSeverity.Error,
             message: `Cannot set multiple protocol`,
             range: {
@@ -901,7 +914,7 @@ export default class OgoneUpdate extends OgoneProject {
       }
       if (templates.length > 1) {
         templates.forEach((template) => {
-          this.saveDiagnostics([{
+          this.saveDiagnostics(document, [{
             severity: DiagnosticSeverity.Error,
             message: `Cannot set multiple template`,
             range: {
@@ -912,32 +925,6 @@ export default class OgoneUpdate extends OgoneProject {
           }]);
         });
       }
-    }
-  }
-  protected inspectForbiddenTextnodes(document: TextDocument) {
-    const o3 = this.getItem(document.uri);
-    if (o3) {
-      const { nodes } = o3;
-      const forbiddenTextNodes = nodes.filter((node, id) =>
-        node.nodeType === 3
-        && id !== 0
-        && (node as any).nodeValue.trim().length
-      );
-      forbiddenTextNodes.forEach((node) => {
-        if ((node as any).nodeValue && (node as any).nodeValue.trim().length) {
-          this.saveDiagnostics([
-            {
-              severity: DiagnosticSeverity.Error,
-              message: `forbidden textnode: ${(node as any).nodeValue}`,
-              range: {
-                start: o3.document.positionAt(node.startIndex),
-                end: o3.document.positionAt(node.endIndex + 1)
-              },
-              source: 'otone',
-            }
-          ]);
-        }
-      });
     }
   }
   protected updateDocument(document: TextDocument) {

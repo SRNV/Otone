@@ -24,6 +24,7 @@ import OgoneDocumentColor from './OgoneDocumentColor';
 import OgoneTreeDataProvider from './OgoneTreeDataProvider';
 import OgoneDocumentHover from './OgoneDocumentHover';
 import OgoneDocumentScriptHover from './OgoneDocumentScriptHover';
+import OgoneDocumentCodeLens from './OgoneDocumentCodeLens';
 import OgoneDocumentSignatureHelpProvider from './OgoneDocumentSignatureHelpProvider';
 
 export interface OgoneClientConstructorOptions {
@@ -45,6 +46,7 @@ export default class OgoneClient extends OgoneDocument {
     languages.registerSignatureHelpProvider('ogone', new OgoneDocumentSignatureHelpProvider({}));
     // get definitions
     // languages.registerDefinitionProvider('ogone', new OgoneDocumentDefinitionProvider({}));
+    languages.registerCodeLensProvider('ogone', new OgoneDocumentCodeLens({}));
 
   }
 }

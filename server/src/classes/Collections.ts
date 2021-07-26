@@ -264,9 +264,11 @@ export default class Collections {
         n.attributesMap = new Map(entries.map(([key, value]: [string, string]) => {
           const item = {
             name: key.startsWith('{') ? '--spread' : urlencode.decode(key),
+            source: '',
             type: key.startsWith('{') ?
               'spread' :
-              key.startsWith('--') && value.startsWith('{')?
+              key.startsWith('--') && (value.startsWith('{')
+                || !value.length)?
                 'flag' :
                 value.startsWith('{') ?
                   'property' :
@@ -278,7 +280,8 @@ export default class Collections {
             position: {
               start: 0,
               end: 0,
-            }
+            },
+            data: {},
           };
           /**
            * start decoding and getting attributes position
@@ -299,6 +302,7 @@ export default class Collections {
             item.position.start = startText.indexOf(realKey);
             item.position.end = startText.indexOf(realKey) + realKey.length;
             startText = startText.replace(realKey, ' '.repeat(realKey.length));
+            item.value = realKey.replace(/(^\{|\}$)/gi, '');
           } else if (item.type === 'normal' && !value.length) {
             const complete = `${realKey}`;
             item.position.start = startText.indexOf(complete);
@@ -320,10 +324,19 @@ export default class Collections {
            */
           item.position.start += + n.startIndex + paddingTagName;
           item.position.end += + n.startIndex + paddingTagName;
+          item.source = text.slice(item.position.start, item.position.end);
           return [item.name, item];
         })) as Map<string, {
           type: "normal" | "flag" | "property" | "spread";
           value: string;
+          source: string;
+          /**
+           * to provide more data
+           * through the attribute
+           */
+          data: {
+            [k: string]: any
+          };
           position: {
             start: number;
             end: number;
