@@ -260,7 +260,7 @@
 	},
 	"dependencies": {
 		"any-json": "^3.1.0",
-		"express": "^4.17.1",
+		"express": "^4.17.3",
 		"nodemon": "^2.0.4",
 		"supports-color": "^8.0.0"
 	},
