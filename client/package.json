@@ -16,7 +16,7 @@
 	"dependencies": {
 		"@types/express": "^4.17.11",
 		"axios": "^0.21.1",
-		"express": "^4.17.1",
+		"express": "^4.17.3",
 		"htmlparser2": "^4.1.0",
 		"jsdoc-api": "^6.0.0",
 		"koa": "^2.13.1",
